@@ -2,15 +2,17 @@
 # -*- coding: utf-8 -*-
 
 # =============================================================================
-# style.py: STYLE FOR VISUALISATION
+# style.py: STYLE GUIDE FOR VISUALISATION
 #
-# Author: Mike Shengbo Wang
-# Created: 2019-02-26
+# Author: MS Wang
+# Created: 2019-03
 # =============================================================================
 
-r"""Provide style guide for visualisation.
-"""
+"""Provide style guide for visualisation."""
 
+# =============================================================================
+# EXECUTION
+# =============================================================================
 
 mplstyle = {
     # Text
@@ -29,8 +31,8 @@ mplstyle = {
 
     # Line styles
     'lines.linewidth': 2,
-    'lines.antialiased': True,
     'lines.markersize': 6,
+    'lines.antialiased': True,
 
     # Ticks
     'xtick.major.size': 5,
@@ -60,10 +62,11 @@ mplstyle = {
     'legend.loc': 'best',
 
     # Figure
-    'figure.figsize': [6,4],
+    'figure.figsize': [8,4.5],
     'figure.titlesize': 'large',
 
     # Saving figures
     'savefig.bbox': 'tight',
-    'savefig.format': 'pdf'
+    'savefig.format': 'pdf',
+    'savefig.transparent': True
 }
