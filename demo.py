@@ -17,7 +17,7 @@
 import numpy as np
 
 from matplotlib import pyplot as plt
-from nbodykit.lab import FFTPower
+from nbodykit.lab import FFTPower, UniformCatalog
 from nbodykit.source.catalog import CSVCatalog
 
 from style import mplstyle
@@ -89,6 +89,7 @@ def select_to_prob(x, prob_density, *args):
 
 # Read catalogue from file
 file = './Data/BigMDPL_RockstarHalo_z1.0.txt'
+nbar = 1.5e-3
 boxsize = 2500
 nmesh = 256
 
@@ -99,7 +100,10 @@ clog_orig['Position'] = np.array([clog_orig['x'],
                                   clog_orig['z']
                                   ]).T
 
-mesh_orig = clog_orig.to_mesh(BoxSize=boxsize, Nmesh=nmesh, window='tsc',
+#clog_orig = UniformCatalog(nbar, boxsize)
+#clog_orig['x'] = clog_orig.compute(clog_orig['Position'])[:,0]
+
+mesh_orig = clog_orig.to_mesh(BoxSize=boxsize, Nmesh=nmesh, resampler='tsc',
                               compensated=True, interlaced=True
                               )
 
@@ -109,7 +113,7 @@ clog_new['Selection'] = select_to_prob(clog_orig.compute(clog_orig['x']),
                                        sloped_probability, 0, boxsize, -0.05
                                        )  # use specified probabiltiy density
 
-mesh_new = clog_new.to_mesh(BoxSize=boxsize, Nmesh=nmesh, window='tsc',
+mesh_new = clog_new.to_mesh(BoxSize=boxsize, Nmesh=nmesh, resampler='tsc',
                             compensated=True, interlaced=True
                             )
 
@@ -123,10 +127,11 @@ k_new = power1d_new['k']
 Pk_new = power1d_new['power'] - power1d_new.attrs['shotnoise']
 
 plt.style.use(mplstyle)
+plt.close('all')
 plt.figure('Power comparison')
 plt.loglog(k_orig, Pk_orig.real, '-k', marker='+', label='original')
 plt.loglog(k_new, Pk_new.real, '--r', marker='x', label='shuffled')
 plt.legend()
-plt.xlabel(r'$k$ [$h/\text{Mpc}$]')
-plt.ylabel(r'$P(k, z=1.0)$ [$(\text{Mpc}/h)^3$]')
+plt.xlabel(r'$k$ [$h/\mathrm{Mpc}$]')
+plt.ylabel(r'$P(k, z=1.0)$ [$(\mathrm{Mpc}/h)^3$]')
 plt.savefig('./Output/power1d_comparison.pdf')
