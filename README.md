@@ -1,1 +1,3 @@
-# ``HorizonGRound``: Investigate GR background in galaxy clustering near horizon scales
+# ``HorizonGRound``
+
+Investigate GR effects in galaxy-clustering background near horizon scales.
