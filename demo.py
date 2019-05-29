@@ -14,6 +14,8 @@
 # LIBRARY
 # =============================================================================
 
+import sys
+
 import numpy as np
 
 from matplotlib import pyplot as plt
@@ -82,14 +84,20 @@ def select_to_prob(x, prob_density, *args, **kargs):
 # EXECUTION
 # =============================================================================
 
+# Initialis input parameters
+# -----------------------------------------------------------------------------
+
+try:  # attempt to read from command line
+    nbar, nmesh = float(sys.argv[1]), float(sys.argv[2])
+except:  # resort to defaults
+    nbar, nmesh = 5e-3, 256
+    sys.argv.extend([str(nbar), str(nmesh)])
+
+
 # Read catalogue information/set up cosmology
 # -----------------------------------------------------------------------------
 
-nbar = 5e-3
-nmesh = 512
 bias = 2
-boxsize = 600
-
 cosmo = cosmology.Planck15
 Plin = cosmology.LinearPower(cosmo, redshift=0., transfer="CLASS")
 L = cosmo.comoving_distance(0.2)
@@ -101,7 +109,7 @@ L = cosmo.comoving_distance(0.2)
 original_catalogue = LogNormalCatalog(Plin, nbar, bias=bias,
                                       BoxSize=L, Nmesh=nmesh
                                       )
-#original_catalogue = UniformCatalog(nbar, boxsize)
+#original_catalogue = UniformCatalog(nbar, boxsize=600)
 
 original_mesh = original_catalogue.to_mesh(Nmesh=nmesh, resampler='tsc',
                                            compensated=True, interlaced=True
@@ -111,19 +119,17 @@ original_mesh = original_catalogue.to_mesh(Nmesh=nmesh, resampler='tsc',
 # New catalogue
 # -----------------------------------------------------------------------------
 
-new_catalogue = LogNormalCatalog(Plin, nbar, bias=bias,
-                                 BoxSize=L, Nmesh=nmesh,
+new_catalogue = LogNormalCatalog(Plin, nbar, bias=bias, BoxSize=L, Nmesh=nmesh,
                                  seed=original_catalogue.attrs['seed']
                                  )
-#new_catalogue = UniformCatalog(nbar, boxsize,
+#new_catalogue = UniformCatalog(nbar, boxsize=600,
 #                               seed=original_catalogue.attrs['seed']
 #                               )
 
 # Choose x-axis as LOS and use specified probabiltiy density
-new_catalogue['los'] = new_catalogue['Position'][:,0]
-new_catalogue['Selection'] = select_to_prob(new_catalogue['los'],
+new_catalogue['Selection'] = select_to_prob(new_catalogue['Position'][:,0],
                                             sloped_probability, 0, L,
-                                            slope=-0.1
+                                            slope=-0.2
                                             )
 
 new_mesh = new_catalogue.to_mesh(Nmesh=nmesh, resampler='tsc', compensated=True,
@@ -145,9 +151,9 @@ plt.style.use(mplstyle)
 plt.close('all')
 plt.figure('Power multipole comparison')
 
-plt.loglog(k_orig, bias**2*Plin(k_orig), ':', label='input')
-plt.loglog(k_orig, P0_orig.real, '-+', label='original')
-plt.loglog(k_new, P0_new.real, '-x', label='changed')
+plt.loglog(k_orig, bias**2*Plin(k_orig), ':', label=r'input')
+plt.loglog(k_orig, P0_orig.real, '-+', label=r'original')
+plt.loglog(k_new, P0_new.real, '-x', label=r'changed')
 
 plt.legend()
 plt.xlabel(r'$k$ [$h/\textrm{Mpc}$]')
