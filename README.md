@@ -1,3 +1,3 @@
 # ``HorizonGRound``
 
-Investigate GR effects in galaxy-clustering background near horizon scales.
+Investigate general relativistic effects through galaxy clustering background.
