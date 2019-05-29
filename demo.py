@@ -17,8 +17,7 @@
 import numpy as np
 
 from matplotlib import pyplot as plt
-from nbodykit.lab import FFTPower, UniformCatalog
-from nbodykit.source.catalog import CSVCatalog
+from nbodykit.lab import cosmology, FFTPower, LogNormalCatalog, UniformCatalog
 
 from style import mplstyle
 
@@ -28,7 +27,7 @@ from style import mplstyle
 # =============================================================================
 
 def sloped_probability(x, xmin, xmax, slope=-0.5):
-    """Linear probability density given a slope.
+    """Linear probability density given a slope, normalised to its maximum.
 
     Parameters
     ----------
@@ -48,17 +47,12 @@ def sloped_probability(x, xmin, xmax, slope=-0.5):
     assert((xmin < x).all() and (x < xmax).all())  # check variables in domain
     assert(-1 < slope < 0)  # assert gentle negative slop
 
-    # Compute density
-    density = 1 + slope * (x-xmin) / (xmax-xmin)
-
-    # Normalise probability
-    normalisation = (1+(1+slope)) * (xmax-xmin) / 2
-    density /= normalisation
+    density = 1 + slope * (x-xmin) / (xmax-xmin)  # compute (normalised) density
 
     return density
 
 
-def select_to_prob(x, prob_density, *args):
+def select_to_prob(x, prob_density, *args, **kargs):
     """Random selection given a probability density function.
 
     Parameters
@@ -68,70 +62,94 @@ def select_to_prob(x, prob_density, *args):
     prob_density : function
         Probability density function
 
-    ``*args`` are additional arguments to be passed to :func:`prob_density`.
+    ``*args``, ``**kargs`` are additional arguments to be passed to
+    :func:`prob_density`.
 
     Returns
     -------
-    decision : bool, array_like
+    selection : bool, array_like
         Selection value
     """
 
     assert(np.squeeze(x).ndim == 1)  # check variable input is a flat array
 
-    decision = np.random.rand(len(x)) < prob_density(x, *args)
+    selection = np.random.rand(len(x)) < prob_density(x, *args, **kargs)
 
-    return decision
+    return selection
 
 
 # =============================================================================
 # EXECUTION
 # =============================================================================
 
-# Read catalogue from file
-file = './Data/BigMDPL_RockstarHalo_z1.0.txt'
-nbar = 1.5e-3
-boxsize = 2500
-nmesh = 256
+# Read catalogue information/set up cosmology
+# -----------------------------------------------------------------------------
+
+nbar = 5e-3
+nmesh = 512
+bias = 2
+boxsize = 600
+
+cosmo = cosmology.Planck15
+Plin = cosmology.LinearPower(cosmo, redshift=0., transfer="CLASS")
+L = cosmo.comoving_distance(0.2)
+
 
 # Original catalogue
-clog_orig = CSVCatalog(file, ['mass', 'pid', 'x', 'y', 'z', 'vx', 'vy', 'vz'])
-clog_orig['Position'] = np.array([clog_orig['x'],
-                                  clog_orig['y'],
-                                  clog_orig['z']
-                                  ]).T
+# -----------------------------------------------------------------------------
 
-#clog_orig = UniformCatalog(nbar, boxsize)
-#clog_orig['x'] = clog_orig.compute(clog_orig['Position'])[:,0]
+original_catalogue = LogNormalCatalog(Plin, nbar, bias=bias,
+                                      BoxSize=L, Nmesh=nmesh
+                                      )
+#original_catalogue = UniformCatalog(nbar, boxsize)
 
-mesh_orig = clog_orig.to_mesh(BoxSize=boxsize, Nmesh=nmesh, resampler='tsc',
-                              compensated=True, interlaced=True
-                              )
+original_mesh = original_catalogue.to_mesh(Nmesh=nmesh, resampler='tsc',
+                                           compensated=True, interlaced=True
+                                           )
 
-# Reselect catalogue
-clog_new = clog_orig.copy()
-clog_new['Selection'] = select_to_prob(clog_orig.compute(clog_orig['x']),
-                                       sloped_probability, 0, boxsize, -0.05
-                                       )  # use specified probabiltiy density
 
-mesh_new = clog_new.to_mesh(BoxSize=boxsize, Nmesh=nmesh, resampler='tsc',
-                            compensated=True, interlaced=True
-                            )
+# New catalogue
+# -----------------------------------------------------------------------------
+
+new_catalogue = LogNormalCatalog(Plin, nbar, bias=bias,
+                                 BoxSize=L, Nmesh=nmesh,
+                                 seed=original_catalogue.attrs['seed']
+                                 )
+#new_catalogue = UniformCatalog(nbar, boxsize,
+#                               seed=original_catalogue.attrs['seed']
+#                               )
+
+# Choose x-axis as LOS and use specified probabiltiy density
+new_catalogue['los'] = new_catalogue['Position'][:,0]
+new_catalogue['Selection'] = select_to_prob(new_catalogue['los'],
+                                            sloped_probability, 0, L,
+                                            slope=-0.1
+                                            )
+
+new_mesh = new_catalogue.to_mesh(Nmesh=nmesh, resampler='tsc', compensated=True,
+                                 interlaced=True
+                                 )
 
 # Compute FFT power
-power1d_orig = FFTPower(mesh_orig, mode='1d').power
-power1d_new = FFTPower(mesh_new, mode='1d').power
+# -----------------------------------------------------------------------------
 
-k_orig = power1d_orig['k']
-Pk_orig = power1d_orig['power'] - power1d_orig.attrs['shotnoise']
-k_new = power1d_new['k']
-Pk_new = power1d_new['power'] - power1d_new.attrs['shotnoise']
+poles_orig = FFTPower(original_mesh, mode='2d', los=[1,0,0], poles=[0]).poles
+poles_new = FFTPower(new_mesh, mode='2d', los=[1,0,0], poles=[0]).poles
+
+k_orig = poles_orig['k']
+P0_orig = poles_orig['power_0'] - poles_orig.attrs['shotnoise']
+k_new = poles_new['k']
+P0_new = poles_new['power_0'] - poles_new.attrs['shotnoise']
 
 plt.style.use(mplstyle)
 plt.close('all')
-plt.figure('Power comparison')
-plt.loglog(k_orig, Pk_orig.real, '-k', marker='+', label='original')
-plt.loglog(k_new, Pk_new.real, '--r', marker='x', label='shuffled')
+plt.figure('Power multipole comparison')
+
+plt.loglog(k_orig, bias**2*Plin(k_orig), ':', label='input')
+plt.loglog(k_orig, P0_orig.real, '-+', label='original')
+plt.loglog(k_new, P0_new.real, '-x', label='changed')
+
 plt.legend()
-plt.xlabel(r'$k$ [$h/\mathrm{Mpc}$]')
-plt.ylabel(r'$P(k, z=1.0)$ [$(\mathrm{Mpc}/h)^3$]')
-plt.savefig('./Output/power1d_comparison.pdf')
+plt.xlabel(r'$k$ [$h/\textrm{Mpc}$]')
+plt.ylabel(r'$\hat{P}_0(k)$ [$(\textrm{Mpc}/h)^3$]')
+plt.savefig('./Output/Lognormal_monopole_comparison.pdf')
