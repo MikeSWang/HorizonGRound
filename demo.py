@@ -19,7 +19,7 @@ import sys
 import numpy as np
 
 from matplotlib import pyplot as plt
-from nbodykit.lab import cosmology, FFTPower, LogNormalCatalog, UniformCatalog
+from nbodykit.lab import cosmology, FFTPower, LogNormalCatalog, TaskManager
 
 from style import mplstyle
 
@@ -84,14 +84,14 @@ def select_to_prob(x, prob_density, *args, **kargs):
 # EXECUTION
 # =============================================================================
 
-# Initialis input parameters
+# Initialise input parameters
 # -----------------------------------------------------------------------------
 
 try:  # attempt to read from command line
-    nbar, nmesh = float(sys.argv[1]), float(sys.argv[2])
+    niter, nbar, nmesh = int(sys.argv[1]), float(sys.argv[2]), float(sys.argv[3])
 except:  # resort to defaults
-    nbar, nmesh = 5e-3, 256
-    sys.argv.extend([str(nbar), str(nmesh)])
+    niter, nbar, nmesh = 10, 5e-3, 256
+    sys.argv.extend([str(niter), str(nbar), str(nmesh)])
 
 
 # Read catalogue information/set up cosmology
@@ -103,49 +103,60 @@ Plin = cosmology.LinearPower(cosmo, redshift=0., transfer="CLASS")
 L = cosmo.comoving_distance(0.2)
 
 
-# Original catalogue
-# -----------------------------------------------------------------------------
+with TaskManager(cpus_per_task=1, use_all_cpus=True) as tm:
+    for run in tm.iterate(range(niter)):
+        # Original catalogue
+        # ---------------------------------------------------------------------
 
-original_catalogue = LogNormalCatalog(Plin, nbar, bias=bias,
-                                      BoxSize=L, Nmesh=nmesh
-                                      )
-#original_catalogue = UniformCatalog(nbar, boxsize=600)
+        original_catalogue = LogNormalCatalog(Plin, nbar, bias=bias,
+                                              BoxSize=L, Nmesh=nmesh
+                                              )
+        #original_catalogue = UniformCatalog(nbar, boxsize=600)
 
-original_mesh = original_catalogue.to_mesh(Nmesh=nmesh, resampler='tsc',
-                                           compensated=True, interlaced=True
-                                           )
+        original_mesh = original_catalogue.to_mesh(Nmesh=nmesh, resampler='tsc',
+                                                   compensated=True,
+                                                   interlaced=True
+                                                   )
 
 
-# New catalogue
-# -----------------------------------------------------------------------------
+        # New catalogue
+        # ---------------------------------------------------------------------
 
-new_catalogue = LogNormalCatalog(Plin, nbar, bias=bias, BoxSize=L, Nmesh=nmesh,
-                                 seed=original_catalogue.attrs['seed']
-                                 )
-#new_catalogue = UniformCatalog(nbar, boxsize=600,
-#                               seed=original_catalogue.attrs['seed']
-#                               )
+        new_catalogue = LogNormalCatalog(Plin, nbar, bias=bias, BoxSize=L,
+                                         Nmesh=nmesh,
+                                         seed=original_catalogue.attrs['seed']
+                                         )
+        #new_catalogue = UniformCatalog(nbar, boxsize=600,
+        #                               seed=original_catalogue.attrs['seed']
+        #                               )
 
-# Choose x-axis as LOS and use specified probabiltiy density
-new_catalogue['Selection'] = select_to_prob(new_catalogue['Position'][:,0],
-                                            sloped_probability, 0, L,
-                                            slope=-0.2
-                                            )
+        # Choose x-axis as LOS and use specified probabiltiy density
+        new_catalogue['Selection'] = select_to_prob(new_catalogue['Position'][:,0],
+                                                    sloped_probability, 0, L,
+                                                    slope=-0.2
+                                                    )
 
-new_mesh = new_catalogue.to_mesh(Nmesh=nmesh, resampler='tsc', compensated=True,
-                                 interlaced=True
-                                 )
+        new_mesh = new_catalogue.to_mesh(Nmesh=nmesh, resampler='tsc', compensated=True,
+                                         interlaced=True
+                                         )
 
-# Compute FFT power
-# -----------------------------------------------------------------------------
+        # Compute FFT power
+        # -----------------------------------------------------------------------------
 
-poles_orig = FFTPower(original_mesh, mode='2d', los=[1,0,0], poles=[0]).poles
-poles_new = FFTPower(new_mesh, mode='2d', los=[1,0,0], poles=[0]).poles
+        poles_orig = FFTPower(original_mesh, mode='2d', los=[1,0,0], poles=[0]).poles
+        poles_new = FFTPower(new_mesh, mode='2d', los=[1,0,0], poles=[0]).poles
 
-k_orig = poles_orig['k']
-P0_orig = poles_orig['power_0'] - poles_orig.attrs['shotnoise']
-k_new = poles_new['k']
-P0_new = poles_new['power_0'] - poles_new.attrs['shotnoise']
+        k_orig = poles_orig['k']
+        P0_orig = poles_orig['power_0'] - poles_orig.attrs['shotnoise']
+        k_new = poles_new['k']
+        P0_new = poles_new['power_0'] - poles_new.attrs['shotnoise']
+
+        result = {'k_orig': k_orig,
+                  'k_new': k_new,
+                  'P0_orig': P0_orig,
+                  'P0_new': P0_new,
+                  }
+        np.save('./Output/result-%s.npy' % str(run), result)
 
 plt.style.use(mplstyle)
 plt.close('all')
