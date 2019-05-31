@@ -169,7 +169,7 @@ if rank == 0:
     result = {'k_o': k0_all, 'P0_o': P0_all,
               'k_n': k1_all, 'P0_n': P1_all
               }
-    np.save('./Output/result-%s.npy' % sys.argv[1:])
+    np.save('./Output/result-%s.npy' % sys.argv[1:], result)
 
     # Summarise and visualise
     data = {'k_o': np.average(result['k_o'], axis=0),
@@ -189,13 +189,13 @@ if rank == 0:
     plt.figure('Monopole comparison')
 
     plt.errorbar(data['k_o'], data['P0_o'],
-                 xerr=data['dk_o']/np.sqrt(data['dof1']),
-                 yerr=data['dP0_o']/np.sqrt(data['dof1']),
+                 xerr=data['dk_o']/np.sqrt(data['dof_o']),
+                 yerr=data['dP0_o']/np.sqrt(data['dof_o']),
                  elinewidth=.8, label='original'
                  )
     plt.errorbar(data['k_n'], data['P0_n'],
-                 xerr=data['dk_n']/np.sqrt(data['dof1']),
-                 yerr=data['dP0_n']/np.sqrt(data['dof1']),
+                 xerr=data['dk_n']/np.sqrt(data['dof_n']),
+                 yerr=data['dP0_n']/np.sqrt(data['dof_n']),
                  elinewidth=.8, label='reselected'
                  )
     plt.loglog(data['k_o'], bias**2*Plin(data['k_o']), ':', label='input')
