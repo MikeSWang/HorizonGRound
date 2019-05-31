@@ -19,7 +19,8 @@ import sys
 import numpy as np
 
 from matplotlib import pyplot as plt
-from nbodykit.lab import cosmology, FFTPower, LogNormalCatalog, TaskManager
+from mpi4py import MPI
+from nbodykit.lab import cosmology, FFTPower, LogNormalCatalog
 
 from style import mplstyle
 
@@ -84,89 +85,122 @@ def select_to_prob(x, prob_density, *args, **kargs):
 # EXECUTION
 # =============================================================================
 
-# Initialise input parameters
+# INITIALISATION
 # -----------------------------------------------------------------------------
 
+# System resources
+comm = MPI.COMM_WORLD
+size = comm.Get_size()
+rank = comm.Get_rank()
+
+# Input parameters
 try:  # attempt to read from command line
     niter, nbar, nmesh = int(sys.argv[1]), float(sys.argv[2]), float(sys.argv[3])
 except:  # resort to defaults
     niter, nbar, nmesh = 10, 5e-3, 256
     sys.argv.extend([str(niter), str(nbar), str(nmesh)])
 
-
-# Read catalogue information/set up cosmology
-# -----------------------------------------------------------------------------
-
-bias = 2
+# Cosmology
 cosmo = cosmology.Planck15
 Plin = cosmology.LinearPower(cosmo, redshift=0., transfer="CLASS")
+bias = 2
 L = cosmo.comoving_distance(0.2)
 
-
-with TaskManager(cpus_per_task=1, use_all_cpus=True) as tm:
-    for run in tm.iterate(range(niter)):
-        # Original catalogue
-        # ---------------------------------------------------------------------
-
-        original_catalogue = LogNormalCatalog(Plin, nbar, bias=bias,
-                                              BoxSize=L, Nmesh=nmesh
-                                              )
-        #original_catalogue = UniformCatalog(nbar, boxsize=600)
-
-        original_mesh = original_catalogue.to_mesh(Nmesh=nmesh, resampler='tsc',
-                                                   compensated=True,
-                                                   interlaced=True
-                                                   )
+# Output variables
+k0_all, k1_all, P0_all, P1_all = None, None, None, None
 
 
-        # New catalogue
-        # ---------------------------------------------------------------------
+# PROCESSING
+# -----------------------------------------------------------------------------
 
-        new_catalogue = LogNormalCatalog(Plin, nbar, bias=bias, BoxSize=L,
-                                         Nmesh=nmesh,
-                                         seed=original_catalogue.attrs['seed']
-                                         )
-        #new_catalogue = UniformCatalog(nbar, boxsize=600,
-        #                               seed=original_catalogue.attrs['seed']
-        #                               )
+comm.Barrier()
 
-        # Choose x-axis as LOS and use specified probabiltiy density
-        new_catalogue['Selection'] = select_to_prob(new_catalogue['Position'][:,0],
-                                                    sloped_probability, 0, L,
-                                                    slope=-0.2
-                                                    )
+k0_list, k1_list, P0_list, P1_list = [], [], [], []
+for run in range(int(niter)):
+    # Original catalogue
+    catalogue0 = LogNormalCatalog(Plin, nbar, bias=bias, BoxSize=L, Nmesh=nmesh)
+    mesh0 = catalogue0.to_mesh(Nmesh=nmesh, resampler='tsc', compensated=True,
+                               interlaced=True
+                               )
 
-        new_mesh = new_catalogue.to_mesh(Nmesh=nmesh, resampler='tsc', compensated=True,
-                                         interlaced=True
-                                         )
+    # New catalogue
+    catalogue1 = LogNormalCatalog(Plin, nbar, bias=bias, BoxSize=L, Nmesh=nmesh,
+                                  seed=catalogue0.attrs['seed']
+                                  )
 
-        # Compute FFT power
-        # -----------------------------------------------------------------------------
+    # Reselect using specified LOS (x-axis) probabiltiy density
+    catalogue1['Selection'] = select_to_prob(catalogue1['Position'][:,0],
+                                             sloped_probability, 0, L,
+                                             slope=-0.2
+                                             )
+    mesh1 = catalogue1.to_mesh(Nmesh=nmesh, resampler='tsc', compensated=True,
+                               interlaced=True
+                               )
 
-        poles_orig = FFTPower(original_mesh, mode='2d', los=[1,0,0], poles=[0]).poles
-        poles_new = FFTPower(new_mesh, mode='2d', los=[1,0,0], poles=[0]).poles
+    # Compute FFT power
+    Poles0 = FFTPower(mesh0, mode='2d', los=[1,0,0], poles=[0]).poles
+    Poles1 = FFTPower(mesh1, mode='2d', los=[1,0,0], poles=[0]).poles
 
-        k_orig = poles_orig['k']
-        P0_orig = poles_orig['power_0'] - poles_orig.attrs['shotnoise']
-        k_new = poles_new['k']
-        P0_new = poles_new['power_0'] - poles_new.attrs['shotnoise']
+    monopole0 = Poles0['power_0'].real - Poles0.attrs['shotnoise']
+    monopole1 = Poles1['power_0'].real - Poles1.attrs['shotnoise']
 
-        result = {'k_orig': k_orig,
-                  'k_new': k_new,
-                  'P0_orig': P0_orig,
-                  'P0_new': P0_new,
-                  }
-        np.save('./Output/result-%s.npy' % str(run), result)
+    # Append reordered results
+    k0_list.append(Poles0['k'])
+    k1_list.append(Poles1['k'])
+    P0_list.append(monopole0)
+    P1_list.append(monopole1)
 
-plt.style.use(mplstyle)
-plt.close('all')
-plt.figure('Power multipole comparison')
 
-plt.loglog(k_orig, bias**2*Plin(k_orig), ':', label=r'input')
-plt.loglog(k_orig, P0_orig.real, '-+', label=r'original')
-plt.loglog(k_new, P0_new.real, '-x', label=r'changed')
+# RESULTS
+# -----------------------------------------------------------------------------
 
-plt.legend()
-plt.xlabel(r'$k$ [$h/\textrm{Mpc}$]')
-plt.ylabel(r'$\hat{P}_0(k)$ [$(\textrm{Mpc}/h)^3$]')
-plt.savefig('./Output/Lognormal_monopole_comparison.pdf')
+k0_all = comm.gather(np.asarray(k0_list), root=0)
+k1_all = comm.gather(np.asarray(k1_list), root=0)
+P0_all = comm.gather(np.asarray(P0_list), root=0)
+P1_all = comm.gather(np.asarray(P1_list), root=0)
+
+if rank == 0:
+    # Collate and save
+    k0_all = np.concatenate(k0_all)
+    k1_all = np.concatenate(k1_all)
+    P0_all = np.concatenate(P0_all)
+    P1_all = np.concatenate(P1_all)
+
+    result = {'k_o': k0_all, 'P0_o': P0_all,
+              'k_n': k1_all, 'P0_n': P1_all
+              }
+    np.save('./Output/result-%s.npy' % sys.argv[1:])
+
+    # Summarise and visualise
+    data = {'k_o': np.average(result['k_o'], axis=0),
+            'dk_o': np.std(result['k_o'], axis=0, ddof=1),
+            'P0_o': np.average(result['P0_o'], axis=0),
+            'dP0_o': np.std(result['P0_o'], axis=0, ddof=1),
+            'dof_o':  np.size(result['P0_o'], axis=0) - 1,
+            'k_n': np.average(result['k_n'], axis=0),
+            'dk_n': np.std(result['k_n'], axis=0, ddof=1),
+            'P0_n': np.average(result['P0_n'], axis=0),
+            'dP0_n': np.std(result['P0_n'], axis=0, ddof=1),
+            'dof_n':  np.size(result['P0_n'], axis=0) - 1
+            }
+
+    plt.style.use(mplstyle)
+    plt.close('all')
+    plt.figure('Monopole comparison')
+
+    plt.errorbar(data['k_o'], data['P0_o'],
+                 xerr=data['dk_o']/np.sqrt(data['dof1']),
+                 yerr=data['dP0_o']/np.sqrt(data['dof1']),
+                 elinewidth=.8, label='original'
+                 )
+    plt.errorbar(data['k_n'], data['P0_n'],
+                 xerr=data['dk_n']/np.sqrt(data['dof1']),
+                 yerr=data['dP0_n']/np.sqrt(data['dof1']),
+                 elinewidth=.8, label='reselected'
+                 )
+    plt.loglog(data['k_o'], bias**2*Plin(data['k_o']), ':', label='input')
+
+    plt.legend()
+    plt.xlabel(r'$k$ [$h/\textrm{Mpc}$]')
+    plt.ylabel(r'$\hat{P}_0(k)$ [$(\textrm{Mpc}/h)^3$]')
+    plt.savefig('./Output/Monopole_comparison_lognormal.pdf')
