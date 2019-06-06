@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 
 # =============================================================================
-# style.py: STYLE GUIDE FOR VISUALISATION
+# style.py: VISUALISATION STYLE GUIDE
 #
 # Author: MS Wang
 # Created: 2019-03
 # =============================================================================
 
-"""Provide style guide for visualisation."""
+""":mod:`style`---visualisation style guide"""
 
 # =============================================================================
 # EXECUTION

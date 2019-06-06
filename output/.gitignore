@@ -103,5 +103,8 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-# Data files
+# User customised
 *.txt
+*.csv
+*.npy
+*.pdf
