@@ -2,19 +2,26 @@
 # -*- coding: utf-8 -*-
 
 # =============================================================================
-# style.py: VISUALISATION STYLE GUIDE
+# studio/style.py: VISUALISATION STYLE GUIDE
 #
 # Author: MS Wang
 # Created: 2019-03
 # =============================================================================
 
-""":mod:`style`---visualisation style guide"""
+""":mod:`studio.style`---visualisation style guide"""
+
+# =============================================================================
+# LIBRARY
+# =============================================================================
+
+from cycler import cycler
+
 
 # =============================================================================
 # EXECUTION
 # =============================================================================
 
-mplstyle = {
+horizon_style = {
     # Text
     'text.usetex': True,
     #'text.latex.preamble': [r'\usepackage{upgreek}'],
@@ -25,14 +32,34 @@ mplstyle = {
 
     # Axes
     'axes.linewidth': 0.15,
+    'axes.grid': False,
+    #'axes.grid.axis': 'both',
+    #'axes.autolimit_mode': 'round_numbers',
+    #'axes.xmargin': 0,
+    #'axes.ymargin': 0,
     'axes.edgecolor': 'k',
     'axes.facecolor': 'w',
     'axes.labelsize': 'large',
+    'axes.prop_cycle': cycler('color',
+                              ['#000000',
+                               '#C40233', '#0087BD',
+                               '#FFD300', '#009F6B'
+                               ]
+                              ),  # Natural Colour System (NCS))
+
+    # Grid
+    'grid.alpha': 0.25,
+    'grid.color': 'k',
+    'grid.linewidth': 0.5,
+    'grid.linestyle': (20,4),
 
     # Line styles
     'lines.linewidth': 2,
     'lines.markersize': 6,
     'lines.antialiased': True,
+
+    # Errorbar
+    'errorbar.capsize': 2.5,
 
     # Ticks
     'xtick.major.size': 5,
@@ -57,7 +84,7 @@ mplstyle = {
 
     # Legend
     'legend.fancybox': False,
-    'legend.frameon' : False,
+    'legend.frameon': False,
     'legend.fontsize': 'large',
     'legend.loc': 'best',
 
@@ -66,7 +93,9 @@ mplstyle = {
     'figure.titlesize': 'large',
 
     # Saving figures
-    'savefig.bbox': 'tight',
     'savefig.format': 'pdf',
-    'savefig.transparent': True
+    'savefig.bbox': 'tight',
+    'savefig.transparent': True#,
+    #'savefig.facecolor': True,
+    #'savefig.edgecolor': True
 }
