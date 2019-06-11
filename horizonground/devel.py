@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 
 # *****************************************************************************
-# demo.py: DEMONSTRATION
+# devel.py: DEVELOPMENT
 #
 # Author: MS Wang
 # Created: 2019-03
 # *****************************************************************************
 
-"""Demonstration script."""
+"""Codes currently under development."""
 
 # =============================================================================
 # LIBRARY
@@ -22,7 +22,7 @@ from matplotlib import pyplot as plt
 from mpi4py import MPI
 from nbodykit.lab import cosmology, FFTPower, LogNormalCatalog
 
-from style import mplstyle
+from studio import horizon_style
 
 
 # =============================================================================
@@ -47,10 +47,10 @@ def sloped_probability(x, xmin, xmax, slope=-0.5):
         Probability density
     """
 
-    assert((xmin < x).all() and (x < xmax).all())  # check variables in domain
-    assert(-1 < slope < 0)  # assert gentle negative slop
+    #assert((xmin < x).all() and (x < xmax).all())  # check variables in domain
+    #assert(-1 < slope < 0)  # assert gentle negative slop
 
-    density = 1 + slope * (x-xmin) / (xmax-xmin)  # compute (normalised) density
+    density = 1 + slope * (x-xmin) / (xmax-xmin)  # compute normalised density
 
     return density
 
@@ -95,7 +95,8 @@ rank = comm.Get_rank()
 
 # Input parameters
 try:  # attempt to read from command line
-    niter, nbar, nmesh = int(sys.argv[1]), float(sys.argv[2]), float(sys.argv[3])
+    niter = int(sys.argv[1])
+    nbar, nmesh = float(sys.argv[2]), float(sys.argv[3])
 except:  # resort to defaults
     niter, nbar, nmesh = 10, 5e-3, 256
     sys.argv.extend([str(niter), str(nbar), str(nmesh)])
@@ -118,24 +119,27 @@ comm.Barrier()
 k0_list, k1_list, P0_list, P1_list = [], [], [], []
 for run in range(int(niter)):
     # Original catalogue
-    catalogue0 = LogNormalCatalog(Plin, nbar, bias=bias, BoxSize=L, Nmesh=nmesh)
-    mesh0 = catalogue0.to_mesh(Nmesh=nmesh, resampler='tsc', compensated=True,
-                               interlaced=True
-                               )
+    catalogue0 = LogNormalCatalog(Plin, nbar, bias=bias, BoxSize=L, Nmesh=nmesh
+                                  )
+    catalogue0['Selection'] = select_to_prob(catalogue0['Position'][:,0],
+                                             sloped_probability, 0, L,
+                                             slope=-0.2
+                                             )
+    catalogue0['Location'] = catalogue0['Position']
+    catalogue0['Position'] = catalogue0['Position'] \
+                             + catalogue0['VelocityOffset'] * [1, 0, 0]
+    mesh0 = catalogue0.to_mesh(Nmesh=nmesh, resampler='tsc', compensated=True)
 
     # New catalogue
-    catalogue1 = LogNormalCatalog(Plin, nbar, bias=bias, BoxSize=L, Nmesh=nmesh,
-                                  seed=catalogue0.attrs['seed']
+    catalogue1 = LogNormalCatalog(Plin, nbar, bias=bias, BoxSize=L,
+                                  Nmesh=nmesh, seed=catalogue0.attrs['seed']
                                   )
-
-    # Reselect using specified LOS (x-axis) probabiltiy density
+    catalogue1['Position'] = catalogue0['Position']
     catalogue1['Selection'] = select_to_prob(catalogue1['Position'][:,0],
                                              sloped_probability, 0, L,
                                              slope=-0.2
                                              )
-    mesh1 = catalogue1.to_mesh(Nmesh=nmesh, resampler='tsc', compensated=True,
-                               interlaced=True
-                               )
+    mesh1 = catalogue1.to_mesh(Nmesh=nmesh, resampler='tsc', compensated=True)
 
     # Compute FFT power
     Poles0 = FFTPower(mesh0, mode='2d', los=[1,0,0], poles=[0]).poles
@@ -169,7 +173,7 @@ if rank == 0:
     result = {'k_o': k0_all, 'P0_o': P0_all,
               'k_n': k1_all, 'P0_n': P1_all
               }
-    np.save('./Output/result-%s.npy' % sys.argv[1:], result)
+    np.save('./output/result-%s.npy' % sys.argv[1:], result)
 
     # Summarise and visualise
     data = {'k_o': np.average(result['k_o'], axis=0),
@@ -184,7 +188,7 @@ if rank == 0:
             'dof_n':  np.size(result['P0_n'], axis=0) - 1
             }
 
-    plt.style.use(mplstyle)
+    plt.style.use(horizon_style)
     plt.close('all')
     plt.figure('Monopole comparison')
 
@@ -203,4 +207,4 @@ if rank == 0:
     plt.legend()
     plt.xlabel(r'$k$ [$h/\textrm{Mpc}$]')
     plt.ylabel(r'$\hat{P}_0(k)$ [$(\textrm{Mpc}/h)^3$]')
-    plt.savefig('./Output/Monopole_comparison_lognormal.pdf')
+    plt.savefig('./output/Monopole_comparison_lognormal.pdf')
