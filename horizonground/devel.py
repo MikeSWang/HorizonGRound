@@ -125,7 +125,6 @@ for run in range(int(niter)):
                                              sloped_probability, 0, L,
                                              slope=-0.2
                                              )
-    catalogue0['Location'] = catalogue0['Position']
     catalogue0['Position'] = catalogue0['Position'] \
                              + catalogue0['VelocityOffset'] * [1, 0, 0]
     mesh0 = catalogue0.to_mesh(Nmesh=nmesh, resampler='tsc', compensated=True)
@@ -134,7 +133,8 @@ for run in range(int(niter)):
     catalogue1 = LogNormalCatalog(Plin, nbar, bias=bias, BoxSize=L,
                                   Nmesh=nmesh, seed=catalogue0.attrs['seed']
                                   )
-    catalogue1['Position'] = catalogue0['Position']
+    catalogue1['Position'] = catalogue1['Position'] \
+                             + catalogue1['VelocityOffset'] * [1, 0, 0]
     catalogue1['Selection'] = select_to_prob(catalogue1['Position'][:,0],
                                              sloped_probability, 0, L,
                                              slope=-0.2
@@ -142,11 +142,11 @@ for run in range(int(niter)):
     mesh1 = catalogue1.to_mesh(Nmesh=nmesh, resampler='tsc', compensated=True)
 
     # Compute FFT power
-    Poles0 = FFTPower(mesh0, mode='2d', los=[1,0,0], poles=[0]).poles
-    Poles1 = FFTPower(mesh1, mode='2d', los=[1,0,0], poles=[0]).poles
+    Poles0 = FFTPower(mesh0, mode='2d', los=[1,0,0], poles=[0,2]).poles
+    Poles1 = FFTPower(mesh1, mode='2d', los=[1,0,0], poles=[0,2]).poles
 
-    monopole0 = Poles0['power_0'].real - Poles0.attrs['shotnoise']
-    monopole1 = Poles1['power_0'].real - Poles1.attrs['shotnoise']
+    monopole0 = Poles0['power_2'].real #- Poles0.attrs['shotnoise']
+    monopole1 = Poles1['power_2'].real #- Poles1.attrs['shotnoise']
 
     # Append reordered results
     k0_list.append(Poles0['k'])
@@ -206,5 +206,5 @@ if rank == 0:
 
     plt.legend()
     plt.xlabel(r'$k$ [$h/\textrm{Mpc}$]')
-    plt.ylabel(r'$\hat{P}_0(k)$ [$(\textrm{Mpc}/h)^3$]')
-    plt.savefig('./output/Monopole_comparison_lognormal.pdf')
+    plt.ylabel(r'$\hat{P}_2(k)$ [$(\textrm{Mpc}/h)^3$]')
+    plt.savefig('./output/Multipole_comparison_lognormal.pdf')
