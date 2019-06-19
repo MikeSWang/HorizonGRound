@@ -2,16 +2,13 @@
 # -*- coding: utf-8 -*-
 
 # *****************************************************************************
-# horizonground/lab/__init__.py: LABORATORY
+# horizonground/config/param.py: CONFIGURATION PARAMETERS
 #
 # Author: MS Wang
 # Created: 2019-03
 # *****************************************************************************
 
-""":mod:`~horizonground.lab` provides the laboratory environment for
-demonstration and testing.  See sample scripts in corresponding submodules.
+""":mod:`~horizonground.config.param` sets up configuration parameters that can
+be modified by the user.
 
 """
-
-from .demo import *
-from .tests import *

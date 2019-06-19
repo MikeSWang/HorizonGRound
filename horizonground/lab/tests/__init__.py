@@ -2,16 +2,13 @@
 # -*- coding: utf-8 -*-
 
 # *****************************************************************************
-# horizonground/lab/__init__.py: LABORATORY
+# horizonground/lab/tests/__init__.py: TESTING
 #
 # Author: MS Wang
 # Created: 2019-03
 # *****************************************************************************
 
-""":mod:`~horizonground.lab` provides the laboratory environment for
-demonstration and testing.  See sample scripts in corresponding submodules.
+""":mod:`~horizonground.lab.tests` includes testing scripts.  Please refer to
+individual scripts for details.
 
 """
-
-from .demo import *
-from .tests import *

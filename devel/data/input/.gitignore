@@ -64,7 +64,7 @@ instance/
 .scrapy
 
 # Sphinx documentation
-docs/_build/
+docs/build/
 
 # PyBuilder
 target/
@@ -106,4 +106,5 @@ venv.bak/
 # User customised
 *.txt
 *.csv
+*.json
 *.npy

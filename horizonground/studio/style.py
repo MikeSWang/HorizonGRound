@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-# =============================================================================
-# studio/style.py: VISUALISATION STYLE GUIDE
+# *****************************************************************************
+# horizonground/studio/style.py: VISUALISATION STYLE
 #
 # Author: MS Wang
 # Created: 2019-03
-# =============================================================================
+# *****************************************************************************
 
-""":mod:`studio.style`---visualisation style guide"""
+""":mod:`~horizonground.studio.style` provided the visualisation style for use
+with :mod:`matplotlib`.  User can modify the default parameters.
+
+"""
 
 # =============================================================================
 # LIBRARY
@@ -41,9 +44,8 @@ horizon_style = {
     'axes.facecolor': 'w',
     'axes.labelsize': 'large',
     'axes.prop_cycle': cycler('color',
-                              ['#000000',
-                               '#C40233', '#0087BD',
-                               '#FFD300', '#009F6B'
+                              ['#000000', '#C40233', '#0087BD', '#FFD300',
+                               '#009F6B'
                                ]
                               ),  # Natural Colour System (NCS))
 
@@ -51,7 +53,7 @@ horizon_style = {
     'grid.alpha': 0.25,
     'grid.color': 'k',
     'grid.linewidth': 0.5,
-    'grid.linestyle': (20,4),
+    'grid.linestyle': (20, 4),
 
     # Line styles
     'lines.linewidth': 2,
@@ -89,13 +91,13 @@ horizon_style = {
     'legend.loc': 'best',
 
     # Figure
-    'figure.figsize': [8,4.5],
+    'figure.figsize': [8, 4.5],
     'figure.titlesize': 'large',
 
     # Saving figures
     'savefig.format': 'pdf',
     'savefig.bbox': 'tight',
-    'savefig.transparent': True#,
+    'savefig.transparent': True,
     #'savefig.facecolor': True,
     #'savefig.edgecolor': True
 }

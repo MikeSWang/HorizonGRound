@@ -2,10 +2,15 @@
 # -*- coding: utf-8 -*-
 
 # *****************************************************************************
-# input/config.py: CONFIGURATION
+# horizonground/config/__init__.py: PROGRAM CONFIOGURATION
 #
 # Author: MS Wang
 # Created: 2019-03
 # *****************************************************************************
 
-""":mod:`input.config`---program configuration"""
+""":mod:`~horizonground.config` initialises and configures the program.  User
+can modify default configuration parameters in :file:`config/param.py`.
+
+"""
+
+from .param import *

@@ -1,3 +1,1 @@
-# ``HorizonGRound``
-
-Investigate general relativistic effects through galaxy clustering background.
+# ``HorizonGRound``&mdash;GR Effects in Galaxy-Clustering Background
