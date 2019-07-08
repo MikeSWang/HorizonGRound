@@ -32,22 +32,19 @@ def sloped_probability(x, xmin, xmax, slope=-0.5):
     Parameters
     ----------
     x : float, array_like
-        Random variable value
+        Random variable value.
     xmin, xmax : float
-        Random variable domain boundaries
+        Random variable domain boundaries.
     slope : float, optional
-        Slope of the linear density (default is -0.5)
+        Slope of the linear density (default is -0.5).
 
     Returns
     -------
     density : float, array_like
-        Probability density
+        Probability density.
+
     """
-
-    #assert((xmin < x).all() and (x < xmax).all())  # check variables in domain
-    #assert(-1 < slope < 0)  # assert gentle negative slop
-
-    density = 1 + slope * (x-xmin) / (xmax-xmin)  # compute normalised density
+    density = 1 + slope * (x - xmin) / (xmax - xmin)
 
     return density
 
@@ -61,17 +58,18 @@ def select_to_prob(x, prob_density, *args, **kargs):
         Random variable value
     prob_density : function
         Probability density function
-
-    ``*args``, ``**kargs`` are additional arguments to be passed to
-    :func:`prob_density`.
+    *args, **kargs :
+        Additional arguments to be passed to `prob_density`.
 
     Returns
     -------
     selection : bool, array_like
-        Selection value
-    """
+        Selection value.
 
-    assert(np.squeeze(x).ndim == 1)  # check variable input is a flat array
+    """
+    x = np.atleast_1d(x)
+    if x.ndim != 1:
+        x = np.squeeze(x)
 
     selection = np.random.rand(len(x)) < prob_density(x, *args, **kargs)
 
@@ -92,7 +90,7 @@ try:
     NMESHC, NMESHF, NITER = int(argv[4]), int(argv[5]), int(argv[6])
 except:
     NBAR, REDSHIFT, BOXSIDE = 1e-3, 0., 500.
-    NMESHC, NMESHF, NITER = 256, 256, 25
+    NMESHC, NMESHF, NITER = 256, 256, 5
     argv.extend([
         str(NBAR), str(REDSHIFT), str(BOXSIDE),
         str(NMESHC), str(NMESHF), str(NITER)
