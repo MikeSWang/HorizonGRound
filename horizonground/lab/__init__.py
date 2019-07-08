@@ -1,17 +1,14 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
-# *****************************************************************************
-# horizonground/lab/__init__.py: LABORATORY
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+# lab/__init__.py: LABORATORY
 #
-# Author: MS Wang
-# Created: 2019-03
-# *****************************************************************************
+# Copyright (C) 2019, MS Wang
+# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-""":mod:`~horizonground.lab` provides the laboratory environment for
-demonstration and testing.  See sample scripts in corresponding submodules.
+""":mod:`~horizonground.lab` provides the environment for demonstration,
+testing and development.
 
 """
 
 from .demo import *
 from .tests import *
+from .devel import *

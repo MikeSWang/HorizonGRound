@@ -1,15 +1,12 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
-# *****************************************************************************
-# horizonground/config/__init__.py: PROGRAM CONFIOGURATION
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+# config/__init__.py: CONFIGURATION
 #
-# Author: MS Wang
-# Created: 2019-03
-# *****************************************************************************
+# Copyright (C) 2019, MS Wang
+# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-""":mod:`~horizonground.config` initialises and configures the program.  User
-can modify default configuration parameters in :file:`config/param.py`.
+""":mod:`~horizonground.config` initialises the program with default
+configuration parameters stored in :file:`config/param.py`, which can be
+modified by the User.
 
 """
 

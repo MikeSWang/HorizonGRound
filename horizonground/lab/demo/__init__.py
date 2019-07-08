@@ -1,14 +1,12 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
-# *****************************************************************************
-# horizonground/lab/demo/__init__.py: DEMONSTRATION
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+# lab/demo/__init__.py: DEMONSTRATION
 #
-# Author: MS Wang
-# Created: 2019-03
-# *****************************************************************************
+# Copyright (C) 2019, MS Wang
+# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-""":mod:`~horizonground.lab.demo` includes demonstrative scripts.  Please refer
-to individual scripts for details.
+""":mod:`~horizonground.lab.demo` demonstrates possible uses of the program
+with built-in examples in :file:`lab/demo`.
+
+.. todo:: Populate with stable demos once package completed.
 
 """

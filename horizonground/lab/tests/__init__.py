@@ -1,14 +1,12 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
-# *****************************************************************************
-# horizonground/lab/tests/__init__.py: TESTING
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+# lab/tests/__init__.py: TESTING
 #
-# Author: MS Wang
-# Created: 2019-03
-# *****************************************************************************
+# Copyright (C) 2019, MS Wang
+# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-""":mod:`~horizonground.lab.tests` includes testing scripts.  Please refer to
-individual scripts for details.
+""":mod:`~horizonground.lab.tests` assesses the validity and stability of the
+core program with testing scripts in :file:`lab/tests`.
+
+.. todo:: Populate with unit and integration tests once package completed.
 
 """

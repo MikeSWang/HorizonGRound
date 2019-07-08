@@ -1,21 +1,12 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
-# *****************************************************************************
-# toolkit/utils.py: UTILITY TOOLS
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+# toolkit/utils.py: UTILITIES
 #
-# Author: MS Wang
-# Created: 2019-03
-# *****************************************************************************
+# Copyright (C) 2019, MS Wang
+# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-""":mod:`toolkit.utils` provides user-customised utilities.
+""":mod:`~horizonground.toolkit.utils` provides various utilities.
 
 """
-
-# =============================================================================
-# LIBRARY
-# =============================================================================
-
 from glob import glob
 
 import numpy as np
@@ -28,96 +19,103 @@ import numpy as np
 # FILE HANDLING TOOLS
 # -----------------------------------------------------------------------------
 
-def collate(filename_pattern, file_datatype, headings=None, columns=None):
-    """Collate saved data output files into a single file.
+def collate(filename_pattern, file_extension, headings=None, columns=None):
+    """Collate data files.
 
     Parameters
     ----------
     filename_pattern : str
-        String of the file directory and name.
-    file_datatype : str
-        Data type inside saved files.
+        String pattern of the file directory and name.
+    file_extension : {'npy', 'txt', 'dat'}
+        Data file extension.
 
     Returns
     -------
-    result
-        Collated result in the data type of ``file_datatype``.
+    collated_data : dict
+        Collated data.
     count : int
-        Number of data output files collated.
+        Number of data files collated.
     file : str
-        Last accessed file name.
+        Last collated file.
 
     Raises
     ------
     NotImplementedError
-        If `file_datatype` is not :data:`dict` or ``.txt``.
+        If `file_extension` is not currently supported.
     ValueError
-        If `file_datatype` is ``.txt`` but `headings` or `columns` is `None`.
+        If `file_extension` is ``'txt'`` or ``'dat'``, but `headings` or
+        `columns` is `None`.
     ValueError
         If `headings` and `columns` are not in correpondence.
 
-    TODO: Implement other file data types than :data:`dict` and ``.txt``
+    Notes
+    -----
+    For text files, the data is assumed to be stored as a column-major 2-d
+    array with each column in correspondence with a key in the returned
+    :obj:`dict`.
 
     """
-
-    if file_datatype == 'dict':
-        # Reading and counting
-        measurements = []
+    if file_extension.lower()[-3:] == 'npy':
+        data_all = []
         for file in glob(filename_pattern):
-            measurements.append(np.load(file).item())
-        count = len(measurements)
+            data_all.append(np.load(file).item())
 
-        # Collating
-        result = dict.fromkeys(measurements[0].keys())
-        for key in result:
-            result[key] = np.concatenate([m[key] for m in measurements],
-                                         axis=0
-                                         )
+        count = len(data_all)
 
-        return result, count, file
-    elif file_datatype == 'txt':
-        # Consistency check
+        # Initialise collated data using keys from the first data file.
+        collated_data = dict.fromkeys(data_all[0].keys())
+        for key in collated_data:
+            collated_data[key] = np.concatenate(
+                [np.atleast_1d(data[key]) for data in data_all], axis=0
+                )
+
+        return collated_data, count, file
+    elif file_extension.lower()[-3:] in ['txt', 'dat']:
+        # Consistency check.
         if headings is None or columns is None:
-            raise ValueError("`headings` or `columns` cannot be `None` "
-                             "when reading from text files. "
-                             )
+            raise ValueError(
+                "`headings` or `columns` cannot be None "
+                "when reading from non-'.npy' files. "
+                )
         if len(headings) != len(columns):
-            raise ValueError("Numbers of elements in `headings` and `columns` "
-                             "must agree. "
-                             )
+            raise ValueError(
+                "Lengths of `headings` and `columns` must agree. "
+                )
 
-        # Collating
-        result = {}
+        collated_data = {}
         for key in headings:
-            result.update({key: []})
+            collated_data.update({key: []})
 
         count = 0
         for file in glob(filename_pattern):
-            count += 1
-            ndarray_file = np.loadtxt(file, usecols=columns)
+            data = np.loadtxt(file, usecols=columns)
             for keyidx, key in enumerate(headings):
-                result[key].append((ndarray_file[:,keyidx])[None,:])
+                collated_data[key].append(np.atleast_1d(data[:,keyidx]))
+            count += 1
 
         for key in headings:
-            result[key] = np.concatenate(result[key], axis=0)
+            collated_data[key] = np.concatenate(collated_data[key], axis=0)
 
-        return result, count, file
+        return collated_data, count, file
     else:
-        raise NotImplementedError("Data type currently unsupported. ")
+        raise NotImplementedError("File extension currently unsupported. ")
 
 
 # FORMATTING TOOLS
 # -----------------------------------------------------------------------------
 
 def float_format(x, case):
-    """Format float as a string.
+    r"""Format float as a string.
 
     Parameters
     ----------
     x : float
         Number to be formatted.
-    case : {'latex', 'sci'}
-        Format case.
+    case : {'latex', 'sci', 'intdot', 'decdot'}
+        Format case, one of :math:`\text{\LaTeX}` (``'latex'``), scientific
+        (``'sci'``), rounded integer with a decimal dot (``'intdot'``), or
+        a float *whose first decimal is 0* represented as a rounded integer
+        with a decimal dot (``'decdot'``).
 
     Returns
     -------
@@ -125,42 +123,25 @@ def float_format(x, case):
         Formatted string.
 
     """
+    if not isinstance(x, float):
+        x = float(x)
 
-    if case == 'latex':
-        x_str = "{:.1g}".format(x)
+    if case.lower() == 'latex':
+        x_str = "{:g}".format(x)
         if "e" in x_str:
             base, exponent = x_str.split("e")
             x_str = r"{0} \times 10^{{{1}}}".format(base, int(exponent))
-    elif case == 'sci':
-        x_str = "{:.0e}".format(x).replace("e-0", "e-")
-    elif case == 'intdec':
-        x_str = "{:.1f}".format(x).strip("0")
-    elif case == 'rounddec':
+    elif case.lower() == 'sci':
+        x_str = "{:g}".format(x)
+        if "e" in x_str:
+            x_str = x_str.replace("e+0", "e+").replace("e-0", "e-")
+    elif case.lower() == 'intdot':
         x_str = "{}".format(np.around(x)).strip("0")
+    elif case.lower() == 'decdot':
+        x_to1dp = "{:.1f}".format(x)
+        if x_to1dp[-1] == '0':
+            x_str = x_to1dp.strip("0")
+        else:
+            x_str = x_to1dp
 
     return x_str
-
-
-# TRANSFORMATION TOOLS
-# -----------------------------------------------------------------------------
-
-def fftconv(fval_nd, gval_nd):
-    """FFT convolution of n-d function values.
-
-    Parameters
-    ----------
-    fval_nd, gval_nd : float, array_like
-        Functions to be convolved in n-d using FFT.
-
-    Returns
-    -------
-    fconvg_val_nd : float, array_like
-        Convolved real values in n-d.
-        
-    """
-
-    from scipy.fftpack import fftn, ifftn
-
-    fconvg_val_nd = ifftn(fftn(fval_nd) * fftn(gval_nd)).real
-
-    return fconvg_val_nd

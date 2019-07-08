@@ -1,15 +1,11 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
-# *****************************************************************************
-# horizonground/studio/__init__.py: STUDIO
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+# studio/__init__.py: STUDIO
 #
-# Author: MS Wang
-# Created: 2019-03
-# *****************************************************************************
+# Copyright (C) 2019, MS Wang
+# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 """:mod:`~horizonground.studio` offers visualisation facilities.  User can
-modify the :mod:`matplotlib` style in :file:`horizonground/studio/style.py`.
+modify :mod:`matplotlib` style settings in :file:`studio/style.py`.
 
 """
 

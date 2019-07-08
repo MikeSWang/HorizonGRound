@@ -1,14 +1,12 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
-# *****************************************************************************
-# horizonground/config/param.py: CONFIGURATION PARAMETERS
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+# config/param.py: INITIALISATION PARAMETERS
 #
-# Author: MS Wang
-# Created: 2019-03
-# *****************************************************************************
+# Copyright (C) 2019, MS Wang
+# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-""":mod:`~horizonground.config.param` sets up configuration parameters that can
-be modified by the user.
+""":mod:`~horizonground.config.param` sets up configuration parameters for
+program initialisation, which the User can modify.
+
+.. todo:: Define default configuration parameters once package completed.
 
 """
