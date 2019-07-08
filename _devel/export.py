@@ -59,6 +59,7 @@ SAVEFIG = False
 
 # Runtime constants.
 Plin = cosmo.LinearPower(cosmo.Planck15, redshift=0., transfer='CLASS')
+frate = cosmo.background.MatterDominated(0.307).f1(1)
 
 # Collate and/or save data
 if COLLATE:
@@ -79,9 +80,13 @@ if EXPORT:
     plt.figure('Multipoles signature')
 
     Pk = Plin(data['k'])
-    plt.loglog(data['k'], data['P0']/Pk, label=r'$\ell = 0$')
-    plt.loglog(data['k'], data['P2']/Pk, label=r'$\ell = 2$')
-    plt.loglog(data['k'], data['P4']/Pk, label=r'$\ell = 4$')
+    P0 = (1 + 2/3 * frate + 1/5 * frate**2) * Pk
+    P2 = (4/3 * frate + 4/7 * frate**2) * Pk
+    P4 = (8/35 * frate**2) * Pk
+    with np.errstate(divide='ignore'):
+        plt.loglog(data['k'], data['P0']/P0, label=r'$\ell = 0$')
+        plt.loglog(data['k'], data['P2']/P2, label=r'$\ell = 2$')
+        plt.loglog(data['k'], data['P4']/P4, label=r'$\ell = 4$')
 
     plt.legend()
     plt.xlabel(r'$k$ [$h/\textrm{Mpc}$]')
