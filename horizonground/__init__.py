@@ -1,22 +1,13 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
-# *****************************************************************************
-# horizonground/__init__.py: HORIZONGROUND
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+# __init__.py: HORIZONGROUND
 #
-# Author: MS Wang
-# Created: 2019-03
-# *****************************************************************************
+# Copyright (C) 2019, MS Wang
+# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-
-"""
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-``HorizonGRound`` | GR Effects in Galaxy-Clustering Background
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+""":mod:`horizonground` is a Python program designed for investigating general
+relativistic effects in the large-scale galaxy-clustering background.
 
 **Legal disclaimer**
-
-::
 
     Copyright (C) 2019 MS Wang
 
@@ -41,8 +32,4 @@ __copyright__ = "Copyright 2019, HorizonGRound"
 __license__ = "GPL 3.0"
 __version__ = "0.0.dev0"
 
-from .config import *
-from .core import *
-from .lab import *
-from. studio import *
-from .toolkit import *
+# TODO: Populate with default imports.
