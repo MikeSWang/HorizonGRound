@@ -50,16 +50,17 @@ def sloped_probability(x, xmin, xmax, slope=-0.5):
 
 
 def select_to_prob(x, prob_density, *args, **kargs):
-    """Random selection given a probability density function.
+    """Random selection given a probability density function by rejection
+    sampling.
 
     Parameters
     ----------
     x : float, array_like
-        Random variable value
-    prob_density : function
-        Probability density function
-    *args, **kargs :
-        Additional arguments to be passed to `prob_density`.
+        Random variable value.
+    prob_density : callable
+        Probability density function.
+    *args, **kargs
+        Positional and keyword parameters to be passed to `prob_density`.
 
     Returns
     -------
@@ -71,7 +72,7 @@ def select_to_prob(x, prob_density, *args, **kargs):
     if x.ndim != 1:
         x = np.squeeze(x)
 
-    selection = np.random.rand(len(x)) < prob_density(x, *args, **kargs)
+    selection = (np.random.rand(len(x)) < prob_density(x, *args, **kargs))
 
     return selection
 
@@ -116,10 +117,7 @@ Plin = cosmo.LinearPower(cosmo.Planck15, redshift=REDSHIFT, transfer='CLASS')
 # PROCESSING
 # -----------------------------------------------------------------------------
 
-output = {
-    'k_evol': [], 'P0_evol': [], 'P2_evol': [], 'P4_evol': [],
-    # 'k_stat': [], 'P0_stat': [], 'P2_stat': [], 'P4_stat': [],
-    }
+evol = {'k_evol': [], 'P0_evol': [], 'P2_evol': [], 'P4_evol': [],}
 
 for run in range(NITER):
     # Evolution catalogue.
@@ -146,16 +144,32 @@ for run in range(NITER):
         ).poles
 
     # Append reordered results
-    output['k_evol'].append(poles_evol['k'])
-    output['P0_evol'].append(
-        poles_evol['power_0'] - poles_evol.attrs['shotnoise']
+    evol['k'].append(poles_evol['k'])
+    evol['Nk'].append(poles_evol['modes'])
+    evol['P0'].append(
+        poles_evol['power_0'].real - poles_evol.attrs['shotnoise']
         )
-    output['P2_evol'].append(poles_evol['power_2'])
-    output['P4_evol'].append(poles_evol['power_4'])
+    evol['P2'].append(poles_evol['power_2'].real)
+    evol['P4'].append(poles_evol['power_4'].real)
 
 
 # FINALISATION
 # -----------------------------------------------------------------------------
 
 # Export data.
-np.save(f"{PATHOUT}{DIR}{PREFIX}-{TAG}.npy", output)
+np.save(f"{PATHOUT}{DIR}{PREFIX}-{TAG}-evol.npy", evol)
+
+# Visualise data
+plt.style.use(hgrstyle)
+plt.close('all')
+plt.figure('Multipoles signature')
+
+Pk = Plin(evol['k'])
+plt.loglog(evol['k'], evol['P0']/Pk, label=r'$\ell = 0$')
+plt.loglog(evol['k'], evol['P2']/Pk, label=r'$\ell = 2$')
+plt.loglog(evol['k'], evol['P4']/Pk, label=r'$\ell = 4$')
+
+plt.legend()
+plt.xlabel(r'$k$ [$h/\textrm{Mpc}$]')
+plt.ylabel(r'$\hat{P}_\ell(k)/P_\mathrm{lin}(k)$ [$(\textrm{Mpc}/h)^3$]')
+plt.savefig(f"{PATHOUT}{DIR}{PREFIX}-{TAG}-evol.pdf")
