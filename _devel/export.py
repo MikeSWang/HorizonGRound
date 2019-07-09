@@ -91,21 +91,21 @@ if EXPORT:
         plt.fill_between(
             data['k'],
             (data['P0'] - data['dP0'])/P0, (data['P0'] + data['dP0'])/P0,
-            color=p0_line[0].get_color(), alpha=0.25
+            color=p0_line[0].get_color(), alpha=1/8
             )
         plt.fill_between(
             data['k'],
             (data['P2'] - data['dP2'])/P2, (data['P2'] + data['dP2'])/P2,
-            color=p2_line[0].get_color(), alpha=0.25
+            color=p2_line[0].get_color(), alpha=1/8
             )
         plt.fill_between(
             data['k'],
             (data['P4'] - data['dP4'])/P4, (data['P4'] + data['dP4'])/P4,
-            color=p4_line[0].get_color(), alpha=0.25
+            color=p4_line[0].get_color(), alpha=1/8
             )
 
     plt.legend()
     plt.xlabel(r'$k$ [$h/\textrm{Mpc}$]')
-    plt.ylabel(r'$\hat{P}_\ell(k)/P_\mathrm{lin}(k)$ [$(\textrm{Mpc}/h)^3$]')
+    plt.ylabel(r'$\hat{P}_\ell(k)/P_\ell(k)$ [$(\textrm{Mpc}/h)^3$]')
 
     if SAVEFIG: plt.savefig(f"{PATHOUT}{PREFIX}-{TAG}.pdf")

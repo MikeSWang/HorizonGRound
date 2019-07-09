@@ -129,7 +129,7 @@ for run in range(NITER):
     # Evolution catalogue.
     clog_evol = LogNormalCatalog(Plin, NBAR, BOXSIDE, NMESHC)
 
-    clog_evol['Selection'] = select_to_density(
+    clog_evol['Weight'] = select_to_density(
         clog_evol['Position'][:, -1], linear_slope, 'definite', 0, BOXSIDE
         )
     clog_evol['Position'] = clog_evol['Position'] \
@@ -182,5 +182,5 @@ with np.errstate(divide='ignore'):
 
 plt.legend()
 plt.xlabel(r'$k$ [$h/\textrm{Mpc}$]')
-plt.ylabel(r'$\hat{P}_\ell(k)/P_\mathrm{lin}(k)$ [$(\textrm{Mpc}/h)^3$]')
+plt.ylabel(r'$\hat{P}_\ell(k)/P_\ell(k)$ [$(\textrm{Mpc}/h)^3$]')
 plt.savefig(f"{PATHOUT}{DIR}{PREFIX}-{TAG}-evol.pdf")
