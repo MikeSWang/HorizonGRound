@@ -19,7 +19,7 @@ from matplotlib import pyplot as plt
 from nbodykit.lab import cosmology as cosmo, LogNormalCatalog, FFTPower
 
 from horizonground.studio import horizon_style as hgrstyle
-from horizonground.toolkit import float_format as ff
+from horizonground.toolkit import float_format as ff, unitconst
 
 
 # =============================================================================
@@ -130,7 +130,7 @@ for run in range(NITER):
     clog_evol = LogNormalCatalog(Plin, NBAR, BOXSIDE, NMESHC)
 
     clog_evol['Weight'] = select_to_density(
-        clog_evol['Position'][:, -1], linear_slope, 'definite', 0, BOXSIDE
+        clog_evol['Position'][:, -1], unitconst, 'definite', 0, BOXSIDE
         )
     clog_evol['Position'] = clog_evol['Position'] \
         + clog_evol['VelocityOffset'] * [0, 0, 1]

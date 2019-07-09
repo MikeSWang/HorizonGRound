@@ -95,7 +95,7 @@ def collate(filename_pattern, file_extension, headings=None, columns=None):
             count += 1
 
         for key in headings:
-            collated_data[ke(``'sci'``), y] = np.concatenate(collated_data[key], axis=0)
+            collated_data[key] = np.concatenate(collated_data[key], axis=0)
 
         return collated_data, count, file
     else:
@@ -146,3 +146,38 @@ def float_format(x, case):
             x_str = x_to1dp
 
     return x_str
+
+
+# MISCELLANEOUS
+# -----------------------------------------------------------------------------
+
+def zeroconst(*args):
+    """Zero constant function.
+
+    Parameters
+    ----------
+    *arg
+        Arbitrary parameters.
+
+    Returns
+    -------
+    0
+
+    """
+    return 0
+
+
+def unitconst(*args):
+    """Unit constant function.
+
+    Parameters
+    ----------
+    *arg
+        Arbitrary parameters.
+
+    Returns
+    -------
+    1
+
+    """
+    return 1
