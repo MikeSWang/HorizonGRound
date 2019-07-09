@@ -15,6 +15,7 @@ from runconf import PATHOUT, hgrstyle
 # =============================================================================
 
 import numpy as np
+import seaborn as sns
 from matplotlib import pyplot as plt
 from matplotlib.lines import Line2D
 from nbodykit.lab import cosmology as cosmo
@@ -31,7 +32,7 @@ def aggregate(result):
     dof = np.size(result['P0'], axis=0) - 1
 
     return {
-        #'Nk': np.sum(result['Nk'], axis=0)/2,
+        'Nk': np.sum(result['Nk'], axis=0)/2,
         'k': np.average(result['k'], axis=0),
         'P0': np.average(result['P0'], axis=0),
         'P2': np.average(result['P2'], axis=0),
@@ -64,7 +65,7 @@ SAVEFIG = False
 
 # Runtime constants.
 Plin = cosmo.LinearPower(cosmo.Planck15, redshift=0., transfer='CLASS')
-frate = cosmo.background.MatterDominated(0.307).f1(1)
+growth_rate = cosmo.background.MatterDominated(0.307).f1(1)
 
 # Collate and/or save data
 if COLLATE:
@@ -85,64 +86,61 @@ if LOAD_ADD and (TAG_ADD is not None):
 if EXPORT:
     # Figure property
     plt.style.use(hgrstyle)
+    sns.set(context='talk', style='ticks', palette='deep', font='serif')
     plt.close('all')
     plt.figure('Multipoles signature')
 
-    ell_colours = ['#000000', '#C40233', '#0087BD',]
+    ells = [0, 2, 4]
 
     # Prediction
     Pk = Plin(data['k'])
     model = {
-        'P0': (1 + 2/3 * frate + 1/5 * frate**2) * Pk,
-        'P2': (4/3 * frate + 4/7 * frate**2) * Pk,
-        'P4': (8/35 * frate**2) * Pk,
+        'P0': (1 + 2/3 * growth_rate + 1/5 * growth_rate**2) * Pk,
+        'P2': (4/3 * growth_rate + 4/7 * growth_rate**2) * Pk,
+        'P4': (8/35 * growth_rate**2) * Pk,
         }
 
     # Comparison
+    pell_line = {}
     with np.errstate(divide='ignore'):
-        c = iter(ell_colours)
-        for ell in [0, 2,]:
-            pell_line = plt.loglog(
+        for ell in ells:
+            pell_line[ell] = plt.loglog(
                 data['k'], data[f'P{ell}']/model[f'P{ell}'],
-                color=next(c),
                 label=r'$\ell = {{{}}}$'.format(ell)
                 )
             plt.fill_between(
                 data['k'],
                 (data[f'P{ell}'] - data[f'dP{ell}'])/model[f'P{ell}'],
                 (data[f'P{ell}'] + data[f'dP{ell}'])/model[f'P{ell}'],
-                color=pell_line[0].get_color(), alpha=1/8
+                color=pell_line[ell][0].get_color(), alpha=1/4
                 )
     if LOAD_ADD:
         with np.errstate(divide='ignore'):
-            c_add = iter(ell_colours)
-            for ell in [0, 2,]:
-                pell_line = plt.loglog(
+            for ell in ells:
+                plt.loglog(
                     data_add['k'], data_add[f'P{ell}']/model[f'P{ell}'],
-                    color=next(c_add),
-                    linestyle='-.'
+                    color=pell_line[ell][0].get_color(), linestyle='-.'
                     )
                 plt.fill_between(
                     data_add['k'],
-                    (data_add[f'P{ell}'] - data_add[f'dP{ell}'])/model[f'P{ell}'],
-                    (data_add[f'P{ell}'] + data_add[f'dP{ell}'])/model[f'P{ell}'],
-                    color=pell_line[0].get_color(), alpha=1/8
+                    (data_add[f'P{ell}']
+                        - data_add[f'dP{ell}'])/model[f'P{ell}'],
+                    (data_add[f'P{ell}']
+                        + data_add[f'dP{ell}'])/model[f'P{ell}'],
+                    color=pell_line[ell][0].get_color(), alpha=1/4
                     )
 
     # Annotation
-    plt.axhline(y=1, ls='--', c='gray', alpha=0.5)
+    plt.axhline(y=1, ls=':', lw=0.5, alpha=0.75)
     plt.xlim(right=0.1)
     plt.ylim(bottom=0.25, top=250)
 
-    linestyles = ['-', '-.']
-    linelabels = ['evolution', 'static']
-    lines = [
-        Line2D([0], [0], color=ell_colours[0], linestyle=ls)
-        for ls in linestyles
-        ]
+    line_styles = ['-', '-.']
+    line_labels = ['evolution', 'static']
+    lines = [Line2D([0], [0], color='k', linestyle=ls) for ls in line_styles]
     handles, labels = plt.gca().get_legend_handles_labels()
     handles.extend(lines)
-    labels.extend(linelabels)
+    labels.extend(line_labels)
     plt.legend(handles, labels)
 
     plt.xlabel(r'$k$ [$h/\textrm{Mpc}$]')
