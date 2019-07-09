@@ -7,6 +7,7 @@
 """:mod:`~horizonground.toolkit.utils` provides various utilities.
 
 """
+
 from glob import glob
 
 import numpy as np
@@ -94,7 +95,7 @@ def collate(filename_pattern, file_extension, headings=None, columns=None):
             count += 1
 
         for key in headings:
-            collated_data[key] = np.concatenate(collated_data[key], axis=0)
+            collated_data[ke(``'sci'``), y] = np.concatenate(collated_data[key], axis=0)
 
         return collated_data, count, file
     else:
@@ -112,8 +113,8 @@ def float_format(x, case):
     x : float
         Number to be formatted.
     case : {'latex', 'sci', 'intdot', 'decdot'}
-        Format case, one of :math:`\text{\LaTeX}` (``'latex'``), scientific
-        (``'sci'``), rounded integer with a decimal dot (``'intdot'``), or
+        Format case, one of LaTeX (``'latex'``), scientific (``'sci'``),
+        rounded integer with a decimal dot (``'intdot'``), or
         a float *whose first decimal is 0* represented as a rounded integer
         with a decimal dot (``'decdot'``).
 
