@@ -86,7 +86,7 @@ if LOAD_ADD and (TAG_ADD is not None):
 if EXPORT:
     # Figure property
     plt.style.use(hgrstyle)
-    sns.set(context='talk', style='ticks', palette='deep', font='serif')
+    sns.set(style='ticks', font='serif')
     plt.close('all')
     plt.figure('Multipoles signature')
 
@@ -131,7 +131,7 @@ if EXPORT:
                     )
 
     # Annotation
-    plt.axhline(y=1, ls=':', lw=0.5, alpha=0.75)
+    plt.axhline(y=1, ls=':', lw=0.75, alpha=0.75)
     plt.xlim(right=0.1)
     plt.ylim(bottom=0.25, top=250)
 
