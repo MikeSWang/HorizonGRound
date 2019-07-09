@@ -27,16 +27,18 @@ from horizonground.toolkit import collate
 
 def aggregate(result):
 
+    dof = np.size(result['P0'], axis=0) - 1
+
     return {
         #'Nk': np.sum(result['Nk'], axis=0)/2,
         'k': np.average(result['k'], axis=0),
         'P0': np.average(result['P0'], axis=0),
         'P2': np.average(result['P2'], axis=0),
         'P4': np.average(result['P4'], axis=0),
-        'dk': np.std(result['k'], axis=0, ddof=1),
-        'dP0': np.std(result['P0'], axis=0, ddof=1),
-        'dP2': np.std(result['P2'], axis=0, ddof=1),
-        'dP4': np.std(result['P4'], axis=0, ddof=1),
+        'dk': np.std(result['k'], axis=0, ddof=1) / np.sqrt(dof),
+        'dP0': np.std(result['P0'], axis=0, ddof=1) / np.sqrt(dof),
+        'dP2': np.std(result['P2'], axis=0, ddof=1) / np.sqrt(dof),
+        'dP4': np.std(result['P4'], axis=0, ddof=1) / np.sqrt(dof),
         }
 
 
@@ -104,6 +106,7 @@ if EXPORT:
             color=p4_line[0].get_color(), alpha=1/8
             )
 
+    plt.axhline(y=1, ls='--', c='gray', alpha=0.5)
     plt.legend()
     plt.xlabel(r'$k$ [$h/\textrm{Mpc}$]')
     plt.ylabel(r'$\hat{P}_\ell(k)/P_\ell(k)$ [$(\textrm{Mpc}/h)^3$]')
