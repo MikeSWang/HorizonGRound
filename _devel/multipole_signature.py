@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# devel.py: DEVELOPMENT SCRIPT
+# devel.py: DEVELOPMENT SCRIPT  # TODO: Future name change.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-"""Development codes."""
+"""Development codes."""  # TODO: Future docstring change.
 
 from runconf import PATHOUT, argv, filename
 
@@ -26,45 +26,47 @@ from horizonground.toolkit import float_format as ff
 # DEFINITION
 # =============================================================================
 
-def sloped_probability(x, xmin, xmax, slope=-0.5):
-    """Linear probability density given a slope, normalised to its maximum.
+def linear_slope(x, xmin, xmax, slope=-0.5):
+    """Linear function :math:`y(x)` of given slope normalised to :math:`[0,1]`.
 
     Parameters
     ----------
     x : float, array_like
-        Random variable value.
+        Independent variable value.
     xmin, xmax : float
-        Random variable domain boundaries.
+        Domain boundaries.
     slope : float, optional
         Slope of the linear density (default is -0.5).
 
     Returns
     -------
-    density : float, array_like
-        Probability density.
+    y : float, array_like
+        Function value.
 
     """
-    density = 1 + slope * (x - xmin) / (xmax - xmin)
+    y = 1 + slope * (x - xmin) / (xmax - xmin)
 
-    return density
+    return y
 
 
-def select_to_prob(x, prob_density, *args, **kargs):
-    """Random selection given a probability density function by rejection
-    sampling.
+def select_to_density(x, density_func, mode, *args, **kargs):
+    """Selection given a density function, either definite or randomly sampled
+    by rejection.
 
     Parameters
     ----------
     x : float, array_like
-        Random variable value.
-    prob_density : callable
-        Probability density function.
+        Variable value.
+    density_func : callable
+        Density function.
+    mode : {'definite', 'random'}
+        Definite selection ``'definite'`` or random sampling ``'random'``.
     *args, **kargs
-        Positional and keyword parameters to be passed to `prob_density`.
+        Positional and keyword parameters to be passed to `density_func`.
 
     Returns
     -------
-    selection : bool, array_like
+    selection : bool or float, array_like
         Selection value.
 
     """
@@ -72,7 +74,10 @@ def select_to_prob(x, prob_density, *args, **kargs):
     if x.ndim != 1:
         x = np.squeeze(x)
 
-    selection = (np.random.rand(len(x)) < prob_density(x, *args, **kargs))
+    if mode.lower()[:3] == 'def':
+        selection = density_func(x, *args, **kargs)
+    elif mode.lower()[:3] == 'ran':
+        selection = (np.random.rand(len(x)) < density_func(x, *args, **kargs))
 
     return selection
 
@@ -112,6 +117,7 @@ if argv[7:]: TAG += f"-{argv[7:]}"
 
 # Runtime constants.
 Plin = cosmo.LinearPower(cosmo.Planck15, redshift=REDSHIFT, transfer='CLASS')
+frate = cosmo.background.MatterDominated(0.307).f1(1)
 
 
 # PROCESSING
@@ -123,8 +129,8 @@ for run in range(NITER):
     # Evolution catalogue.
     clog_evol = LogNormalCatalog(Plin, NBAR, BOXSIDE, NMESHC)
 
-    clog_evol['Selection'] = select_to_prob(
-        clog_evol['Position'][:,-1], sloped_probability, 0, BOXSIDE
+    clog_evol['Selection'] = select_to_density(
+        clog_evol['Position'][:, -1], linear_slope, 'definite', 0, BOXSIDE
         )
     clog_evol['Position'] = clog_evol['Position'] \
         + clog_evol['VelocityOffset'] * [0, 0, 1]
@@ -140,7 +146,7 @@ for run in range(NITER):
     """
     # Compute multipoles.
     poles_evol = FFTPower(
-        clog_evol, mode='2d', los=[0, 0, 1], poles=[0, 2, 4]
+        mesh_evol, mode='2d', los=[0, 0, 1], poles=[0, 2, 4]
         ).poles
 
     # Append reordered results
@@ -165,9 +171,14 @@ plt.close('all')
 plt.figure('Multipoles signature')
 
 Pk = Plin(evol['k'])
-plt.loglog(evol['k'], evol['P0']/Pk, label=r'$\ell = 0$')
-plt.loglog(evol['k'], evol['P2']/Pk, label=r'$\ell = 2$')
-plt.loglog(evol['k'], evol['P4']/Pk, label=r'$\ell = 4$')
+P0 = (1 + 2/3 * frate + 1/5 * frate**2) * Pk
+P2 = (4/3 * frate + 4/7 * frate**2) * Pk
+P4 = (8/35 * frate**2) * Pk
+
+with np.errstate(divide='ignore'):
+    p0_line = plt.loglog(evol['k'], evol['P0']/P0, label=r'$\ell = 0$')
+    p2_line = plt.loglog(evol['k'], evol['P2']/P2, label=r'$\ell = 2$')
+    p4_line = plt.loglog(evol['k'], evol['P4']/P4, label=r'$\ell = 4$')
 
 plt.legend()
 plt.xlabel(r'$k$ [$h/\textrm{Mpc}$]')
