@@ -1,15 +1,17 @@
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 # __init__.py: HORIZONGROUND
 #
-# Copyright (C) 2019, MS Wang
+# Copyright (C) 2019, HorizonGRound / MS Wang
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-""":mod:`horizonground` is a Python program designed for investigating general
-relativistic effects in the large-scale galaxy-clustering background.
+"""
+###############################################################################
+``HorizonGRound`` | General relativistic effects in large-scale clustering
+###############################################################################
 
-**Legal disclaimer**
+.. topic:: Legal disclaimer
 
-    Copyright (C) 2019 MS Wang
+    Copyright (C) 2019, HorizonGRound / MS Wang
 
     This program is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by the Free

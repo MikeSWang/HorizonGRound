@@ -1,14 +1,18 @@
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 # lab/__init__.py: LABORATORY
 #
-# Copyright (C) 2019, MS Wang
+# Copyright (C) 2019, HorizonGRound / MS Wang
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-""":mod:`~horizonground.lab` provides the environment for demonstration,
-testing and development.
+"""
+*******************************************************************************
+Lab (:mod:`~horizonground.lab`)
+*******************************************************************************
+
+Laboratory environment for demonstration and testing.
 
 """
 
-from .demo import *
 from .tests import *
-from .devel import *
+
+# TODO: Populate with default imports and configuration for demos and tests.

@@ -1,10 +1,14 @@
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 # toolkit/utils.py: UTILITIES
 #
-# Copyright (C) 2019, MS Wang
+# Copyright (C) 2019, HorizonGRound / MS Wang
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-""":mod:`~horizonground.toolkit.utils` provides various utilities.
+"""
+Utilities (:mod:`~horizonground.toolkit.utils`)
+===============================================================================
+
+Common utilities.
 
 """
 
@@ -12,10 +16,6 @@ from glob import glob
 
 import numpy as np
 
-
-# =============================================================================
-# DEFINITION
-# =============================================================================
 
 # FILE HANDLING TOOLS
 # -----------------------------------------------------------------------------
@@ -152,32 +152,35 @@ def float_format(x, case):
 # -----------------------------------------------------------------------------
 
 def zeroconst(*args):
-    """Zero constant function.
+
+    """Return constant 0.
 
     Parameters
     ----------
-    *arg
+    *args
         Arbitrary parameters.
 
     Returns
     -------
-    0
+    float
+        0
 
     """
-    return 0
+    return 0.
 
 
 def unitconst(*args):
-    """Unit constant function.
+    """Return constant 1.
 
     Parameters
     ----------
-    *arg
+    *args
         Arbitrary parameters.
 
     Returns
     -------
-    1
+    float
+        1
 
     """
-    return 1
+    return 1.

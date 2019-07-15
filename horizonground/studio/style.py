@@ -1,29 +1,32 @@
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-# studio/style.py: VISUALISATION STYLE
+# studio/style.py: STYLE GUIDE
 #
-# Copyright (C) 2019, MS Wang
+# Copyright (C) 2019, HorizonGRound / MS Wang
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-""":mod:`~horizonground.studio.style` provides the visualisation style for use
-with :mod:`matplotlib`.  User can modify default options in
-:const:`horizon_style`.
+"""
+Style guide (:mod:`~horizonground.studio.style`)
+===============================================================================
+
+Visualisation style guide for use with :mod:`matplotlib`.  The User can modify
+default options in :const:`hgrstyle`.
 
 """
 
 from cycler import cycler
 
-horizon_style = {
+hgrstyle = {
     'figure.figsize': [8, 4.5],
     'figure.titlesize': 'large',
 
     'savefig.format': 'pdf',
     'savefig.bbox': 'tight',
     'savefig.transparent': True,
-    # 'savefig.facecolor': True,
-    # 'savefig.edgecolor': True,
+    # 'savefig.facecolor': ,
+    # 'savefig.edgecolor': ,
 
     'text.usetex': True,
-    # 'text.latex.preamble': [r'\usepackage{upgreek}'],
+    'text.latex.preamble': [],
     'font.family': 'serif',
     'font.size': 11.0,
 
@@ -58,21 +61,21 @@ horizon_style = {
 
     'xtick.major.size': 5,
     'xtick.minor.size': 2.5,
-    'xtick.major.width': 0.15,
-    'xtick.minor.width': 0.15,
+    'xtick.major.width': 0.2,
+    'xtick.minor.width': 0.2,
     'xtick.major.pad': 5,
     'xtick.minor.pad': 5,
     'xtick.labelsize': 'medium',
-    'xtick.direction': 'in',
+    'xtick.direction': 'out',
     'xtick.top': True,
 
     'ytick.major.size': 5,
     'ytick.minor.size': 2.5,
-    'ytick.major.width': 0.15,
-    'ytick.minor.width': 0.15,
+    'ytick.major.width': 0.2,
+    'ytick.minor.width': 0.2,
     'ytick.major.pad': 5,
     'ytick.minor.pad': 5,
     'ytick.labelsize': 'medium',
-    'ytick.direction': 'in',
+    'ytick.direction': 'out',
     'ytick.right': True,
     }

@@ -1,9 +1,12 @@
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-# core/__init__.py: CORE CONSTRUCTS AND ALGORITHMS
+# core/__init__.py: CORE STRUCTURE AND ALGORITHMS
 #
-# Copyright (C) 2019, MS Wang
+# Copyright (C) 2019, HorizonGRound / MS Wang
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-""":mod:`~horizonground.core` provides core constructs and algorithms.
+"""
+*******************************************************************************
+Core structure and algorithms (:mod:`~horizonground.core`)
+*******************************************************************************
 
 """
