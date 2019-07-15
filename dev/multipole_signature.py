@@ -14,7 +14,6 @@ multipoles.
 
 import numpy as np
 from matplotlib import pyplot as plt
-from matplotlib.lines import Line2D
 from nbodykit.lab import cosmology as cosmo, LogNormalCatalog, FFTPower
 
 from runconf import PATHOUT, argv, ff, hgrstyle, filename
@@ -113,10 +112,9 @@ TAG = (
 if argv[7:]: TAG += f"-{argv[7:]}"
 
 # Runtime constants.
-KMAX = 0.1
+KMAX = 1.
 
 Plin = cosmo.LinearPower(cosmo.Planck15, redshift=Z, transfer='CLASS')
-growth_rate = cosmo.background.MatterDominated(0.307).f1(1)
 
 
 # PROCESSING
@@ -164,13 +162,13 @@ for run in range(NITER):
     evol['P2'].append(poles_evol['power_2'].real)
     evol['P4'].append(poles_evol['power_4'].real)
 
-    stat['k'].append(poles_evol['k'])
-    stat['Nk'].append(poles_evol['modes'])
+    stat['k'].append(poles_stat['k'])
+    stat['Nk'].append(poles_stat['modes'])
     stat['P0'].append(
-        poles_evol['power_0'].real - poles_evol.attrs['shotnoise']
+        poles_stat['power_0'].real - poles_stat.attrs['shotnoise']
         )
-    stat['P2'].append(poles_evol['power_2'].real)
-    stat['P4'].append(poles_evol['power_4'].real)
+    stat['P2'].append(poles_stat['power_2'].real)
+    stat['P4'].append(poles_stat['power_4'].real)
 
 
 # FINALISATION
@@ -180,45 +178,28 @@ for run in range(NITER):
 np.save(f"{PATHOUT}{DIR}{PREFIX}-{TAG}-evol.npy", evol)
 np.save(f"{PATHOUT}{DIR}{PREFIX}-{TAG}-stat.npy", stat)
 
-# Visualise data
+# Visualise data.
 plt.style.use(hgrstyle)
 plt.close('all')
 plt.figure('Multipoles signature')
 
-Pk = Plin(np.array(evol['k'][0] + stat['k'][0])/2)
-P0 = (1 + 2/3 * growth_rate + 1/5 * growth_rate**2) * Pk
-P2 = (4/3 * growth_rate + 4/7 * growth_rate**2) * Pk
-P4 = (8/35 * growth_rate**2) * Pk
+np.seterr(divide='ignore')
 
-with np.errstate(divide='ignore'):
-    p0_evol = plt.loglog(
-        evol['k'], evol['P0']/P0, label=r'$\ell = 0$'
-        )
-    p2_evol = plt.loglog(
-        evol['k'], evol['P2']/P2, label=r'$\ell = 2$'
-        )
-    p4_evol = plt.loglog(
-        evol['k'], evol['P4']/P4, label=r'$\ell = 4$'
-        )
+k = (np.mean(evol['k'], axis=0) + np.mean(stat['k'], axis=0)) / 2
+ells = [0, 2, 4]
 
-    p0_stat = plt.loglog(
-        stat['k'], stat['P0']/P0, color=p0_evol[0].get_color(), ls='--'
-        )
-    p2_stat = plt.loglog(
-        stat['k'], stat['P2']/P2, color=p2_evol[0].get_color(), ls='--'
-        )
-    p4_stat = plt.loglog(
-        stat['k'], stat['P4']/P4, color=p4_evol[0].get_color(), ls='--'
-        )
+for ell in ells:
+    ratio = np.mean(evol[f'P{ell}'], axis=0) / np.mean(stat[f'P{ell}'], axis=0)
 
-line_styles = ['-', '--']
-line_labels = ['evolution', 'static']
-lines = [Line2D([0], [0], color='k', linestyle=ls) for ls in line_styles]
-handles, labels = plt.gca().get_legend_handles_labels()
-handles.extend(lines)
-labels.extend(line_labels)
+    plt.loglog(k, ratio, label=r'$\ell = {{{}}}$'.format(ell))
 
-plt.legend(handles, labels)
+plt.axhline(y=1, ls=':', alpha=0.75)
+plt.xlim(right=1.)
+plt.ylim(bottom=0.2, top=20)
+plt.legend()
 plt.xlabel(r'$k$ [$h/\textrm{Mpc}$]')
-plt.ylabel(r'$\hat{P}_\ell(k)/P_\ell(k)$ [$(\textrm{Mpc}/h)^3$]')
+plt.ylabel(
+    r'$P_{\ell,\mathrm{evol}}(k) / P_{\ell,\mathrm{stat}}(k)$ '
+    r'[$(\textrm{Mpc}/h)^3$]'
+    )
 plt.savefig(f"{PATHOUT}{DIR}{PREFIX}-{TAG}.pdf")
