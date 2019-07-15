@@ -1,18 +1,16 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# runconf.py: DEVELOPMENT SCRIPT CONFIGURATION
+# runconf.py: RUNTIME CONFIGURATION
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-"""Runtime configuration overheads for example scripts."""
+"""Runtime configuration for scripts."""
 
 from sys import argv, path
 from os.path import basename, splitext
 
-path.append("../")
+path.append("../")  # for the following imports
 
-from horizonground.studio.style import horizon_style as hgrstyle
+from horizonground.studio import hgrstyle
+from horizonground.toolbox import float_format as ff
 
 PATHIN = "./data/input/"
 PATHOUT = "./data/output/"
