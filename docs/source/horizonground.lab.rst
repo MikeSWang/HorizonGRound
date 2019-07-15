@@ -11,7 +11,4 @@ Subpackages
 
 .. toctree::
 
-    horizonground.lab.demo
-    horizonground.lab.devel
     horizonground.lab.tests
-

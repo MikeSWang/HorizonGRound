@@ -11,7 +11,6 @@ Subpackages
 
 .. toctree::
 
-    horizonground.config
     horizonground.core
     horizonground.lab
     horizonground.studio
