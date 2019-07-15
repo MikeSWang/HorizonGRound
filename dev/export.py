@@ -59,7 +59,7 @@ LOAD = True
 LOAD_ADD = True
 AGGREGATE = True
 
-SIGNATURE = 'model'  # 'model', 'likes'
+SIGNATURE = 'quant'  # 'model', 'likes'
 
 EXPORT = True
 
@@ -132,6 +132,8 @@ if EXPORT:
                         + data_add[f'dP{ell}'])/model[f'P{ell}'],
                     color=lines[ell][0].get_color(), alpha=1/4
                     )
+        plt.axhline(y=1, ls=':', alpha=0.75)
+        plt.ylim(bottom=0.2, top=20)
 
     # like-for-like comparison
     if SIGNATURE == 'likes' and LOAD_ADD:
@@ -149,11 +151,22 @@ if EXPORT:
             plt.fill_between(data['k'][1:], ratio_lower[1:], ratio_upper[1:],
                              color=line[0].get_color(), alpha=1/4
                              )
+        plt.axhline(y=1, ls=':', alpha=0.75)
+        plt.ylim(bottom=0.2, top=20)
+
+    # quantitative comparison
+    if SIGNATURE == 'quant' and LOAD_ADD:
+        lines = {}
+        for ell in ells:
+            # !!!: ``[1:]`` added
+            lines[ell] = plt.loglog(
+                data['k'][1:],
+                data[f'P{ell}'][1:] / data_add[f'P{ell}'][1:] - 1,
+                label=r'$\ell = {{{}}}$'.format(ell)
+                )
 
     # Annotation.
-    plt.axhline(y=1, ls=':', alpha=0.75)
     plt.xlim(right=1.)
-    plt.ylim(bottom=0.2, top=20)
     plt.xlabel(r'$k$ [$h/\textrm{Mpc}$]')
     plt.ylabel(
         r'$P_{\ell,\mathrm{evol}}(k) / P_{\ell,\mathrm{stat}}(k)$ '
