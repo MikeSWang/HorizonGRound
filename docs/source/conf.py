@@ -54,7 +54,8 @@ language = None
 html_theme = 'alabaster'
 
 html_theme_options = {
-    'page_width': '1100px',
+    'page_width': '1125px',
+    'sidebar_width': '225px',
     'fixed_sidebar' : True,
     'github_user': 'MikeSWang',
     'github_repo': 'HorizonGRound',
@@ -65,8 +66,7 @@ html_static_path = ['_static']
 html_logo = '_static/HorizonGRound.png'
 
 html_sidebars = {
-    '**': [#'about.html',
-           'navigation.html',
+    '**': ['navigation.html',
            'localtoc.html',
            'searchbox.html',
            ],

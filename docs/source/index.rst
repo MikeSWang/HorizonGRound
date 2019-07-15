@@ -8,8 +8,8 @@ HorizonGRound | Effects in Galaxy-Clustering Background
 *HorizonGRound* is a Python program designed for investigating general
 relativistic effects in the large-scale galaxy-clustering background.
 
-Documentation
--------------
+API Documentation
+-----------------
 
 .. toctree::
    :maxdepth: 1
