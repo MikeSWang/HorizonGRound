@@ -4,7 +4,7 @@
 # multipole_signature.py: EVOLUTION SIGNATURE IN MULTIPOLES
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-"""Seeek signatures of evolving background number density in power spectrum
+"""Seek signatures of evolving background number density in power spectrum
 multipoles.
 """
 
@@ -130,7 +130,7 @@ for run in range(NITER):
     clog_evol = LogNormalCatalog(Plin, NBAR, BOXSIDE, NMESHC)
 
     clog_evol['Weight'] = select_to_density(
-        clog_evol['Position'][:, -1], select_to_density, 'definite', 0, BOXSIDE
+        clog_evol['Position'][:, -1], linear_slope, 'definite', 0, BOXSIDE
         )
     clog_evol['Position'] += clog_evol['VelocityOffset'] * [0, 0, 1]
 
