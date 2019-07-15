@@ -10,7 +10,7 @@ from os.path import basename, splitext
 path.append("../")  # for the following imports
 
 from horizonground.studio import hgrstyle
-from horizonground.toolbox import float_format as ff
+from horizonground.toolkit import float_format as ff
 
 PATHIN = "./data/input/"
 PATHOUT = "./data/output/"

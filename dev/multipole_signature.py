@@ -107,7 +107,7 @@ PREFIX = f"{filename()}"
 if NMESHC == NMESHF: MESH_TAG = f"cp{NMESHC}"
 else: MESH_TAG = f"c{NMESHC},p{NMESHF}"
 TAG = (
-   f"(nbar={ff(NBAR, 'sci')},z={ff(Z, 'decint')},side={ff(BOXSIDE, 'intdot')},"
+   f"(nbar={ff(NBAR, 'sci')},z={ff(Z, 'decdot')},side={ff(BOXSIDE, 'intdot')},"
    f"nmesh=[{MESH_TAG}],niter={NITER})"
    )
 if argv[7:]: TAG += f"-{argv[7:]}"

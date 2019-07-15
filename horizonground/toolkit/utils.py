@@ -123,6 +123,11 @@ def float_format(x, case):
     x_str : str
         Formatted string.
 
+    Raises
+    ------
+    ValueError
+        If `case` is not one of the supported formats.
+
     """
     if not isinstance(x, float):
         x = float(x)
@@ -144,6 +149,10 @@ def float_format(x, case):
             x_str = x_to1dp.strip("0")
         else:
             x_str = x_to1dp
+    else:
+        raise ValueError(
+            "Supported formats are 'latex', 'sci', 'intdot', 'decdot' only. "
+            )
 
     return x_str
 
