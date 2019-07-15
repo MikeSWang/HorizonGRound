@@ -59,7 +59,7 @@ LOAD = True
 LOAD_ADD = True
 AGGREGATE = True
 
-SIGNATURE = 'likes'  # 'model'
+SIGNATURE = 'likes'  # 'model', 'likes'
 
 EXPORT = True
 
@@ -142,6 +142,7 @@ if EXPORT:
             ratio_upper = (data[f'P{ell}'] + data[f'dP{ell}']) \
                 / (data_add[f'P{ell}'] - data_add[f'dP{ell}'])
 
+            # !!!: ``[1:]`` added
             line = plt.loglog(data['k'][1:], ratio[1:],
                               label=r'$\ell = {{{}}}$'.format(ell)
                               )
