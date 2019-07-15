@@ -51,15 +51,15 @@ def aggregate(result):
 
 DIR = "multipole_signature/collated/"
 PREFIX = "multipole_signature"
-TAG = "(nbar=0.001,z=0.,side=500.,nmesh=[cp256],niter=94000)-evol"
-TAG_ADD = "(nbar=0.001,z=0.,side=500.,nmesh=[cp256],niter=94000)-stat"
+TAG = "(nbar=0.001,z=0.,side=500.,nmesh=[cp256],niter=1000)-evol"
+TAG_ADD = "(nbar=0.001,z=0.,side=500.,nmesh=[cp256],niter=1000)-stat"
 
 COLLATE = False
 LOAD = True
 LOAD_ADD = True
 AGGREGATE = True
 
-SIGNATURE = 'likes'  # 'model', 'likes'
+SIGNATURE = 'model'  # 'model', 'likes'
 
 EXPORT = True
 
