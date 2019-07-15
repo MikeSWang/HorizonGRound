@@ -140,6 +140,7 @@ for run in range(NITER):
     clog_stat = LogNormalCatalog(
         Plin, NBAR, BOXSIDE, NMESHC, seed=clog_evol.attrs['seed']
         )
+    clog_stat['Position'] += clog_stat['VelocityOffset'] * [0, 0, 1]
 
     mesh_stat = clog_stat.to_mesh(
         Nmesh=NMESHF, resampler='tsc', compensated=True, interlaced=True

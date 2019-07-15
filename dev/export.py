@@ -51,8 +51,8 @@ def aggregate(result):
 
 DIR = "multipole_signature/collated/"
 PREFIX = "multipole_signature"
-TAG = "(nbar=0.001,z=0.,side=500.,nmesh=[cp256],niter=1000)-evol"
-TAG_ADD = "(nbar=0.001,z=0.,side=500.,nmesh=[cp256],niter=1000)-stat"
+TAG = "(nbar=0.001,z=0.,side=500.,nmesh=[cp256],niter=94000)-evol"
+TAG_ADD = "(nbar=0.001,z=0.,side=500.,nmesh=[cp256],niter=94000)-stat"
 
 COLLATE = False
 LOAD = True
@@ -63,7 +63,7 @@ SIGNATURE = 'likes'  # 'model'
 
 EXPORT = True
 
-SAVE = False
+SAVE = True
 SAVEFIG = False
 
 # Collate and/or save data.
@@ -101,8 +101,8 @@ if EXPORT:
     plt.close('all')
     plt.figure('Multipoles signature')
 
-    ells = [0, 2, 4]
-    np.seterr(divide='ignore')
+    ells = [0, 2,]
+    np.seterr(divide='ignore', invalid='ignore')
 
     # model comparison
     if SIGNATURE == 'model':
@@ -136,15 +136,16 @@ if EXPORT:
     # like-for-like comparison
     if SIGNATURE == 'likes' and LOAD_ADD:
         for ell in ells:
-            ratio = data[f'P{ell}']/data_add[f'P{ell}']
+            ratio = data[f'P{ell}'] / data_add[f'P{ell}']
             ratio_lower = (data[f'P{ell}'] - data[f'dP{ell}']) \
                 / (data_add[f'P{ell}'] + data_add[f'dP{ell}'])
             ratio_upper = (data[f'P{ell}'] + data[f'dP{ell}']) \
                 / (data_add[f'P{ell}'] - data_add[f'dP{ell}'])
-            line = plt.loglog(data['k'], ratio,
+
+            line = plt.loglog(data['k'][1:], ratio[1:],
                               label=r'$\ell = {{{}}}$'.format(ell)
                               )
-            plt.fill_between(data['k'], ratio_lower, ratio_upper,
+            plt.fill_between(data['k'][1:], ratio_lower[1:], ratio_upper[1:],
                              color=line[0].get_color(), alpha=1/4
                              )
 
