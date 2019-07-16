@@ -35,3 +35,7 @@ __license__ = "GPL 3.0"
 __version__ = "0.0.dev0"
 
 # TODO: Populate with default imports.
+from core import *
+from lab import *
+from studio import *
+from toolkit import *

@@ -110,7 +110,6 @@ def select_to_density(x, density_func, mode, *args, **kargs):
 
 # Runtime variables: read from command line, else resort to defaults.
 try:
-
     NBAR, Z, BOXSIDE = float(argv[1]), float(argv[2]), float(argv[3])
     NMESHC, NMESHF, NITER = int(argv[4]), int(argv[5]), int(argv[6])
 except:
@@ -146,7 +145,6 @@ print(TAG)
 
 stat = {'k': [], 'Nk': [], 'P0': [], 'P2': [], 'P4': [],}
 evol = {'k': [], 'Nk': [], 'P0': [], 'P2': [], 'P4': [],}
-
 for run in range(NITER):
     # Generate evolution catalogue.
     clog_evol = LogNormalCatalog(Plin, NBAR, BOXSIDE, NMESHC)
