@@ -37,13 +37,11 @@ def linear_slope(x, xmin, xmax, slope=-0.5):
 
     Returns
     -------
-    y : float, array_like
+    float, array_like
         Function value.
 
     """
-    y = 1 + slope * (x - xmin) / (xmax - xmin)
-
-    return y
+    return 1 + slope * (x - xmin) / (xmax - xmin)
 
 
 def select_to_density(x, density_func, mode, *args, **kargs):
@@ -63,7 +61,7 @@ def select_to_density(x, density_func, mode, *args, **kargs):
 
     Returns
     -------
-    selection : bool or float, array_like
+    bool or float, array_like
         Selection value.
 
     """
@@ -72,11 +70,9 @@ def select_to_density(x, density_func, mode, *args, **kargs):
         x = np.squeeze(x)
 
     if mode.lower().startswith('d'):
-        selection = density_func(x, *args, **kargs)
+        return density_func(x, *args, **kargs)
     elif mode.lower().startswith('r'):
-        selection = (np.random.rand(len(x)) < density_func(x, *args, **kargs))
-
-    return selection
+        return (np.random.rand(len(x)) < density_func(x, *args, **kargs))
 
 
 # =============================================================================
@@ -112,13 +108,15 @@ TAG = (
 if argv[7:]: TAG += f"-{argv[7:]}"
 
 # Runtime constants.
-KMAX = 1.
+KMAX = 0.5
 
 Plin = cosmo.LinearPower(cosmo.Planck15, redshift=Z, transfer='CLASS')
 
 
 # PROCESSING
 # -----------------------------------------------------------------------------
+
+print(TAG)
 
 stat = {'k': [], 'Nk': [], 'P0': [], 'P2': [], 'P4': [],}
 evol = {'k': [], 'Nk': [], 'P0': [], 'P2': [], 'P4': [],}
@@ -180,11 +178,10 @@ np.save(f"{PATHOUT}{DIR}{PREFIX}-{TAG}-evol.npy", evol)
 np.save(f"{PATHOUT}{DIR}{PREFIX}-{TAG}-stat.npy", stat)
 
 # Visualise data.
+np.seterr(divide='ignore')
 plt.style.use(hgrstyle)
 plt.close('all')
 plt.figure('Multipoles signature')
-
-np.seterr(divide='ignore')
 
 k = (np.mean(evol['k'], axis=0) + np.mean(stat['k'], axis=0)) / 2
 ells = [0, 2, 4]
@@ -194,8 +191,8 @@ for ell in ells:
 
     plt.loglog(k, ratio, label=r'$\ell = {{{}}}$'.format(ell))
 
-plt.axhline(y=1, ls=':', alpha=0.75)
-plt.xlim(right=1.)
+plt.axhline(y=1, c='gray', ls=':')
+plt.xlim(right=KMAX)
 plt.ylim(bottom=0.2, top=20)
 plt.legend()
 plt.xlabel(r'$k$ [$h/\textrm{Mpc}$]')

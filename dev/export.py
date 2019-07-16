@@ -54,16 +54,17 @@ PREFIX = "multipole_signature"
 TAG = "(nbar=0.001,z=0.,side=500.,nmesh=[cp256],niter=1000)-evol"
 TAG_ADD = "(nbar=0.001,z=0.,side=500.,nmesh=[cp256],niter=1000)-stat"
 
+SIGNATURE = 'quant'  # 'model', 'likes', 'quant'
+
 COLLATE = False
+SAVE = True
+
 LOAD = True
 LOAD_ADD = True
+
 AGGREGATE = True
 
-SIGNATURE = 'quant'  # 'model', 'likes'
-
 EXPORT = True
-
-SAVE = True
 SAVEFIG = False
 
 # Collate and/or save data.
@@ -81,6 +82,13 @@ if LOAD_ADD and (TAG_ADD is not None):
     results_add = np.load(f"{PATHOUT}{DIR}{PREFIX}-{TAG_ADD}.npy").item()
     if AGGREGATE: data_add = aggregate(results_add)
 
+# Remove bad data.
+reduced = slice(1, None)
+for key, val in data.items():
+    data[key] = val[reduced]
+for key, val in data_add.items():
+    data_add[key] = val[reduced]
+
 # Calculate Kaiser models.
 Plin = cosmo.LinearPower(cosmo.Planck15, redshift=0., transfer='CLASS')
 growth_rate = cosmo.background.MatterDominated(0.307).f1(1)
@@ -96,77 +104,71 @@ model = {
 
 # Export data.
 if EXPORT:
+    np.seterr(divide='ignore', invalid='ignore')
     plt.style.use(hgrstyle)
-    sns.set(style='ticks', font='serif')
     plt.close('all')
     plt.figure('Multipoles signature')
+    sns.set(style='ticks', font='serif')
 
     ells = [0, 2,]
-    np.seterr(divide='ignore', invalid='ignore')
+    lines = {}
 
-    # model comparison
-    if SIGNATURE == 'model':
-        lines = {}
+    if SIGNATURE == 'model':  # model comparison
         for ell in ells:
             lines[ell] = plt.loglog(
-                data['k'], data[f'P{ell}']/model[f'P{ell}'],
+                data['k'], data[f'P{ell}'] / model[f'P{ell}'],
                 label=r'$\ell = {{{}}}$'.format(ell)
                 )
             plt.fill_between(
                 data['k'],
-                (data[f'P{ell}'] - data[f'dP{ell}'])/model[f'P{ell}'],
-                (data[f'P{ell}'] + data[f'dP{ell}'])/model[f'P{ell}'],
+                (data[f'P{ell}'] - data[f'dP{ell}']) / model[f'P{ell}'],
+                (data[f'P{ell}'] + data[f'dP{ell}']) / model[f'P{ell}'],
                 color=lines[ell][0].get_color(), alpha=1/4
                 )
         if LOAD_ADD:
             for ell in ells:
                 plt.loglog(
-                    data_add['k'], data_add[f'P{ell}']/model[f'P{ell}'],
+                    data_add['k'], data_add[f'P{ell}'] / model[f'P{ell}'],
                     color=lines[ell][0].get_color(), linestyle='-.'
                     )
                 plt.fill_between(
                     data_add['k'],
                     (data_add[f'P{ell}']
-                        - data_add[f'dP{ell}'])/model[f'P{ell}'],
+                        - data_add[f'dP{ell}']) / model[f'P{ell}'],
                     (data_add[f'P{ell}']
-                        + data_add[f'dP{ell}'])/model[f'P{ell}'],
+                        + data_add[f'dP{ell}']) / model[f'P{ell}'],
                     color=lines[ell][0].get_color(), alpha=1/4
                     )
-        plt.axhline(y=1, ls=':', alpha=0.75)
+        plt.axhline(y=1, c='gray', ls=':')
         plt.ylim(bottom=0.2, top=20)
-
-    # like-for-like comparison
-    if SIGNATURE == 'likes' and LOAD_ADD:
+    elif SIGNATURE == 'likes' and LOAD_ADD:  # like-for-like comparison
         for ell in ells:
             ratio = data[f'P{ell}'] / data_add[f'P{ell}']
             ratio_lower = (data[f'P{ell}'] - data[f'dP{ell}']) \
                 / (data_add[f'P{ell}'] + data_add[f'dP{ell}'])
             ratio_upper = (data[f'P{ell}'] + data[f'dP{ell}']) \
                 / (data_add[f'P{ell}'] - data_add[f'dP{ell}'])
-
-            # !!!: ``[1:]`` added
-            line = plt.loglog(data['k'][1:], ratio[1:],
-                              label=r'$\ell = {{{}}}$'.format(ell)
-                              )
-            plt.fill_between(data['k'][1:], ratio_lower[1:], ratio_upper[1:],
-                             color=line[0].get_color(), alpha=1/4
-                             )
-        plt.axhline(y=1, ls=':', alpha=0.75)
+            lines[ell] = plt.loglog(
+                data['k'], ratio, label=r'$\ell = {{{}}}$'.format(ell)
+                )
+            plt.fill_between(
+                data['k'], ratio_lower, ratio_upper,
+                color=lines[ell][0].get_color(), alpha=1/4
+                )
+        plt.axhline(y=1, c='gray', ls=':')
         plt.ylim(bottom=0.2, top=20)
-
-    # quantitative comparison
-    if SIGNATURE == 'quant' and LOAD_ADD:
+    elif SIGNATURE == 'quant' and LOAD_ADD:  # quantitative comparison
         lines = {}
         for ell in ells:
-            # !!!: ``[1:]`` added
             lines[ell] = plt.loglog(
-                data['k'][1:],
-                data[f'P{ell}'][1:] / data_add[f'P{ell}'][1:] - 1,
+                data['k'], data[f'P{ell}'] / data_add[f'P{ell}'] - 1,
                 label=r'$\ell = {{{}}}$'.format(ell)
                 )
 
     # Annotation.
-    plt.xlim(right=1.)
+    plt.xlim(left=min([d['k'][0] for d in [data, data_add]]),
+             right=max([d['k'][-1] for d in [data, data_add]]),
+             )
     plt.xlabel(r'$k$ [$h/\textrm{Mpc}$]')
     plt.ylabel(
         r'$P_{\ell,\mathrm{evol}}(k) / P_{\ell,\mathrm{stat}}(k)$ '
@@ -184,7 +186,7 @@ if EXPORT:
         handles.extend(reflines)
         labels.extend(reflabels)
         plt.legend(handles, labels)
-    elif SIGNATURE == 'likes':
+    elif SIGNATURE == 'likes' or SIGNATURE == 'quant':
         plt.legend()
 
     if SAVEFIG: plt.savefig(f"{PATHOUT}{PREFIX}-{TAG}.pdf")
