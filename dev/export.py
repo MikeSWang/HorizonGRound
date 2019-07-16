@@ -51,11 +51,12 @@ def aggregate(result):
 
 DIR = "multipole_signature/collated/"
 PREFIX = "multipole_signature"
-TAG = "(nbar=0.001,z=0.,side=1000.,nmesh=[cp256],niter=940)-evol"
-TAG_ADD = "(nbar=0.001,z=0.,side=1000.,nmesh=[cp256],niter=940)-stat"
+TAG = "(nbar=0.001,z=0.,side=1000.,nmesh=[cp256],niter=1000)-evol"
+TAG_ADD = "(nbar=0.001,z=0.,side=1000.,nmesh=[cp256],niter=1000)-stat"
 
 SIGNATURE = 'quant'  # 'model', 'likes', 'quant'
 
+# {True, False}
 COLLATE = False
 SAVE = False
 
@@ -159,10 +160,12 @@ if EXPORT:
         plt.ylim(bottom=0.2, top=20)
     elif SIGNATURE == 'quant' and LOAD_ADD:  # quantitative comparison
         lines = {}
-        for ell in ells:
+        plt.loglog(data['k'], 1e-1/data['k']**2, ls='--', c='gray')
+        for ellidx, ell in enumerate(ells):
+            coeff = (ellidx + 1) / 3 * beta**2
             deviation = data[f'P{ell}'] - data_add[f'P{ell}']
             lines[ell] = plt.loglog(
-                data['k'], deviation / Pk,
+                data['k'], deviation / (coeff * Pk),
                 label=r'$\ell = {{{}}}$'.format(ell)
                 )
 
