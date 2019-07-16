@@ -24,7 +24,7 @@ from runconf import PATHOUT, argv, ff, hgrstyle, filename
 # =============================================================================
 
 def linear_slope(x, xmin, xmax, slope=-0.5):
-    """Linear function :math:`y(x)` of given slope normalised to :math:`[0,1]`.
+    """Linear function :math:`y(x)` of given slope normalised to 1.
 
     Parameters
     ----------
@@ -33,7 +33,7 @@ def linear_slope(x, xmin, xmax, slope=-0.5):
     xmin, xmax : float
         Domain boundaries.
     slope : float, optional
-        Normalised slope of the linear density (default is -0.5).
+        Slope of the normalised linear density (default is -0.5).
 
     Returns
     -------
@@ -41,7 +41,33 @@ def linear_slope(x, xmin, xmax, slope=-0.5):
         Function value.
 
     """
-    return 1 + slope * (x - xmin) / (xmax - xmin)
+    return 2/(3*(xmax - xmin)) * (1 + slope*(x - xmin)/(xmax - xmin))
+
+
+def power_law(x, xmin, xmax, index=-0.5):
+    """Power-law function :math:`y(x)` of given slope normalised to 1.
+
+    Parameters
+    ----------
+    x : float, array_like
+        Variable value.
+    xmin, xmax : float
+        Domain boundaries.
+    slope : float, optional
+        Slope of the normalised power law (default is -0.5).
+
+    Returns
+    -------
+    float, array_like
+        Function value.
+
+    Raises
+    ------
+    ValueError
+        If `index` is no greater than -1 due to divergence.
+
+    """
+    return ((x - xmin)/(xmax - xmin))**index / (1 + index)
 
 
 def select_to_density(x, density_func, mode, *args, **kargs):
@@ -126,7 +152,7 @@ for run in range(NITER):
     clog_evol = LogNormalCatalog(Plin, NBAR, BOXSIDE, NMESHC)
 
     clog_evol['Weight'] = select_to_density(
-        clog_evol['Position'][:, -1], linear_slope, 'definite', 0, BOXSIDE
+        clog_evol['Position'][:, -1], power_law, 'definite', 0, BOXSIDE
         )
     clog_evol['Position'] += clog_evol['VelocityOffset'] * [0, 0, 1]
 
