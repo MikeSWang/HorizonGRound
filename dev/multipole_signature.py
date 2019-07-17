@@ -8,10 +8,6 @@
 multipoles.
 """
 
-# =============================================================================
-# LIBRARY
-# =============================================================================
-
 import numpy as np
 from matplotlib import pyplot as plt
 from nbodykit.lab import cosmology as cosmo, LogNormalCatalog, FFTPower
