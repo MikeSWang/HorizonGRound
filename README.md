@@ -3,4 +3,4 @@
 ``HorizonGRound`` investigates general relativistic effects in the
 large-scale galaxy-clustering background.
 
-![HorizonGRound](./docs/source/_static/HorizonGRound.png)
+![HorizonGRound](./HorizonGRound.png)
