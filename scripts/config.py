@@ -21,7 +21,7 @@ def use_local_package(package_paths):
     >>> use_local_package("mypkg/"); "mypkg" in sys.path[0]
     True
 
-    """    
+    """
     if isinstance(package_paths, list):
         package_paths = [
             os.path.abspath(relpath) for relpath in package_paths

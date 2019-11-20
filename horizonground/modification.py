@@ -1,4 +1,4 @@
-"""
+r"""
 Modification (:mod:`modification`)
 ===========================================================================
 
@@ -6,6 +6,24 @@ Scale-dependent modifications to the clustering power spectrum from
 relativistic corrections to the over-density field :math:`\delta` or from
 scale-dependent linear bias induced by local primordial non-Gaussianity
 :math:`f_\textrm{NL}`.
+
+
+Non-Gaussianity modifications
+-----------------------------
+
+Local primordial non-Gaussianty induces scale dependence
+
+.. math::
+
+    A(k, z) = 3 \left( \frac{H_0}{\mathrm{c}} \right)^2
+        \frac{\delta_\mathrm{c} \Omega_\mathrm{m,0}}{T(k, z)}
+
+so that linear bias :math:`b_1(z)` is modified by
+
+.. math::
+
+    \Delta b(k, z) = f_\mathrm{NL} [b_1(z) - 1] \frac{A(k, z)}{k^2} \,.
+
 
 Relativistic corrections
 ------------------------
@@ -27,7 +45,7 @@ plane parallel approximation :math:`\mu \equiv \hat{\mathbf{k}}
 
     \Delta \left\langle
         \left\vert \delta(z, \mathbf{k}) \right\vert^2
-    \right\rangle = g(z)^2 f(z)^2 (\mu^2/k^2) P_\mathrm{m}(k, z) \,,
+    \right\rangle = g(z)^2 f(z)^2 \frac{\mu^2}{k^2} P_\mathrm{m}(k, z) \,,
 
 where :math:`f(z)` is the linear growth rate and :math:`P_\mathrm{m}` is
 the matter power spectrum.
@@ -53,15 +71,16 @@ import numpy as np
 from nbodykit.lab import cosmology
 
 FIDUCIAL_COSMOLOGY = cosmology.Planck15
-r""":class:`nbodykit.cosmology.cosmology.Cosmology`: Default *Planck*15
+r""":class:`nbodykit.cosmology.cosmology.Cosmology`: Default Planck15
 cosmology.
 
 """
 
 
 def scale_dependence_kernel(redshift, cosmo=FIDUCIAL_COSMOLOGY):
-    """Return the scale-dependence kernel in the presence of local
-    primordial non-Gaussianity as a function of redshift.
+    r"""Return the scale-dependence kernel :math:`A(k;z)` in the presence
+    of local primordial non-Gaussianity as a function of wavenumber at a
+    given redshift.
 
     Parameters
     ----------
@@ -88,8 +107,8 @@ def scale_dependence_kernel(redshift, cosmo=FIDUCIAL_COSMOLOGY):
 
 def relativistic_corrections(cosmo=FIDUCIAL_COSMOLOGY, geometric_bias=True,
                              evolution_bias=None, magnification_bias=None):
-    """Return the general relativistic corrections as a function of
-    redshift.
+    r"""Return the general relativistic corrections :math:`g(z)` as a
+    function of redshift.
 
     Parameters
     ----------
@@ -139,8 +158,19 @@ def relativistic_corrections(cosmo=FIDUCIAL_COSMOLOGY, geometric_bias=True,
 def relativistic_modification(wavenumber, redshift, multipole,
                               cosmo=FIDUCIAL_COSMOLOGY, geometric_bias=True,
                               evolution_bias=None, magnification_bias=None):
-    """Power spectrum multipole modification by general relativistic
-    corrections as multiples of the matter power spectrum.
+    r"""Power spectrum multipole modification by general relativistic
+    corrections as multiples of the matter power spectrum
+
+    .. math::
+
+        \begin{align*}
+            \frac{\Delta P_0(k, z)}{P_\textrm{m}(k,z)} &= \frac{1}{3}
+                \frac{g(z)^2 f(z)^2}{k^2} \,,\\
+            \frac{\Delta P_2(k, z)}{P_\textrm{m}(k,z)} &= \frac{2}{3}
+                \frac{g(z)^2 f(z)^2}{k^2} \,,
+        \end{align*}
+
+    where :math:`f(z)` is the linear growth rate.
 
     Parameters
     ----------
@@ -188,8 +218,21 @@ def relativistic_modification(wavenumber, redshift, multipole,
 
 def non_gaussianity_modification(wavenumber, redshift, multipole, f_nl, b_1,
                                  cosmo=FIDUCIAL_COSMOLOGY):
-    """Power spectrum multipole modification by local primordial
-    non-Gaussianity as multiples of the matter power spectrum.
+    r"""Power spectrum multipole modification by local primordial
+    non-Gaussianity as multiples of the matter power spectrum
+
+    .. math::
+
+        \begin{align*}
+            \frac{\Delta P_0(k, z)}{P_\textrm{m}(k,z)} &= \left(
+                2 b_1 + \frac{2}{3} f
+            \right) f_\textrm{NL} (b_1 - 1) \frac{A(k)}{k^2}
+            + \left[
+                f f_\textrm{NL} (b_1 - 1) \frac{A(k)}{k^2}
+            \right]^2 \,, \\
+            \frac{\Delta P_2(k, z)}{P_\textrm{m}(k,z)} &= \frac{4}{3} f
+                f_\textrm{NL} (b_1 - 1) \frac{A(k)}{k^2} \,.
+        \end{align*}
 
     Parameters
     ----------
@@ -231,8 +274,19 @@ def non_gaussianity_modification(wavenumber, redshift, multipole, f_nl, b_1,
 
 def standard_kaiser_modification(redshift, multipole, b_1,
                                  cosmo=FIDUCIAL_COSMOLOGY):
-    """Kaiser RSD model power spectrum multipoles as multiples of the
-    matter power spectrum.
+    r"""Kaiser RSD model power spectrum multipoles as multiples of the
+    matter power spectrum
+
+    .. math::
+
+        \begin{align*}
+            \frac{P_0(k, z)}{P_\textrm{m}(k,z)} &= b_1(z)^2
+                + \frac{2}{3} b_1(z) f(z) + \frac{1}{5} f(z)^2 \,, \\
+            \frac{P_2(k, z)}{P_\textrm{m}(k,z)} &=
+                \frac{4}{3} b_1(z) f(z) + \frac{4}{7} f(z)^2 \,, \\
+            \frac{P_4(k, z)}{P_\textrm{m}(k,z)} &= \frac{8}{35}
+                f(z)^2 \,, \\
+        \end{align*}
 
     Parameters
     ----------
@@ -255,7 +309,7 @@ def standard_kaiser_modification(redshift, multipole, b_1,
     f = cosmo.scale_independent_growth_factor(redshift)
 
     if multipole == 0:
-        factor = 1 + 2/3 * f * b_1 + 1/5 * f**2
+        factor = b_1 ** 2 + 2/3 * f * b_1 + 1/5 * f**2
     elif multipole == 2:
         factor = 4/3 * f * b_1 + 4/7 * f**2
     elif multipole == 4:

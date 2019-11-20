@@ -4,6 +4,7 @@ Luminosity Modeller (:mod:`luminosity`)
 
 Model luminosity function and related quantities.
 
+
 Pure luminosity evolution (PLE)
 -------------------------------
 
@@ -26,15 +27,15 @@ evaluates to :math:`\Phi^\ast`,
 
 .. math::
 
-    m^\ast(z) = m^\ast(z_\textrm{p}) - \frac{5}{2} [
+    m^\ast(z) = m^\ast(z_\textrm{p}) - \frac{5}{2} \left[
         k_1 (z - z_\textrm{p}) + k_2 (z - z_\textrm{p})^2
-    ] \,,
+    \right] \,,
 
 where :math:`k_1, k_2` are the redshift-evolution parameters whose values
 also differ below and above the pivot redshift.
 
 This is a parametric model with 10 parameters: :math:`\Phi^\ast`,
-:math:`m^\ast(z_\textrm{p}`, :math:`(\alpha, \beta, k_1, k_2)_\textrm{l}`
+:math:`m^\ast(z_\textrm{p})`, :math:`(\alpha, \beta, k_1, k_2)_\textrm{l}`
 for :math:`z < z_\textrm{p}` and
 :math:`(\alpha, \beta, k_1, k_2)_\textrm{h}` for :math:`z > z_\textrm{p}`.
 
@@ -143,8 +144,8 @@ def quasar_luminosity_hybrid_model(magnitude, redshift, redshift_pivot=2.2,
 
 
 class LuminosityFunctionModeller:
-    """Luminosity function modeller predicting the comoving number density
-    and related quantities.
+    r"""Luminosity function modeller predicting the comoving number density
+    and related quantities for a given magnitude threshold :math:`\bar{m}`.
 
     Parameters
     ----------
@@ -169,16 +170,17 @@ class LuminosityFunctionModeller:
     """
 
     # HINT: Instead of ``-np.inf`` to prevent arithmetic overflow.
-    MAGNITUDE_LIMIT = -40.
-    """float: Finite magnitude upper limit .
+    MAGNITUDE_BOUND = -40.
+    r"""float: Finite magnitude lower bound.
 
     """
 
     def __init__(self, luminosity_model, threshold_magnitude,
                  **model_parameters):
 
-        self.luminosity_function = lambda m, z: \
-            luminosity_model(m, z, **model_parameters)
+        self.luminosity_function = np.vectorize(
+            lambda m, z: luminosity_model(m, z, **model_parameters)
+        )
         self.threshold_magnitude = threshold_magnitude
         self.model_parameters = model_parameters
 
@@ -224,12 +226,18 @@ class LuminosityFunctionModeller:
 
     @property
     def comoving_number_density(self):
-        """Comoving number density (in inverse cubic Mpc) as a function of
-        redshift.
+        r"""Comoving number density (in inverse cubic Mpc) as a function of
+        redshift
+
+        .. math::
+
+            \bar{n}(z; \bar{m}) = \int_{-\infty}^{\bar{m}}
+                \operatorname{d}\!m \Phi(z, m) \,.
 
         Returns
         -------
         callable
+            Comoving number density (in inverse cubic Mpc).
 
         """
         if callable(self._comoving_number_density):
@@ -237,20 +245,26 @@ class LuminosityFunctionModeller:
 
         self._comoving_number_density = lambda z: quad(
             self.luminosity_function,
-            self.MAGNITUDE_LIMIT,
+            self.MAGNITUDE_BOUND,
             self.threshold_magnitude,
             args=(z,)
         )[0]
 
-        return self._comoving_number_density
+        return np.vectorize(self._comoving_number_density)
 
     @property
     def evolution_bias(self):
-        """Evolution bias as a function of redshift.
+        r"""Evolution bias as a function of redshift
+
+        .. math::
+
+            f_\textrm{ev}(z) = 3 - (1 + z)
+                \partial_z \ln \bar{n}(z; \bar{m}) \,.
 
         Returns
         -------
         callable
+            Evolution bias.
 
         """
         if callable(self._evolution_bias):
@@ -264,15 +278,20 @@ class LuminosityFunctionModeller:
             ln_comoving_number_density, z, dx=1e-2
         )
 
-        return self._evolution_bias
+        return np.vectorize(self._evolution_bias)
 
     @property
     def magnification_bias(self):
-        """Magnification bias as a function of redshift.
+        r"""Magnification bias as a function of redshift
+
+        .. math::
+
+            s(z) = \partial_{\bar{m}} \lg \bar{n}(z; \bar{m}) \,.
 
         Returns
         -------
         callable
+            Magnification bias.
 
         """
         if callable(self._magnification_bias):
@@ -282,4 +301,4 @@ class LuminosityFunctionModeller:
             self.luminosity_function(self.threshold_magnitude, z) \
             / (np.log(10) * self.comoving_number_density(z))
 
-        return self._magnification_bias
+        return np.vectorize(self._magnification_bias)
