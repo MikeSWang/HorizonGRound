@@ -1,4 +1,4 @@
-# magnitude, Phi_z_0.68_1.06, d_Phi_z_0.68_1.06, Phi_z_1.06_1.44, d_Phi_z_1.06_1.44, Phi_z_1.44_1.82, d_Phi_z_1.44_1.82, Phi_z_1.82_2.20, d_Phi_z_1.82_2.20, Phi_z_2.20_2.60, d_Phi_z_2.20_2.60, Phi_z_2.60_3.00, d_Phi_z_2.60_3.00, Phi_z_3.00_3.50, d_Phi_z_3.00_3.50, Phi_z_3.50_4.00, d_Phi_z_3.50_4.00
+# magnitude, lg_Phi_z_0.68_1.06, d_lg_Phi_z_0.68_1.06, lg_Phi_z_1.06_1.44, d_lg_Phi_z_1.06_1.44, lg_Phi_z_1.44_1.82, d_lg_Phi_z_1.44_1.82, lg_Phi_z_1.82_2.20, d_lg_Phi_z_1.82_2.20, lg_Phi_z_2.20_2.60, d_lg_Phi_z_2.20_2.60, lg_Phi_z_2.60_3.00, d_lg_Phi_z_2.60_3.00, lg_Phi_z_3.00_3.50, d_lg_Phi_z_3.00_3.50, lg_Phi_z_3.50_4.00, d_lg_Phi_z_3.50_4.00
 -28.80   nan   nan   nan   nan   nan   nan   nan   nan   nan   nan   nan   nan   nan   nan -8.34  0.44
 -28.40   nan   nan   nan   nan   nan   nan   nan   nan -7.98  0.31 -7.42  0.17 -7.89  0.26 -8.35  0.44
 -28.00   nan   nan   nan   nan   nan   nan -7.63  0.22 -7.49  0.18 -7.10  0.12 -7.33  0.14 -8.36  0.44
