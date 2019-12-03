@@ -54,8 +54,7 @@ form of a gamma function
 
 .. math::
 
-    \Phi(m, z) = -0.4\ln10 \, \Phi_\ast(z) 10^{-0.4(\alpha+1)[m-m_\ast(z)]}
-        \exp\left(- 10^{- 0.4[m-m_\ast(z)]}\right)
+    \Phi(L, z) = \frac{\Phi_\ast(z)}{L} y(z)^{\alpha+1} \mathrm{e}^{-y(z)}
 
 where :math:`\alpha` is the faint-end slope parameter,
 
@@ -68,12 +67,12 @@ where :math:`\alpha` is the faint-end slope parameter,
                 \Phi_{\ast0} (1 + z_\textrm{b})^{2\epsilon}
                     (1 + z)^{-\epsilon} \,, \quad z > z_\textrm{b} \,,
             \end{cases} \\
-        m_\ast(z) &= m_{\ast0} - \frac{\delta}{0.4\ln10} \ln(1+z) \,,
+        y(z) &= \frac{L}{L_{\ast0}} (1 + z)^{-\delta} \,,
     \end{align*}
 
 are the redshift-dependent characteristic comoving number density and
-magnitude of the H |alpha| -emitters, :math:`\epsilon, \delta` are the
-redshift-evolution indices, and :math:`z_\textrm{b}` is the break
+relative luminosity of the H |alpha| -emitters, :math:`\epsilon, \delta`
+are the redshift-evolution indices, and :math:`z_\textrm{b}` is the break
 magnitude.
 
 This is a parametric model with 6 parameters: :math:`\alpha, \epsilon,
@@ -84,6 +83,8 @@ This is a parametric model with 6 parameters: :math:`\alpha, \epsilon,
 
 """
 import numpy as np
+from astropy import units
+from astropy.cosmology import Planck15
 from scipy.integrate import quad
 from scipy.misc import derivative
 
@@ -180,15 +181,15 @@ def quasar_luminosity_hybrid_model(magnitude, redshift, redshift_pivot=2.2,
     raise NotImplementedError
 
 
-def alpha_emitter_luminosity_schechter_model(magnitude, redshift,
+def alpha_emitter_luminosity_schechter_model(lg_luminosity, redshift,
                                              **model_parameters):
-    r"""Evaluate the Schechter model for the H |alpha_| -emitter
+    r"""Evaluate the Schechter model for the H |alpha| -emitter
     luminosity function at the given absolute magnitude and redshift.
 
     Parameters
     ----------
-    magnitude : float
-        Emitter magnitude.
+    lg_luminosity : float
+        Emitter luminosity in base-10 logarithm.
     redshift : float
         Emitter redshift.
     **model_parameters
@@ -197,21 +198,16 @@ def alpha_emitter_luminosity_schechter_model(magnitude, redshift,
     Returns
     -------
     comoving_density : float :class:`numpy.ndarray`
-        Predicted emitter comoving number density per unit magnitude (in
-        inverse cubic Mpc).
-
-
-    .. |alpha_| unicode:: U+03B1
-        :trim:
+        Predicted emitter comoving number density per unit base-10
+        logarithmic luminosity (in inverse cubic Mpc).
 
     """
     # Re-definitions.
-    m, z = magnitude, redshift
+    y0 = 10**(lg_luminosity - model_parameters['\\lg{L_{\\ast0}}'])
+    z = redshift
 
     # Set parameters.
     Phi_star0 = model_parameters['\\lg\\Phi_{\\ast0}']
-    m_star0 = - 2.5*model_parameters['\\lg{L_{\\ast0}}']
-
     z_b = model_parameters['z_\\textrm{b}']
 
     alpha = model_parameters['\\alpha']
@@ -219,18 +215,14 @@ def alpha_emitter_luminosity_schechter_model(magnitude, redshift,
     epsilon = model_parameters['\\epsilon']
 
     # Evaluate the model prediction.
-    prefactor = 0.4 * np.log(10)
-
     if z <= z_b:
-        char_density = Phi_star0 * (1 + z)**epsilon
+        Phi_star = Phi_star0 * (1 + z)**epsilon
     else:
-        char_density = Phi_star0 * (1 + z_b)**(2*epsilon) / (1 + z)**epsilon
+        Phi_star = Phi_star0 * (1 + z_b)**(2*epsilon) / (1 + z)**epsilon
 
-    m_star_z = m_star0 - delta / prefactor * np.log(1 + z)
-    power_law = 10**(-0.4 * (alpha+1) * (m - m_star_z))
-    exponential = np.exp(- 10**(-0.4 * (m - m_star_z)))
+    y = y0 / (1 + z)**delta
 
-    comoving_density = - prefactor * char_density * power_law * exponential
+    comoving_density = Phi_star * y**(alpha + 1) * np.exp(-y)
 
     return comoving_density
 
@@ -242,72 +234,116 @@ class LuminosityFunctionModeller:
     Parameters
     ----------
     luminosity_model : callable
-        A parametric model for the luminosity function with magnitude,
-        redshift and additional arguments (in that order).
+        A parametric model for the luminosity function of luminosity or
+        magnitude and redshift variables accepting additional arguments
+        (in that order).
+    luminosity_varaible : {'luminosity', 'magnitude'}, str
+        Luminosity variable, either ``'luminosity'`` or ``'magnitude'``.
     threshold : float
         Brightness threshold.
-    brightness_variable : {'luminosity', 'magnitude'}, str
-        Brightness variable, either 'luminosity' or 'magnitude'.
+    threshold_variable : {'flux', 'luminosity', 'magnitude'}, str
+        Brightness threshold variable, one of ``'flux'``, ``'luminosity'``
+        or ``'magnitude'``.
+    cosmology : :class:`astropy.cosmology.Cosmology` or None, optional
+        Background cosmological model (default is |Planck15|).  If
+        `threshold_variable` is 'flux', this is needed for computing the
+        luminosity distance and cannot be `None`.
     **model_parameters
-        Keyword arguments to be passed to `luminosity_model`.
+        Additional model parameters to be passed to `luminosity_model` as
+        keyword arguments.
 
     Attributes
     ----------
     luminosity_function : callable
-        Luminosity function of magnitude and redshift arguments only (in
-        that order) (in inverse cubic Mpc).
-    brightness_variable : {'luminosity', 'magnitude'}, str
-        Brightness variable, either 'luminosity' or 'magnitude'.
+        Luminosity function of luminosity or magnitude and redshift
+        variables only (in that order) (in inverse cubic Mpc).
+    luminosity_varaible : {'luminosity', 'magnitude'}, str
+        Luminosity variable, either ``'luminosity'`` or ``'magnitude'``.
     threshold : float
         Brightness threshold.
+    threshold_variable : {'flux', 'luminosity', 'magnitude'}, str
+        Brightness threshold variable, one of ``'flux'``, ``'luminosity'``
+        or ``'magnitude'``.
     model_parameters : dict
         Model parameters.
+    cosmology : :class:`astropy.cosmology.Cosmology` or None
+        Background cosmological model.
+
+    Raises
+    ------
+    ValueError
+        If `cosmology` is `None` when `threshold_variable` is ``'flux'``.
+
+
+    .. |Planck15| replace::
+
+        :class:`astropy.cosmology.Planck15`
 
     """
 
     # HINT: Instead of ``np.inf`` to prevent arithmetic overflow.
     BRIGHTNESS_BOUND = {
+        'luminosity': 50.,
         'magnitude': -40.,
-        'luminosity': 41.5,
     }
     r"""float: Finite brightness bound.
 
+    If :attr:`threshold_variable` is ``'luminosity'``, it is the base-10
+    logarithmic value in erg/s; else if it is ``'magnitude'`` and
+    dimensionless.
+
     """
 
-    def __init__(self, luminosity_model, threshold, brightness_variable,
-                 **model_parameters):
+    def __init__(self, luminosity_model, luminosity_variable, threshold,
+                 threshold_variable, cosmology=Planck15, **model_parameters):
+
+        self.luminosity_variable = self._alias(luminosity_variable)
+
+        if threshold_variable == 'flux' and cosmology is None:
+            raise ValueError (
+                "`cosmology` cannot be None "
+                "if `threshold_variable` is 'flux'. "
+            )
+        self.threshold_variable = self._alias(threshold_variable)
+        self.cosmology = cosmology
 
         self.luminosity_function = np.vectorize(
             lambda lum, z: luminosity_model(lum, z, **model_parameters)
         )
-        self.brightness_variable = brightness_variable
-        self.threshold = threshold
         self.model_parameters = model_parameters
+        self.threshold = threshold
 
         self._comoving_number_density = None
         self._evolution_bias = None
         self._magnification_bias = None
 
     @classmethod
-    def from_parameters_file(cls, luminosity_model, threshold,
-                             brightness_variable, file_path):
+    def from_parameters_file(cls, luminosity_model, luminosity_variable,
+                             threshold, threshold_variable,
+                             parameters_file, cosmology=Planck15):
         """Instantiate the modeller by loading model parameter values from
         a file.
 
         Parameters
         ----------
         luminosity_model : callable
-            A parametric model for the luminosity function with brightness,
-            redshift and additional arguments (in that order).
+            A parametric model for the luminosity function of luminosity or
+            magnitude and redshift variables accepting additional arguments
+            (in that order).
+        luminosity_varaible : {'luminosity', 'magnitude'}, str
+            Luminosity variable, either 'luminosity' or 'magnitude'.
         threshold : float
             Brightness threshold.
-        brightness_variable : {'luminosity', 'magnitude'}, str
-            Brightness variable, either 'luminosity' or 'magnitude'.
-        file_path : str
+        threshold_variable : {'flux', 'luminosity', 'magnitude'}, str
+            Brightness threshold variable, one of 'flux', 'luminosity' or
+            'magnitude'.
+        parameters_file : str
             Path of the model parameter file.
+        cosmology : :class:`astropy.cosmology.Cosmology` or None, optional
+            Background cosmological model.
 
         """
-        with open(file_path, 'r') as pfile:
+        with open(parameters_file, 'r') as pfile:
             parameters = tuple(
                 map(
                     lambda var_name: var_name.strip(" "),
@@ -315,16 +351,17 @@ class LuminosityFunctionModeller:
                 )
             )
             estimates = tuple(
-                map(
-                    lambda value: float(value),
-                    pfile.readline().split(",")
-                )
+                map(lambda value: float(value), pfile.readline().split(","))
             )
 
-        return cls(
-            luminosity_model, threshold, brightness_variable,
-            **dict(zip(parameters, estimates))
+        init_args = (
+            luminosity_model,
+            luminosity_variable,
+            threshold,
+            threshold_variable,
         )
+
+        return cls(*init_args, **dict(zip(parameters, estimates)))
 
     @property
     def comoving_number_density(self):
@@ -337,7 +374,7 @@ class LuminosityFunctionModeller:
                 \operatorname{d}\!m \Phi(m, z)
             \quad \textrm{or} \quad
             \bar{n}(z; \bar{L}) = \int^{\infty}_{\bar{L}}
-                \operatorname{d}\!L \Phi(L, z)
+                \operatorname{d}\!L \Phi(L, z) \,.
 
         Returns
         -------
@@ -348,14 +385,36 @@ class LuminosityFunctionModeller:
         if callable(self._comoving_number_density):
             return self._comoving_number_density
 
-        self._comoving_number_density = lambda z: np.abs(
-            quad(
-                self.luminosity_function,
-                self.BRIGHTNESS_BOUND[self.brightness_variable],
-                self.threshold,
-                args=(z,)
-            )[0]
-        )
+        if self.luminosity_variable == 'magnitude':
+            if self.threshold_variable == 'magnitude':
+                self._comoving_number_density, _ = lambda z: quad(
+                    self.luminosity_function,
+                    self.BRIGHTNESS_BOUND['magnitude'],  # bright end
+                    self.threshold,  # faint end
+                    args=(z,)
+                )
+            else:
+                raise NotImplementedError
+        elif self.luminosity_variable == 'luminosity':
+            if self.threshold_variable == 'luminosity':
+                self._comoving_number_density, _ = lambda z: quad(
+                    self.luminosity_function,
+                    self.threshold,
+                    self.BRIGHTNESS_BOUND['luminosity'],
+                    args=(z,)
+                )
+            elif self.threshold_variable == 'flux':
+                threshold = lambda z: np.log10(
+                    4*np.pi * self.threshold
+                    * self.cosmology.luminosity_distance(z)
+                        .to(units.cm).value**2
+                )
+                self._comoving_number_density, _ = lambda z: quad(
+                    self.luminosity_function,
+                    threshold(z),
+                    self.BRIGHTNESS_BOUND['luminosity'],
+                    args=(z,)
+                )
 
         return np.vectorize(self._comoving_number_density)
 
@@ -423,3 +482,23 @@ class LuminosityFunctionModeller:
             / self.comoving_number_density(z)
 
         return np.vectorize(self._magnification_bias)
+
+    @staticmethod
+    def _alias(brightness_variable):
+
+        try:
+            if brightness_variable.lower().startswith('f'):
+                brightness_variable = 'flux'
+            elif brightness_variable.lower().startswith('l'):
+                brightness_variable = 'magnitude'
+            elif brightness_variable.lower().startswith('m'):
+                brightness_variable = 'luminosity'
+            else:
+                raise ValueError(
+                    "Unrecognised brightness variable: "
+                    f"{brightness_variable}. "
+                )
+        except AttributeError:
+            raise TypeError("Brightness variable must be a string. ")
+        else:
+            return brightness_variable
