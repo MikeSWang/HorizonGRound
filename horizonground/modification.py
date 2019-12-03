@@ -68,11 +68,10 @@ We can rearrange this as the sum of three terms
 
 """
 import numpy as np
-from nbodykit.lab import cosmology
+from nbodykit.lab import cosmology as nbk_cosmology
 
-FIDUCIAL_COSMOLOGY = cosmology.Planck15
-r""":class:`nbodykit.cosmology.cosmology.Cosmology`: Default Planck15
-cosmology.
+FIDUCIAL_COSMOLOGY = nbk_cosmology.Planck15
+r""":class:`nbodykit.cosmology.Cosmology`: Default Planck15 cosmology.
 
 """
 
@@ -97,10 +96,13 @@ def scale_dependence_kernel(redshift, cosmo=FIDUCIAL_COSMOLOGY):
     """
     SPHERICAL_COLLAPSE_CRITICAL_OVERDENSITY = 1.686
     SPEED_OF_LIGHT_IN_KM_PER_S = 2998792.
+    EQUALITY_NORMALISATION = 1.3
 
-    numerical_constants = 3 * (100*cosmo.h / SPEED_OF_LIGHT_IN_KM_PER_S)**2 \
-        * SPHERICAL_COLLAPSE_CRITICAL_OVERDENSITY * cosmo.Omega0_m
-    transfer_function = cosmology.power.transfers.CLASS(cosmo, redshift)
+    numerical_constants = 3 * SPHERICAL_COLLAPSE_CRITICAL_OVERDENSITY \
+        * cosmo.Om0 * EQUALITY_NORMALISATION \
+        * (100*FIDUCIAL_COSMOLOGY.h / SPEED_OF_LIGHT_IN_KM_PER_S)**2 \
+
+    transfer_function = nbk_cosmology.power.transfers.CLASS(cosmo, redshift)
 
     return lambda k: numerical_constants / transfer_function(k)
 
@@ -126,32 +128,32 @@ def relativistic_corrections(cosmo=FIDUCIAL_COSMOLOGY, geometric_bias=True,
         Relativistic corrections as a function of redshift.
 
     """
-    background =  cosmology.background.MatterDominated(cosmo.Omega0_m)
+    astropy_cosmo = cosmo.to_astropy()
 
-    a = lambda z: (1 + z)**(-1)
-    H_conformal = lambda z: 100 * cosmo.h * a(z) * background.E(a(z))
-    chi = lambda z: cosmo.comoving_distance(z)
+    a = astropy_cosmo.scale_factor
+    aH = lambda z: a(z) * astropy_cosmo.H(z).value
+    chi = lambda z: astropy_cosmo.comoving_distance(z).value
 
     if geometric_bias:
-        geometric_term = lambda z: 0
-    else:
         geometric_term = lambda z: \
-            2 / chi(z) + H_conformal(z) * (1 - 3/2*cosmo.Omega0_m / a(z)**3)
+            2 / chi(z) + aH(z) * (1 - 3/2*astropy_cosmo.Om0 / a(z)**3)
+    else:
+        geometric_term = lambda z: 0
 
     if evolution_bias is None:
         evolution_term = lambda z: 0.
     else:
-        evolution_term = lambda z: \
-            - H_conformal(z) * evolution_bias(z)
+        evolution_term = lambda z: - aH(z) * evolution_bias(z)
 
     if magnification_bias is None:
         lensing_term = lambda z: 0.
     else:
         lensing_term = lambda z: \
-            5 * magnification_bias(z) * (H_conformal(z) - 1 / chi(z))
+            5 * magnification_bias(z) * (aH(z) - 1 / chi(z))
 
     return np.vectorize(
-        lambda z: geometric_term(z) + evolution_term(z) + lensing_term(z)
+        lambda z: (geometric_term(z) + evolution_term(z) + lensing_term(z)) /
+            aH(z)
     )
 
 
@@ -203,7 +205,7 @@ def relativistic_modification(wavenumber, redshift, multipole,
     )
 
     modification = correction_function(redshift)**2 \
-        * cosmo.scale_independent_growth_factor(redshift)**2 \
+        * cosmo.scale_independent_growth_rate(redshift)**2 \
         / wavenumber**2
 
     if multipole == 0:
@@ -217,7 +219,7 @@ def relativistic_modification(wavenumber, redshift, multipole,
 
 
 def non_gaussianity_modification(wavenumber, redshift, multipole, f_nl, b_1,
-                                 cosmo=FIDUCIAL_COSMOLOGY):
+                                 cosmo=FIDUCIAL_COSMOLOGY, tracer_p=1.):
     r"""Power spectrum multipole modification by local primordial
     non-Gaussianity as multiples of the matter power spectrum
 
@@ -248,6 +250,8 @@ def non_gaussianity_modification(wavenumber, redshift, multipole, f_nl, b_1,
         Scale-independent linear bias at `redshift`.
     cosmo : :class:`nbodykit.cosmology.Cosmology`, optional
         Base cosmological model (default is ``FIDUCIAL_COSMOLOGY``).
+    tracer_p : float, optional
+        Tracer parameter (default is 1.).
 
     Returns
     -------
@@ -256,9 +260,9 @@ def non_gaussianity_modification(wavenumber, redshift, multipole, f_nl, b_1,
         matter power spectrum.
 
     """
-    f = cosmo.scale_independent_growth_factor(redshift)
+    f = cosmo.scale_independent_growth_rate(redshift)
 
-    modification = f_nl * (b_1 - 1) \
+    modification = f_nl * (b_1 - tracer_p) \
         * scale_dependence_kernel(redshift, cosmo=cosmo)(wavenumber) \
         / wavenumber**2
 
@@ -306,7 +310,7 @@ def standard_kaiser_modification(redshift, multipole, b_1,
         spectrum.
 
     """
-    f = cosmo.scale_independent_growth_factor(redshift)
+    f = cosmo.scale_independent_growth_rate(redshift)
 
     if multipole == 0:
         factor = b_1 ** 2 + 2/3 * f * b_1 + 1/5 * f**2
