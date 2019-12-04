@@ -84,6 +84,8 @@ This is a parametric model with 6 parameters: :math:`\alpha, \epsilon,
     :trim:
 
 """
+from __future__ import division
+
 import numpy as np
 from astropy import units
 from scipy.integrate import quad

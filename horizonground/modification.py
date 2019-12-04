@@ -67,6 +67,8 @@ We can rearrange this as the sum of three terms
 
 
 """
+from __future__ import division
+
 import numpy as np
 from nbodykit.lab import cosmology as nbk_cosmology
 
@@ -74,6 +76,8 @@ FIDUCIAL_COSMOLOGY = nbk_cosmology.Planck15
 r""":class:`nbodykit.cosmology.Cosmology`: Default Planck15 cosmology.
 
 """
+
+_SPEED_OF_LIGHT_IN_KM_PER_S = 2998792.
 
 
 def scale_dependence_kernel(redshift, cosmo=FIDUCIAL_COSMOLOGY):
@@ -95,12 +99,11 @@ def scale_dependence_kernel(redshift, cosmo=FIDUCIAL_COSMOLOGY):
 
     """
     SPHERICAL_COLLAPSE_CRITICAL_OVERDENSITY = 1.686
-    SPEED_OF_LIGHT_IN_KM_PER_S = 2998792.
     EQUALITY_NORMALISATION = 1.3
 
     numerical_constants = 3 * SPHERICAL_COLLAPSE_CRITICAL_OVERDENSITY \
         * cosmo.Om0 * EQUALITY_NORMALISATION \
-        * (100*FIDUCIAL_COSMOLOGY.h / SPEED_OF_LIGHT_IN_KM_PER_S)**2 \
+        * (100*FIDUCIAL_COSMOLOGY.h / _SPEED_OF_LIGHT_IN_KM_PER_S)**2 \
 
     transfer_function = nbk_cosmology.power.transfers.CLASS(cosmo, redshift)
 
@@ -131,7 +134,7 @@ def relativistic_corrections(cosmo=FIDUCIAL_COSMOLOGY, geometric_bias=True,
     astropy_cosmo = cosmo.to_astropy()
 
     a = astropy_cosmo.scale_factor
-    aH = lambda z: a(z) * astropy_cosmo.H(z).value
+    aH = lambda z: a(z) * astropy_cosmo.H(z).value / _SPEED_OF_LIGHT_IN_KM_PER_S
     chi = lambda z: astropy_cosmo.comoving_distance(z).value
 
     if geometric_bias:
@@ -149,11 +152,10 @@ def relativistic_corrections(cosmo=FIDUCIAL_COSMOLOGY, geometric_bias=True,
         lensing_term = lambda z: 0.
     else:
         lensing_term = lambda z: \
-            5 * magnification_bias(z) * (aH(z) - 1 / chi(z))
+            5 * magnification_bias(z) * (aH(z) - 1/chi(z))
 
     return np.vectorize(
-        lambda z: (geometric_term(z) + evolution_term(z) + lensing_term(z)) /
-            aH(z)
+        lambda z: (geometric_term(z) + evolution_term(z) + lensing_term(z))
     )
 
 
