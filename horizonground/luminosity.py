@@ -253,10 +253,8 @@ class LuminosityFunctionModeller:
         Luminosity threshold variable, one of ``'flux'``, ``'luminosity'``
         or ``'magnitude'``.  If ``'flux'``, `threshold_value` will be
         converted into ``'luminosity'`` threshold value.
-    cosmology : :class:`astropy.cosmology.Cosmology` or None, optional
-        Background cosmological model (default is `None`).  If
-        `threshold_variable` is 'flux', this is needed for computing the
-        luminosity distance and cannot be `None`.
+    cosmology : :class:`astropy.cosmology.Cosmology`
+        Background cosmological model.
     **model_parameters
         Additional model parameters to be passed to `luminosity_model` as
         keyword arguments.
@@ -274,16 +272,11 @@ class LuminosityFunctionModeller:
         Luminosity threshold in :attr:`luminosity_variable` as a function
         of redshift.
 
-    Raises
-    ------
-    ValueError
-        If `cosmology` is `None` when `threshold_variable` is ``'flux'``.
-
     """
 
     # HINT: Instead of ``np.inf`` to prevent arithmetic overflow.
     brightness_bound = {
-        'luminosity': 60.,
+        'luminosity': 100.,
         'magnitude': -40.,
     }
     r"""float: Finite brightness bound.
@@ -300,15 +293,10 @@ class LuminosityFunctionModeller:
     """
 
     def __init__(self, luminosity_model, luminosity_variable, threshold_value,
-                 threshold_variable, cosmology=None, **model_parameters):
+                 threshold_variable, cosmology, **model_parameters):
 
         self._threshold_variable = self._alias(threshold_variable)
         if self._threshold_variable == 'flux':
-            if cosmology is None:
-                raise ValueError (
-                    "`cosmology` cannot be None "
-                    "if `threshold_variable` is 'flux'. "
-                )
             self.luminosity_threshold = lambda z: np.log10(
                 4*np.pi
                 * threshold_value
@@ -328,7 +316,8 @@ class LuminosityFunctionModeller:
 
         self.model_parameters = model_parameters
         self.luminosity_function = np.vectorize(
-            lambda lum, z: luminosity_model(lum, z, **self.model_parameters)
+            lambda lum, z: luminosity_model(lum, z, **self.model_parameters) /
+                cosmology.h**3
         )
 
         self._comoving_number_density = None
@@ -434,13 +423,9 @@ class LuminosityFunctionModeller:
         if callable(self._evolution_bias):
             return self._evolution_bias
 
-        ln_comoving_number_density = lambda z: np.log(
-            self.comoving_number_density(z)
-        )
-
         self._evolution_bias = lambda z: - (1 + z) * derivative(
-            ln_comoving_number_density, z, dx=self.redshift_stepsize
-        )
+            self.comoving_number_density, z, dx=self.redshift_stepsize
+        ) / self.comoving_number_density(z)
 
         return np.vectorize(self._evolution_bias)
 

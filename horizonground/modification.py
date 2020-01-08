@@ -32,7 +32,7 @@ The redshift-dependent correction function takes the form
 
 .. math::
 
-    g(z) = \frac{\dot{\mathcal{H}}}{\mathcal{H}} + \mathcal{H} \left(
+    g(z) = \frac{\mathcal{H}'}{\mathcal{H}} + \mathcal{H} \left(
         \frac{2 - 5s}{\mathcal{H} \chi} + 5s - f_\mathrm{ev}
     \right)
 
