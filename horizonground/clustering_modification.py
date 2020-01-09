@@ -1,39 +1,44 @@
 r"""
-Modification (:mod:`modification`)
+Clustering modification (:mod:`clustering_modification`)
 ===========================================================================
 
-Scale-dependent modifications to the clustering power spectrum from
-relativistic corrections to the over-density field :math:`\delta` or from
-scale-dependent linear bias induced by local primordial non-Gaussianity
-:math:`f_\textrm{NL}`.
+Scale-dependent modifications to Newtonian clustering statistics from
+relativistic corrections or from local primordial non-Gaussianity.
 
 
 Non-Gaussianity modifications
------------------------------
+---------------------------------------------------------------------------
 
-Local primordial non-Gaussianty induces scale dependence
+Local primordial non-Gaussianty :math:`f_\textrm{NL}` induces scale 
+dependence
 
 .. math::
 
     A(k, z) = 3 \left( \frac{H_0}{\mathrm{c}} \right)^2
-        \frac{\delta_\mathrm{c} \Omega_\mathrm{m,0}}{T(k, z)}
-
-so that linear bias :math:`b_1(z)` is modified by
+        \frac{1.27 \Omega_\mathrm{m,0} \delta_\mathrm{c}}{D(z)T(k)}
+        
+where the growth factor :math:`D(z)` is normalised to unity at the current
+epoch (thus the numerical factor 1.27), and the transfer function 
+:math:`T(k)` is normalised to unity at the vanishing wavenumber, so that 
+linear bias :math:`b_1(z)` is modified by
 
 .. math::
 
-    \Delta b(k, z) = f_\mathrm{NL} [b_1(z) - 1] \frac{A(k, z)}{k^2} \,.
+    \Delta b(k, z) = f_\mathrm{NL} [b_1(z) - p] \frac{A(k, z)}{k^2} \,,
+    
+where :math:`p` is a tracer species--dependent parameter.
 
 
 Relativistic corrections
-------------------------
+---------------------------------------------------------------------------
 
 The redshift-dependent correction function takes the form
 
 .. math::
 
-    g(z) = \frac{\mathcal{H}'}{\mathcal{H}} + \mathcal{H} \left(
-        \frac{2 - 5s}{\mathcal{H} \chi} + 5s - f_\mathrm{ev}
+    g(z) = \mathcal{H} \left( 
+        \frac{\mathcal{H}'}{\mathcal{H}^2}
+        + \frac{2 - 5s}{\mathcal{H} \chi} + 5s - f_\mathrm{ev}
     \right)
 
 with evolution bias :math:`f_\mathrm{ev}(z)` and magnification bias
@@ -54,16 +59,16 @@ We can rearrange this as the sum of three terms
 
 .. math::
 
-    g(z) = \underbrace{
-        \frac{2}{\chi} + \mathcal{H} \left[
+    g(z)/\mathcal{H}(z) = \underbrace{
+        \frac{2}{\mathcal{H}\chi} + \left[
             1 - \frac{3}{2} \Omega_\mathrm{m,0} (1 + z)^3
         \right]
     }_{\textrm{geometric}}
     \phantom{+} \underbrace{
-        - \mathcal{H} f_\mathrm{ev}(z)}_{\textrm{evolution}
+        f_\mathrm{ev}(z)}_{\textrm{evolution}
     } + \underbrace{
-        5s(z) \left( \mathcal{H} - \frac{1}{\chi} \right)
-    }_{\text{lensing}} \,.
+        5s(z) \left( 1 - \frac{1}{\mathcal{H}\chi} \right)
+    }_{\text{magnification}} \,.
 
 
 """
@@ -99,7 +104,7 @@ def scale_dependence_kernel(redshift, cosmo=FIDUCIAL_COSMOLOGY):
 
     """
     SPHERICAL_COLLAPSE_CRITICAL_OVERDENSITY = 1.686
-    EQUALITY_NORMALISATION = 1.3
+    EQUALITY_NORMALISATION = 1.27
 
     numerical_constants = 3 * SPHERICAL_COLLAPSE_CRITICAL_OVERDENSITY \
         * cosmo.Om0 * EQUALITY_NORMALISATION \
@@ -168,9 +173,9 @@ def relativistic_modification(wavenumber, redshift, multipole,
     .. math::
 
         \begin{align*}
-            \frac{\Delta P_0(k, z)}{P_\textrm{m}(k,z)} &= \frac{1}{3}
+            \frac{\Delta P_0(k; z)}{P_\textrm{m}(k,z)} &= \frac{1}{3}
                 \frac{g(z)^2 f(z)^2}{k^2} \,,\\
-            \frac{\Delta P_2(k, z)}{P_\textrm{m}(k,z)} &= \frac{2}{3}
+            \frac{\Delta P_2(k; z)}{P_\textrm{m}(k,z)} &= \frac{2}{3}
                 \frac{g(z)^2 f(z)^2}{k^2} \,,
         \end{align*}
 
@@ -286,12 +291,12 @@ def standard_kaiser_modification(redshift, multipole, b_1,
     .. math::
 
         \begin{align*}
-            \frac{P_0(k, z)}{P_\textrm{m}(k,z)} &= b_1(z)^2
+            \frac{P_0(k; z)}{P_\textrm{m}(k;z)} &= b_1(z)^2
                 + \frac{2}{3} b_1(z) f(z) + \frac{1}{5} f(z)^2 \,, \\
-            \frac{P_2(k, z)}{P_\textrm{m}(k,z)} &=
+            \frac{P_2(k; z)}{P_\textrm{m}(k;z)} &=
                 \frac{4}{3} b_1(z) f(z) + \frac{4}{7} f(z)^2 \,, \\
-            \frac{P_4(k, z)}{P_\textrm{m}(k,z)} &= \frac{8}{35}
-                f(z)^2 \,, \\
+            \frac{P_4(k; z)}{P_\textrm{m}(k;z)} &= \frac{8}{35}
+                f(z)^2 \,.
         \end{align*}
 
     Parameters

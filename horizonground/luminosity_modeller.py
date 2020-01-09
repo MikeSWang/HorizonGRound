@@ -1,14 +1,17 @@
 r"""
-Luminosity Modeller (:mod:`luminosity`)
+Luminosity Modeller (:mod:`luminosity_modeller`)
 ===========================================================================
 
 Model tracer luminosity functions and related quantities.
 
 
-Pure luminosity evolution (PLE)
--------------------------------
+Quasar samples (QSO)
+---------------------------------------------------------------------------
 
-The *quasar* luminosity function in the pure luminosity evolution (PLE)
+Pure luminosity evolution model (PLE)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The quasar luminosity function in the pure luminosity evolution (PLE)
 model is a double power law
 
 .. math::
@@ -40,17 +43,22 @@ for :math:`z < z_\textrm{p}` and
 :math:`(\alpha, \beta, k_1, k_2)_\textrm{h}` for :math:`z > z_\textrm{p}`.
 
 
-Hybrid evolution (PLE+LEDE)
----------------------------
+Hybrid evolution model (PLE+LEDE)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. todo:: Not implemented.
 
 
-Schechter function
-------------------
 
-The H |alpha| -emitter luminosity function in the Schechter model takes the
-form of a gamma function
+H |alpha| -emitter samples
+---------------------------------------------------------------------------
+
+
+Schechter function model
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The H |alpha| -emitter luminosity function in the Schechter function model
+takes the form of a gamma function
 
 .. math::
 
@@ -79,6 +87,7 @@ magnitude.
 
 This is a parametric model with 6 parameters: :math:`\alpha, \epsilon,
 \delta`, :math:`z_\textrm{b}`, :math:`m_{\ast0}` and :math:`\Phi_{\ast0}`.
+
 
 .. |alpha| unicode:: U+03B1
     :trim:
@@ -140,9 +149,8 @@ def quasar_luminosity_PLE_model(magnitude, redshift, redshift_pivot=2.2,
     k_2 = model_parameters['k_{{2{}}}'.format(subscript)]
 
     # Evaluate the model prediction.
-    exponent_magnitude_factor = M_g  - (
-        M_g_star_p - 2.5*(k_1 * (z - z_p) + k_2 * (z - z_p)**2)
-    )
+    exponent_magnitude_factor = M_g - M_g_star_p \
+         + 2.5*(k_1 * (z - z_p) + k_2 * (z - z_p)**2)
 
     faint_power_law = 10 ** (0.4*(alpha + 1) * exponent_magnitude_factor)
     bright_power_law = 10 ** (0.4*(beta + 1) * exponent_magnitude_factor)
@@ -265,12 +273,14 @@ class LuminosityFunctionModeller:
         Model parameters.
     luminosity_function : callable
         Luminosity function of luminosity or magnitude and redshift
-        variables only (in that order) (in inverse cubic Mpc).
+        variables only (in that order) (in inverse cubic Mpc/:math:`h`).
     luminosity_variable : {'luminosity', 'magnitude'}, str
         Luminosity variable, either ``'luminosity'`` or ``'magnitude'``.
     luminosity_threshold : callable
         Luminosity threshold in :attr:`luminosity_variable` as a function
         of redshift.
+    cosmology : :class:`astropy.cosmology.Cosmology`
+        Background cosmological model.
 
     """
 
@@ -294,13 +304,15 @@ class LuminosityFunctionModeller:
 
     def __init__(self, luminosity_model, luminosity_variable, threshold_value,
                  threshold_variable, cosmology, **model_parameters):
-
+    
+        self.cosmology = cosmology
+        
         self._threshold_variable = self._alias(threshold_variable)
         if self._threshold_variable == 'flux':
             self.luminosity_threshold = lambda z: np.log10(
                 4*np.pi
                 * threshold_value
-                * cosmology.luminosity_distance(z).to(units.cm).value**2
+                * self.cosmology.luminosity_distance(z).to(units.cm).value**2
             )
             self._threshold_variable = 'luminosity'
         else:
@@ -317,7 +329,7 @@ class LuminosityFunctionModeller:
         self.model_parameters = model_parameters
         self.luminosity_function = np.vectorize(
             lambda lum, z: luminosity_model(lum, z, **self.model_parameters) /
-                cosmology.h**3
+                self.cosmology.h**3
         )
 
         self._comoving_number_density = None
@@ -349,10 +361,8 @@ class LuminosityFunctionModeller:
             ``'luminosity'`` or ``'magnitude'``.  If ``'flux'``,
             `threshold_value` will be converted into ``'luminosity'``
             threshold value.
-        cosmology : :class:`astropy.cosmology.Cosmology` or None, optional
-            Background cosmological model (default is `None`).  If
-            `threshold_variable` is 'flux', this is needed for computing
-            the luminosity distance and cannot be `None`.
+        cosmology : :class:`astropy.cosmology.Cosmology`
+            Background cosmological model.
 
         """
         with open(parameter_file, 'r') as pfile:
@@ -374,8 +384,7 @@ class LuminosityFunctionModeller:
 
     @property
     def comoving_number_density(self):
-        r"""Comoving number density (in inverse cubic Mpc) as a function of
-        redshift
+        r"""Comoving number density (in inverse cubic Mpc)
 
         .. math::
 
@@ -388,7 +397,8 @@ class LuminosityFunctionModeller:
         Returns
         -------
         callable
-            Comoving number density (in inverse cubic Mpc).
+            Comoving number density (in inverse cubic Mpc/:math:`h`) 
+            as a function of redshift.
 
         """
         if callable(self._comoving_number_density):
@@ -407,7 +417,7 @@ class LuminosityFunctionModeller:
 
     @property
     def evolution_bias(self):
-        r"""Evolution bias as a function of redshift
+        r"""Evolution bias
 
         .. math::
 
@@ -417,7 +427,7 @@ class LuminosityFunctionModeller:
         Returns
         -------
         callable
-            Evolution bias.
+            Evolution bias as a function of redshift.
 
         """
         if callable(self._evolution_bias):
@@ -431,7 +441,7 @@ class LuminosityFunctionModeller:
 
     @property
     def magnification_bias(self):
-        r"""Magnification bias as a function of redshift
+        r"""Magnification bias
 
         .. math::
 
@@ -450,7 +460,7 @@ class LuminosityFunctionModeller:
         Returns
         -------
         callable
-            Magnification bias.
+            Magnification bias as a function of redshift.
 
         """
         if callable(self._magnification_bias):
