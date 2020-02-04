@@ -1,32 +1,41 @@
 r"""
-Clustering modification (:mod:`clustering_modification`)
+Clustering modification (:mod:`~horizonground.clustering_modification`)
 ===========================================================================
 
 Scale-dependent modifications to Newtonian clustering statistics from
 relativistic corrections or from local primordial non-Gaussianity.
 
+.. autosummary::
+
+    standard_kaiser_modification
+
 
 Non-Gaussianity modifications
 ---------------------------------------------------------------------------
 
-Local primordial non-Gaussianty :math:`f_\textrm{NL}` induces scale 
+Local primordial non-Gaussianty :math:`f_\textrm{NL}` induces scale
 dependence
 
 .. math::
 
     A(k, z) = 3 \left( \frac{H_0}{\mathrm{c}} \right)^2
         \frac{1.27 \Omega_\mathrm{m,0} \delta_\mathrm{c}}{D(z)T(k)}
-        
+
 where the growth factor :math:`D(z)` is normalised to unity at the current
-epoch (thus the numerical factor 1.27), and the transfer function 
-:math:`T(k)` is normalised to unity at the vanishing wavenumber, so that 
+epoch (thus the numerical factor 1.27), and the transfer function
+:math:`T(k)` is normalised to unity at the vanishing wavenumber, so that
 linear bias :math:`b_1(z)` is modified by
 
 .. math::
 
     \Delta b(k, z) = f_\mathrm{NL} [b_1(z) - p] \frac{A(k, z)}{k^2} \,,
-    
+
 where :math:`p` is a tracer species--dependent parameter.
+
+.. autosummary::
+
+    scale_dependence_kernel
+    non_gaussianity_modification
 
 
 Relativistic corrections
@@ -36,7 +45,7 @@ The redshift-dependent correction function takes the form
 
 .. math::
 
-    g(z) = \mathcal{H} \left( 
+    g(z) = \mathcal{H} \left(
         \frac{\mathcal{H}'}{\mathcal{H}^2}
         + \frac{2 - 5s}{\mathcal{H} \chi} + 5s - f_\mathrm{ev}
     \right)
@@ -64,12 +73,18 @@ We can rearrange this as the sum of three terms
             1 - \frac{3}{2} \Omega_\mathrm{m,0} (1 + z)^3
         \right]
     }_{\textrm{geometric}}
-    \phantom{+} \underbrace{
+    + \underbrace{
         f_\mathrm{ev}(z)}_{\textrm{evolution}
     } + \underbrace{
         5s(z) \left( 1 - \frac{1}{\mathcal{H}\chi} \right)
     }_{\text{magnification}} \,.
 
+.. autosummary::
+
+    relativistic_corrections
+    relativistic_modification
+
+|
 
 """
 from __future__ import division

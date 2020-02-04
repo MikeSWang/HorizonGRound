@@ -1,15 +1,18 @@
 r"""
-Luminosity Modeller (:mod:`luminosity_modeller`)
+Luminosity Function Modeller (:mod:`~horizonground.lumfunc_modeller`)
 ===========================================================================
 
 Model tracer luminosity functions and related quantities.
+
+.. autosummary::
+
+    LFModeller
 
 
 Quasar samples (QSO)
 ---------------------------------------------------------------------------
 
-Pure luminosity evolution model (PLE)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Pure luminosity evolution model (PLE)**
 
 The quasar luminosity function in the pure luminosity evolution (PLE)
 model is a double power law
@@ -43,19 +46,20 @@ for :math:`z < z_\textrm{p}` and
 :math:`(\alpha, \beta, k_1, k_2)_\textrm{h}` for :math:`z > z_\textrm{p}`.
 
 
-Hybrid evolution model (PLE+LEDE)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Hybrid evolution model (PLE+LEDE)**
 
 .. todo:: Not implemented.
 
+.. autosummary::
+
+    quasar_PLE_model
+    quasar_hybrid_model
 
 
 H |alpha| -emitter samples
 ---------------------------------------------------------------------------
 
-
-Schechter function model
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Schechter function model**
 
 The H |alpha| -emitter luminosity function in the Schechter function model
 takes the form of a gamma function
@@ -88,6 +92,11 @@ magnitude.
 This is a parametric model with 6 parameters: :math:`\alpha, \epsilon,
 \delta`, :math:`z_\textrm{b}`, :math:`m_{\ast0}` and :math:`\Phi_{\ast0}`.
 
+.. autosummary::
+
+    alpha_emitter_schechter_model
+
+|
 
 .. |alpha| unicode:: U+03B1
     :trim:
@@ -101,8 +110,9 @@ from scipy.integrate import quad
 from scipy.misc import derivative
 
 
-def quasar_luminosity_PLE_model(magnitude, redshift, redshift_pivot=2.2,
-                                **model_parameters):
+@np.vectorize
+def quasar_PLE_model(magnitude, redshift, redshift_pivot=2.2,
+                     **model_parameters):
     """Evaluate the pure luminosity evolution (PLE) model for the quasar
     luminosity function at the given absolute magnitude and redshift.
 
@@ -160,8 +170,9 @@ def quasar_luminosity_PLE_model(magnitude, redshift, redshift_pivot=2.2,
     return comoving_density
 
 
-def quasar_luminosity_hybrid_model(magnitude, redshift, redshift_pivot=2.2,
-                                   **model_parameters):
+@np.vectorize
+def quasar_hybrid_model(magnitude, redshift, redshift_pivot=2.2,
+                        **model_parameters):
     """Evaluate the hybrid model (pure luminosity evolution and luminosity
     evolution--density evolution, 'PLE+LEDE') for the quasar luminosity
     function at the given magnitude and redshift.
@@ -192,8 +203,8 @@ def quasar_luminosity_hybrid_model(magnitude, redshift, redshift_pivot=2.2,
     raise NotImplementedError
 
 
-def alpha_emitter_luminosity_schechter_model(lg_luminosity, redshift,
-                                             **model_parameters):
+@np.vectorize
+def alpha_emitter_schechter_model(lg_luminosity, redshift, **model_parameters):
     r"""Evaluate the Schechter model for the H |alpha| -emitter
     luminosity function at the given base-10 logarithmic luminosity and
     redshift.
@@ -239,7 +250,7 @@ def alpha_emitter_luminosity_schechter_model(lg_luminosity, redshift,
     return comoving_density
 
 
-class LuminosityFunctionModeller:
+class LFModeller:
     r"""Luminosity function modeller predicting the comoving number density
     and related quantities for a given brightness threshold.
 
@@ -249,7 +260,7 @@ class LuminosityFunctionModeller:
 
     Parameters
     ----------
-    luminosity_model : callable
+    lumfunc_model : callable
         A parametric model for the luminosity function of luminosity or
         magnitude and redshift variables accepting additional parameters
         (in that order).
@@ -264,7 +275,7 @@ class LuminosityFunctionModeller:
     cosmology : :class:`astropy.cosmology.Cosmology`
         Background cosmological model.
     **model_parameters
-        Additional model parameters to be passed to `luminosity_model` as
+        Additional model parameters to be passed to `lumfunc_model` as
         keyword arguments.
 
     Attributes
@@ -302,11 +313,11 @@ class LuminosityFunctionModeller:
 
     """
 
-    def __init__(self, luminosity_model, luminosity_variable, threshold_value,
+    def __init__(self, lumfunc_model, luminosity_variable, threshold_value,
                  threshold_variable, cosmology, **model_parameters):
-    
+
         self.cosmology = cosmology
-        
+
         self._threshold_variable = self._alias(threshold_variable)
         if self._threshold_variable == 'flux':
             self.luminosity_threshold = lambda z: np.log10(
@@ -328,7 +339,7 @@ class LuminosityFunctionModeller:
 
         self.model_parameters = model_parameters
         self.luminosity_function = np.vectorize(
-            lambda lum, z: luminosity_model(lum, z, **self.model_parameters) /
+            lambda lum, z: lumfunc_model(lum, z, **self.model_parameters) /
                 self.cosmology.h**3
         )
 
@@ -337,7 +348,7 @@ class LuminosityFunctionModeller:
         self._magnification_bias = None
 
     @classmethod
-    def from_parameters_file(cls, parameter_file, luminosity_model,
+    def from_parameters_file(cls, parameter_file, lumfunc_model,
                              luminosity_variable, threshold_value,
                              threshold_variable, cosmology=None):
         """Instantiate the modeller by loading model parameter values from
@@ -347,7 +358,7 @@ class LuminosityFunctionModeller:
         ----------
         parameter_file : str
             Path of the model parameter file.
-        luminosity_model : callable
+        lumfunc_model : callable
             A parametric model for the luminosity function of luminosity or
             magnitude and redshift variables accepting additional
             parameters (in that order).
@@ -377,9 +388,9 @@ class LuminosityFunctionModeller:
             )
 
         return cls(
-            luminosity_model, luminosity_variable,
-            threshold_value, threshold_variable, cosmology=cosmology,
-            **dict(zip(parameters, estimates))
+            lumfunc_model, luminosity_variable,
+            threshold_value, threshold_variable,
+            cosmology=cosmology, **dict(zip(parameters, estimates))
         )
 
     @property
@@ -397,7 +408,7 @@ class LuminosityFunctionModeller:
         Returns
         -------
         callable
-            Comoving number density (in inverse cubic Mpc/:math:`h`) 
+            Comoving number density (in inverse cubic Mpc/:math:`h`)
             as a function of redshift.
 
         """
