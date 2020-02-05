@@ -6,7 +6,7 @@ Model tracer luminosity functions and related quantities.
 
 .. autosummary::
 
-    LFModeller
+    LumFuncModeller
 
 
 Quasar samples (QSO)
@@ -44,7 +44,6 @@ This is a parametric model with 10 parameters: :math:`\Phi_\ast`,
 :math:`m_\ast(z_\textrm{p})`, :math:`(\alpha, \beta, k_1, k_2)_\textrm{l}`
 for :math:`z < z_\textrm{p}` and
 :math:`(\alpha, \beta, k_1, k_2)_\textrm{h}` for :math:`z > z_\textrm{p}`.
-
 
 **Hybrid evolution model (PLE+LEDE)**
 
@@ -144,19 +143,19 @@ def quasar_PLE_model(magnitude, redshift, redshift_pivot=2.2,
 
     # Determine the redshift range.
     if z <= z_p:
-        subscript = '\\textrm{{{}}}'.format('l')
+        subscript = r'\textrm{{{}}}'.format('l')
     else:
-        subscript = '\\textrm{{{}}}'.format('h')
+        subscript = r'\textrm{{{}}}'.format('h')
 
     # Set parameters.
-    Phi_star = 10**model_parameters['\\lg\\Phi_\\ast']
-    M_g_star_p = model_parameters['M_{g\\ast}(z_\\textrm{p})']
+    Phi_star = 10**model_parameters[r'\lg\Phi_\ast']
+    M_g_star_p = model_parameters[r'M_{g\ast}(z_\textrm{p})']
 
-    alpha = model_parameters['\\alpha_{}'.format(subscript)]
-    beta = model_parameters['\\beta_{}'.format(subscript)]
+    alpha = model_parameters[r'\alpha_{}'.format(subscript)]
+    beta = model_parameters[r'\beta_{}'.format(subscript)]
 
-    k_1 = model_parameters['k_{{1{}}}'.format(subscript)]
-    k_2 = model_parameters['k_{{2{}}}'.format(subscript)]
+    k_1 = model_parameters[r'k_{{1{}}}'.format(subscript)]
+    k_2 = model_parameters[r'k_{{2{}}}'.format(subscript)]
 
     # Evaluate the model prediction.
     exponent_magnitude_factor = M_g - M_g_star_p \
@@ -226,16 +225,16 @@ def alpha_emitter_schechter_model(lg_luminosity, redshift, **model_parameters):
 
     """
     # Re-definitions.
-    y0 = 10**(lg_luminosity - model_parameters['\\lg{L_{\\ast0}}'])
+    y0 = 10**(lg_luminosity - model_parameters[r'\lg{L_{\ast0}}'])
     z = redshift
 
     # Set parameters.
-    Phi_star0 = 10**model_parameters['\\lg\\Phi_{\\ast0}']
-    z_b = model_parameters['z_\\textrm{b}']
+    Phi_star0 = 10**model_parameters[r'\lg\Phi_{\ast0}']
+    z_b = model_parameters[r'z_\textrm{b}']
 
-    alpha = model_parameters['\\alpha']
-    delta = model_parameters['\\delta']
-    epsilon = model_parameters['\\epsilon']
+    alpha = model_parameters[r'\alpha']
+    delta = model_parameters[r'\delta']
+    epsilon = model_parameters[r'\epsilon']
 
     # Evaluate the model prediction.
     if z <= z_b:
@@ -250,13 +249,9 @@ def alpha_emitter_schechter_model(lg_luminosity, redshift, **model_parameters):
     return comoving_density
 
 
-class LFModeller:
+class LumFuncModeller:
     r"""Luminosity function modeller predicting the comoving number density
     and related quantities for a given brightness threshold.
-
-    Notes
-    -----
-    All luminosity values are represented in base-10 logarithms.
 
     Parameters
     ----------
@@ -331,7 +326,7 @@ class LFModeller:
 
         self.luminosity_variable = self._alias(luminosity_variable)
         if self._threshold_variable != self.luminosity_variable:
-            raise NotImplementedError(
+            raise ValueError(
                 "`threshold_variable` '{}' does not match "
                 "`luminosity_variable` '{}'. "
                 .format(self._threshold_variable, self.luminosity_variable)
@@ -339,8 +334,7 @@ class LFModeller:
 
         self.model_parameters = model_parameters
         self.luminosity_function = np.vectorize(
-            lambda lum, z: lumfunc_model(lum, z, **self.model_parameters) /
-                self.cosmology.h**3
+            lambda lum, z: lumfunc_model(lum, z, **self.model_parameters)
         )
 
         self._comoving_number_density = None
@@ -422,7 +416,7 @@ class LFModeller:
                 self.brightness_bound[self.luminosity_variable],  # bright end
                 args=(z,)
             )[0]
-        )
+        ) / self.cosmology.h**3
 
         return np.vectorize(self._comoving_number_density)
 

@@ -9,7 +9,7 @@ Data processing
 
 .. autosummary::
 
-    LFMeasurements
+    LumFuncMeasurements
 
 
 Likelihoods
@@ -17,15 +17,16 @@ Likelihoods
 
 .. autosummary::
 
-    LFLikelihood
     normal_log_pdf
+    LumFuncLikelihood
 
 |
 
 """
 from __future__ import division
 
-from itertools import product as iterprod
+from itertools import compress as iterfilter
+from itertools import product as iterproduct
 
 import numpy as np
 
@@ -33,7 +34,7 @@ import numpy as np
 # Data processing
 # -----------------------------------------------------------------------------
 
-class LFMeasurements:
+class LumFuncMeasurements:
     """Luminosity function measurements for a tracer sample.
 
     Parameters
@@ -66,10 +67,14 @@ class LFMeasurements:
     def __init__(self, data_file, base10_log=True):
 
         self._source_path = data_file
+
         self._load_data_file(self._source_path, base10_log)
 
-    def calculate_statistics(self):
-        """Calculate the empirical mean and covariance from luminosity
+        self._point_validity = ~np.isnan(self._measurements.flatten()) \
+            & ~np.isnan(self._uncertainties.flatten())
+
+    def get_statistics(self):
+        """Return the empirical mean and covariance from luminosity
         function data.
 
 
@@ -87,13 +92,8 @@ class LFMeasurements:
         luminosity/magnitude.
 
         """
-        mean = self._measurements.flatten()
-        var = self._uncertainties.flatten()
-
-        valid_points = ~np.isnan(mean) & ~np.isnan(var)
-
-        data_mean = mean[valid_points]
-        data_var = np.diag(var[valid_points])
+        data_mean = self._measurements.flatten()[self._point_validity]
+        data_var = np.diag(self._uncertainties.flatten()[self._point_validity])
 
         return data_mean, data_var
 
@@ -189,22 +189,22 @@ def normal_log_pdf(data_vector, model_vector, covariance_matrix):
 
     Returns
     -------
-    logp : :class:`numpy.ndarray`
+    log_p : :class:`numpy.ndarray`
         Log probability density.
 
     """
     data_vector = np.asarray(data_vector)
     model_vector = np.asarray(model_vector)
 
-    logp = - 1/2 * np.matmul(
+    log_p = - 1/2 * np.matmul(
         (data_vector - model_vector).T,
         np.matmul(covariance_matrix, data_vector - model_vector)
     )
 
-    return logp
+    return log_p
 
 
-class LFLikelihood(LFMeasurements):
+class LumFuncLikelihood(LumFuncMeasurements):
     """Luminosity function likelihood.
 
     Parameters
@@ -229,10 +229,14 @@ class LFLikelihood(LFMeasurements):
         self._lumfunc_model = lumfunc_model
 
         self._priors = self._setup_prior(prior_file)
+
         self._data_points = list(
-            map(
-                lambda tup: tuple(reversed(tup)),
-                iterprod(self.redshift_bins, self.brightness_bins)
+            iterfilter(
+                map(
+                    lambda tup: tuple(reversed(tup)),
+                    iterproduct(self.redshift_bins, self.brightness_bins)
+                ),
+                self._point_validity
             )
         )
 
@@ -266,7 +270,7 @@ class LFLikelihood(LFMeasurements):
             parameter_names = list(
                 map(
                     lambda header: header.strip(" "),
-                    file.readline().strip("#").strip("\n").split(",")[1:]
+                    file.readline().strip("#").strip("\n").split(",")
                 )
             )
 
@@ -285,9 +289,3 @@ class LFLikelihood(LFMeasurements):
                 self._lumfunc_model.__name__,
                 normal_log_pdf.__name__)
         )
-
-
-PARAMETER_PRIOR_FILE = "../data/input/PLE_model_prior.txt"
-
-if __name__ == '__main__':
-    p = load_prior(PARAMETER_PRIOR_FILE)
