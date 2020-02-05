@@ -77,7 +77,6 @@ class LumFuncMeasurements:
         """Return the empirical mean and covariance from luminosity
         function data.
 
-
         Returns
         -------
         data_mean : :class:`numpy.ndarray`
@@ -149,7 +148,21 @@ class LumFuncMeasurements:
         return bin_labels, bin_centres
 
     def __getitem__(self, z_key):
-
+        """Get luminosity function measurements and uncertainties
+        for a specific redshift bin.
+        
+        Parameters
+        ----------
+        z_key: int, slice or str
+            Slice or integer index or string representing a redshift
+            bin.  If a string, the accepted format is e.g. ``z=1.0``.
+            
+        Returns
+        -------
+        :class:`numpy.ndarray`, :class:`numpy.ndarray`
+            Measurements and uncertainties for the redshift bin.
+        
+        """        
         if isinstance(z_key, int) or isinstance(z_key, slice):
             z_idx = z_key
         else:
@@ -206,6 +219,12 @@ def normal_log_pdf(data_vector, model_vector, covariance_matrix):
 
 class LumFuncLikelihood(LumFuncMeasurements):
     """Luminosity function likelihood.
+    
+    Notes
+    -----
+    The built-in likelihood distribution is multivariate normal and
+    assumes a diagonal covariance matrix estimate without any
+    corrections for its uncertainties.
 
     Parameters
     ----------
@@ -240,10 +259,24 @@ class LumFuncLikelihood(LumFuncMeasurements):
             )
         )
 
-        self._data_vector, self._data_covariance = self.calculate_statistics()
+        self._data_vector, self._data_covariance = self.get_statistics()
 
     def __call__(self, **model_params):
-
+        """Return log-likelihood value at input model parameter point.
+        
+        Parameters
+        ----------
+        **model_params
+            All model parameters associated with :attr:`lumfunc_model`
+            except the luminosity function arguments 
+            (luminosity/magnitude and redshift).
+            
+        Returns
+        -------
+        float
+            Log-likelihood value.
+        
+        """
         for param_name, param_val in model_params.items():
             if param_val < self._priors[param_name][0] \
                     or param_val > self._priors[param_name][-1]:
