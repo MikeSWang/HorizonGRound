@@ -150,29 +150,26 @@ class LumFuncMeasurements:
     def __getitem__(self, z_key):
         """Get luminosity function measurements and uncertainties
         for a specific redshift bin.
-        
+
         Parameters
         ----------
         z_key: int, slice or str
             Slice or integer index or string representing a redshift
             bin.  If a string, the accepted format is e.g. ``z=1.0``.
-            
+
         Returns
         -------
         :class:`numpy.ndarray`, :class:`numpy.ndarray`
             Measurements and uncertainties for the redshift bin.
-        
-        """        
-        if isinstance(z_key, int) or isinstance(z_key, slice):
-            z_idx = z_key
-        else:
-            try:
-                z = float(str(z_key).replace(" ", "").lstrip("z="))
-                z_idx = self._redshift_bins.index(z)
-            except (TypeError, ValueError):
-                raise KeyError(
-                    "No measurements for redshift bin '{}'. ".format(z_key)
-                )
+
+        """
+        try:
+            z = float(str(z_key).replace(" ", "").lstrip("z="))
+            z_idx = self.redshift_bins.index(z)
+        except (TypeError, ValueError):
+            raise KeyError(
+                "No measurements for redshift bin '{}'. ".format(z_key)
+            )
 
         return self._measurements[z_idx], self._uncertainties[z_idx]
 
@@ -219,7 +216,7 @@ def normal_log_pdf(data_vector, model_vector, covariance_matrix):
 
 class LumFuncLikelihood(LumFuncMeasurements):
     """Luminosity function likelihood.
-    
+
     Notes
     -----
     The built-in likelihood distribution is multivariate normal and
@@ -263,19 +260,19 @@ class LumFuncLikelihood(LumFuncMeasurements):
 
     def __call__(self, **model_params):
         """Return log-likelihood value at input model parameter point.
-        
+
         Parameters
         ----------
         **model_params
             All model parameters associated with :attr:`lumfunc_model`
-            except the luminosity function arguments 
+            except the luminosity function arguments
             (luminosity/magnitude and redshift).
-            
+
         Returns
         -------
         float
             Log-likelihood value.
-        
+
         """
         for param_name, param_val in model_params.items():
             if param_val < self._priors[param_name][0] \
