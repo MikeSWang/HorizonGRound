@@ -163,13 +163,16 @@ class LumFuncMeasurements:
             Measurements and uncertainties for the redshift bin.
 
         """
-        try:
-            z = float(str(z_key).replace(" ", "").lstrip("z="))
-            z_idx = self.redshift_bins.index(z)
-        except (TypeError, ValueError):
-            raise KeyError(
-                "No measurements for redshift bin '{}'. ".format(z_key)
-            )
+        if isinstance(z_key, int) or isinstance(z_key, slice):
+            z_idx = z_key
+        else:
+            try:
+                z = float(str(z_key).replace(" ", "").lstrip("z="))
+                z_idx = self.redshift_bins.index(z)
+            except (TypeError, ValueError):
+                raise KeyError(
+                    "No measurements for redshift bin '{}'. ".format(z_key)
+                )
 
         return self._measurements[z_idx], self._uncertainties[z_idx]
 
