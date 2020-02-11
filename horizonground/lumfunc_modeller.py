@@ -2,14 +2,40 @@ r"""
 Luminosity Function Modeller (:mod:`~horizonground.lumfunc_modeller`)
 ===========================================================================
 
-Model tracer luminosity functions and related quantities.
+Model the redshift-dependent tracer luminosity function :math:`\Phi(m, z)`
+(for suitably normalised magnitude :math:`m`) or :math:`\Phi(\lg{L}, z)`
+(for base-10 logarithmic luminosity), predict the comoving number density
+
+.. math::
+
+    \bar{n}(z;\bar{m}) = \int_{-\infty}^{\bar{m}}
+        \operatorname{d}\!m \Phi(m, z)
+    \quad \textrm{or} \quad
+    \bar{n}(z;\lg\bar{L}) = \int^{\infty}_{\lg\bar{L}}
+        \operatorname{d}\!\lg{L} \Phi(\lg{L}, z) \,.
+
+and derive the corresponding evolution bias
+
+.. math::
+
+    f_\textrm{ev}(z) = - (1 + z)
+        \frac{\partial \ln\bar{n}(z)}{\partial z}
+
+and magnification bias
+
+.. math::
+
+    s(z) = \frac{1}{\ln10} \frac{\Phi(\bar{m},z)}{\bar{n}(z;\bar{m})}
+    \quad \textrm{or} \quad
+    s(z) = \frac{2}{5\ln10} \frac{\Phi(\lg\bar{L},z)}{\bar{n}(z;\bar{L})}
+    \,.
 
 .. autosummary::
 
     LumFuncModeller
 
 
-Quasar samples (QSO)
+Quasar (QSO) luminosity function
 ---------------------------------------------------------------------------
 
 **Pure luminosity evolution model (PLE)**
@@ -55,7 +81,7 @@ for :math:`z < z_\textrm{p}` and
     quasar_hybrid_model
 
 
-H |alpha| -emitter samples
+H |alpha| -emitter luminosity function
 ---------------------------------------------------------------------------
 
 **Schechter function model**
@@ -109,11 +135,10 @@ from scipy.integrate import quad
 from scipy.misc import derivative
 
 
-@np.vectorize
 def quasar_PLE_model(magnitude, redshift, redshift_pivot=2.2,
                      **model_parameters):
     """Evaluate the pure luminosity evolution (PLE) model for the quasar
-    luminosity function at the given absolute magnitude and redshift.
+    luminosity function at the given magnitude and redshift.
 
     Notes
     -----
@@ -169,7 +194,6 @@ def quasar_PLE_model(magnitude, redshift, redshift_pivot=2.2,
     return comoving_density
 
 
-@np.vectorize
 def quasar_hybrid_model(magnitude, redshift, redshift_pivot=2.2,
                         **model_parameters):
     """Evaluate the hybrid model (pure luminosity evolution and luminosity
@@ -202,7 +226,6 @@ def quasar_hybrid_model(magnitude, redshift, redshift_pivot=2.2,
     raise NotImplementedError
 
 
-@np.vectorize
 def alpha_emitter_schechter_model(lg_luminosity, redshift, **model_parameters):
     r"""Evaluate the Schechter model for the H |alpha| -emitter
     luminosity function at the given base-10 logarithmic luminosity and
@@ -250,41 +273,41 @@ def alpha_emitter_schechter_model(lg_luminosity, redshift, **model_parameters):
 
 
 class LumFuncModeller:
-    r"""Luminosity function modeller predicting the comoving number density
-    and related quantities for a given brightness threshold.
+    r"""Luminosity function modeller predicting the comoving number
+    density, evolution bias and magnification bias for a given brightness
+    threshold.
 
     Parameters
     ----------
     lumfunc_model : callable
         A parametric model for the luminosity function of luminosity or
-        magnitude and redshift variables accepting additional parameters
-        (in that order).
-    luminosity_variable : {'luminosity', 'magnitude'}, str
+        magnitude and redshift variables (in that order).
+    brightness_variable : {'luminosity', 'magnitude'}, str
         Luminosity variable, either ``'luminosity'`` or ``'magnitude'``.
     threshold_value : float
-        Luminosity threshold value.
+        Brightness threshold value.
     threshold_variable : {'flux', 'luminosity', 'magnitude'}, str
-        Luminosity threshold variable, one of ``'flux'``, ``'luminosity'``
+        Brightness threshold variable, one of ``'flux'``, ``'luminosity'``
         or ``'magnitude'``.  If ``'flux'``, `threshold_value` will be
         converted into ``'luminosity'`` threshold value.
     cosmology : :class:`astropy.cosmology.Cosmology`
         Background cosmological model.
     **model_parameters
-        Additional model parameters to be passed to `lumfunc_model` as
-        keyword arguments.
+        Model parameters to be passed to `lumfunc_model` as.
 
     Attributes
     ----------
-    model_parameters : dict
-        Model parameters.
     luminosity_function : callable
         Luminosity function of luminosity or magnitude and redshift
-        variables only (in that order) (in inverse cubic Mpc/:math:`h`).
-    luminosity_variable : {'luminosity', 'magnitude'}, str
-        Luminosity variable, either ``'luminosity'`` or ``'magnitude'``.
-    luminosity_threshold : callable
-        Luminosity threshold in :attr:`luminosity_variable` as a function
+        variables only (in that order) (in inverse cubic Mpc/:math:`h`
+        per unit brightness).
+    brightness_variable : {'luminosity', 'magnitude'}, str
+        Brightness variable, either ``'luminosity'`` or ``'magnitude'``.
+    brightness_threshold : callable
+        Brightness threshold in :attr:`brightness_variable` as a function
         of redshift.
+    model_parameters : dict
+        Model parameters.
     cosmology : :class:`astropy.cosmology.Cosmology`
         Background cosmological model.
 
@@ -297,7 +320,7 @@ class LumFuncModeller:
     }
     r"""float: Finite brightness bound.
 
-    If :attr:`threshold_variable` is ``'luminosity'``, it is the base-10
+    If :attr:`brightness_variable` is ``'luminosity'``, it is the base-10
     logarithmic value in erg/s; else if it is ``'magnitude'`` and
     dimensionless.
 
@@ -308,34 +331,34 @@ class LumFuncModeller:
 
     """
 
-    def __init__(self, lumfunc_model, luminosity_variable, threshold_value,
+    def __init__(self, lumfunc_model, brightness_variable, threshold_value,
                  threshold_variable, cosmology, **model_parameters):
 
-        self.cosmology = cosmology
+        self.luminosity_function = np.vectorize(
+            lambda lum, z: lumfunc_model(lum, z, **self.model_parameters)
+        )
 
         self._threshold_variable = self._alias(threshold_variable)
         if self._threshold_variable == 'flux':
-            self.luminosity_threshold = lambda z: np.log10(
+            self.brightness_threshold = lambda z: np.log10(
                 4*np.pi
                 * threshold_value
                 * self.cosmology.luminosity_distance(z).to(units.cm).value**2
             )
             self._threshold_variable = 'luminosity'
         else:
-            self.luminosity_threshold = lambda z: threshold_value
+            self.brightness_threshold = lambda z: threshold_value
 
-        self.luminosity_variable = self._alias(luminosity_variable)
-        if self._threshold_variable != self.luminosity_variable:
+        self.brightness_variable = self._alias(brightness_variable)
+        if self._threshold_variable != self.brightness_variable:
             raise ValueError(
                 "`threshold_variable` '{}' does not match "
-                "`luminosity_variable` '{}'. "
-                .format(self._threshold_variable, self.luminosity_variable)
+                "`brightness_variable` '{}'. "
+                .format(self._threshold_variable, self.brightness_variable)
             )
 
         self.model_parameters = model_parameters
-        self.luminosity_function = np.vectorize(
-            lambda lum, z: lumfunc_model(lum, z, **self.model_parameters)
-        )
+        self.cosmology = cosmology
 
         self._comoving_number_density = None
         self._evolution_bias = None
@@ -343,7 +366,7 @@ class LumFuncModeller:
 
     @classmethod
     def from_parameters_file(cls, parameter_file, lumfunc_model,
-                             luminosity_variable, threshold_value,
+                             brightness_variable, threshold_value,
                              threshold_variable, cosmology=None):
         """Instantiate the modeller by loading model parameter values from
         a file.
@@ -356,7 +379,7 @@ class LumFuncModeller:
             A parametric model for the luminosity function of luminosity or
             magnitude and redshift variables accepting additional
             parameters (in that order).
-        luminosity_variable : {'luminosity', 'magnitude'}, str
+        brightness_variable : {'luminosity', 'magnitude'}, str
             Luminosity variable, either ``'luminosity'`` or
             ``'magnitude'``.
         threshold_value : float
@@ -382,22 +405,14 @@ class LumFuncModeller:
             )
 
         return cls(
-            lumfunc_model, luminosity_variable,
+            lumfunc_model, brightness_variable,
             threshold_value, threshold_variable,
             cosmology=cosmology, **dict(zip(parameters, estimates))
         )
 
     @property
     def comoving_number_density(self):
-        r"""Comoving number density (in inverse cubic Mpc)
-
-        .. math::
-
-            \bar{n}(z;\bar{m}) = \int_{-\infty}^{\bar{m}}
-                \operatorname{d}\!m \Phi(m, z)
-            \quad \textrm{or} \quad
-            \bar{n}(z;\lg\bar{L}) = \int^{\infty}_{\lg\bar{L}}
-                \operatorname{d}\!\lg{L} \Phi(\lg{L}, z) \,.
+        r"""Comoving number density.
 
         Returns
         -------
@@ -412,8 +427,8 @@ class LumFuncModeller:
         self._comoving_number_density = lambda z: np.abs(
             quad(
                 self.luminosity_function,
-                self.luminosity_threshold(z),  # faint end
-                self.brightness_bound[self.luminosity_variable],  # bright end
+                self.brightness_threshold(z),  # faint end
+                self.brightness_bound[self.brightness_variable],  # bright end
                 args=(z,)
             )[0]
         ) / self.cosmology.h**3
@@ -422,12 +437,7 @@ class LumFuncModeller:
 
     @property
     def evolution_bias(self):
-        r"""Evolution bias
-
-        .. math::
-
-            f_\textrm{ev}(z) = - (1 + z)
-                \frac{\partial \ln\bar{n}(z)}{\partial z} \,.
+        r"""Evolution bias.
 
         Returns
         -------
@@ -446,21 +456,7 @@ class LumFuncModeller:
 
     @property
     def magnification_bias(self):
-        r"""Magnification bias
-
-        .. math::
-
-            s(z) = \frac{1}{\ln10} \frac{
-                \Phi(\bar{m},z)
-            }{
-                \bar{n}(z;\bar{m})
-            }
-            \quad \textrm{or} \quad
-            s(z) = \frac{2}{5\ln10} \frac{
-                \Phi(\lg\bar{L},z)
-            }{
-                \bar{n}(z;\bar{L})
-            } \,.
+        r"""Magnification bias.
 
         Returns
         -------
@@ -471,13 +467,13 @@ class LumFuncModeller:
         if callable(self._magnification_bias):
             return self._magnification_bias
 
-        if self.luminosity_variable == 'luminosity':
+        if self.brightness_variable == 'luminosity':
             prefactor = 2/5 * 1/np.log(10)
-        elif self.luminosity_variable == 'magnitude':
+        elif self.brightness_variable == 'magnitude':
             prefactor = 1/np.log(10)
 
         self._magnification_bias = lambda z: prefactor \
-            * self.luminosity_function(self.luminosity_threshold(z), z) \
+            * self.luminosity_function(self.brightness_threshold(z), z) \
             / self.comoving_number_density(z)
 
         return np.vectorize(self._magnification_bias)
