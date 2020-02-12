@@ -82,7 +82,13 @@ def setup_sampler():
         prog_params.nwalkers, dimension, log_likelihood
     )
 
-    initial_state = np.mean(list(log_likelihood.prior.values()), axis=1)
+    prior_ranges = list(log_likelihood.prior.values())
+
+    initial_state = \
+        np.ones((prog_params.nwalkers, 1)) \
+            * np.mean(prior_ranges, axis=1) \
+        + np.random.randn(prog_params.nwalkers, dimension) \
+            * np.diff(prior_ranges, axis=1).reshape(-1)
 
     return sampler, initial_state, dimension
 
@@ -93,14 +99,11 @@ if __name__ == '__main__':
 
     sampler, ini_pos, ndim = setup_sampler()
 
-    try:
+    if mc.__version__ >= '3':
         sampler.run_mcmc(ini_pos, prog_params.nsteps, progress=True)
-    except TypeError:
-        sampler.run_mcmc(ini_pos, prog_params.nsteps)
-
-    try:
         samples = sampler.get_chain(flat=True)
-    except AttributeError:
+    else:
+        sampler.run_mcmc(ini_pos, prog_params.nsteps)
         samples = sampler.chain.reshape((-1, ndim))
 
     np.save((PATHOUT/prog_params.chain_file).with_suffix('.npy'), samples)
