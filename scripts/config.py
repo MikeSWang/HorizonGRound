@@ -3,6 +3,7 @@
 """
 import os
 import sys
+from pathlib import Path
 
 import matplotlib as mpl
 import seaborn as sns
@@ -40,3 +41,8 @@ mpl.pyplot.style.use(
 )
 
 sns.set(style='ticks', font='serif')
+
+PATH = Path("../data/")
+PATHEXT = Path("../data/external")
+PATHIN = Path("../data/input")
+PATHOUT = Path("../data/output")
