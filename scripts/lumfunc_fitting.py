@@ -27,7 +27,7 @@ from argparse import ArgumentParser
 import emcee as mc
 import numpy as np
 
-from config import PATHEXT, PATHIN, PATHOUT, use_local_package
+from config import PATHEXT, PATHIN, PATHOUT, major_version, use_local_package
 
 use_local_package("../../HorizonGRound/")
 
@@ -99,7 +99,7 @@ if __name__ == '__main__':
 
     sampler, ini_pos, ndim = setup_sampler()
 
-    if mc.__version__ >= '3':
+    if major_version(mc) >= 3:
         sampler.run_mcmc(ini_pos, prog_params.nsteps, progress=True)
         samples = sampler.get_chain(flat=True)
     else:
@@ -107,3 +107,12 @@ if __name__ == '__main__':
         samples = sampler.chain.reshape((-1, ndim))
 
     np.save((PATHOUT/prog_params.chain_file).with_suffix('.npy'), samples)
+
+    if major_version(mc) >= 3:
+        autocorr = sampler.get_autocorr_time()
+    else:
+        autocorr = sampler.acor
+    try:
+        print("Auto-correlation estimate: {}. ".format(autocorr))
+    except:
+        print("Auto-correlation estimate unavailable. ".format(autocorr))

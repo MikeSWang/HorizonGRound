@@ -33,6 +33,23 @@ def use_local_package(package_paths):
         sys.path.insert(0, package_paths)
 
 
+def major_version(package):
+    """Return the major version of a package.
+
+    Parameters
+    ----------
+    package : module
+        Package.
+
+    Return
+    ------
+    int
+        Major version.
+
+    """
+    return int(package.__version__.split(".")[0])
+
+
 mpl.pyplot.style.use(
     mpl.rc_params_from_file(
         "../config/horizon.mplstyle",
