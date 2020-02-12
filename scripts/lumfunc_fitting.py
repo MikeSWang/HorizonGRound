@@ -66,19 +66,21 @@ def setup_sampler():
         Initial parameter-space state.
     dimension : int
         Dimension of the parameter space.
-    
+
     """
     from horizonground.lumfunc_modeller import quasar_PLE_model
 
     log_likelihood = LumFuncLikelihood(
-        quasar_PLE_model, 
-        PATHIN/prog_params.prior_file, 
+        quasar_PLE_model,
+        PATHIN/prog_params.prior_file,
         PATHEXT/prog_params.data_file
     )
 
     dimension = len(log_likelihood.prior)
 
-    sampler = mc.EnsembleSampler(prog_params.nwalkers, ndim, log_likelihood)
+    sampler = mc.EnsembleSampler(
+        prog_params.nwalkers, dimension, log_likelihood
+    )
 
     initial_state = np.mean(list(log_likelihood.prior.values()), axis=1)
 
@@ -86,9 +88,9 @@ def setup_sampler():
 
 
 if __name__ == '__main__':
-        
+
     prog_params = parse_ext_args()
-    
+
     sampler, ini_pos, ndim = setup_sampler()
 
     sampler.run_mcmc(ini_pos, prog_params.nsteps, progress=True)
