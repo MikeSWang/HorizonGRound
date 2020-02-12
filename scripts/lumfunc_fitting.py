@@ -93,7 +93,10 @@ if __name__ == '__main__':
 
     sampler, ini_pos, ndim = setup_sampler()
 
-    sampler.run_mcmc(ini_pos, prog_params.nsteps, progress=True)
+    try:
+        sampler.run_mcmc(ini_pos, prog_params.nsteps, progress=True)
+    except TypeError:
+        sampler.run_mcmc(ini_pos, prog_params.nsteps)
 
     try:
         samples = sampler.get_chain(flat=True)
