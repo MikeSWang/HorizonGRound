@@ -23,6 +23,7 @@ Examples
 
 """
 from argparse import ArgumentParser
+from pprint import pprint
 
 import emcee as mc
 import numpy as np
@@ -96,6 +97,8 @@ def setup_sampler():
 if __name__ == '__main__':
 
     prog_params = parse_ext_args()
+
+    pprint(prog_params)
 
     sampler, ini_pos, ndim = setup_sampler()
 
