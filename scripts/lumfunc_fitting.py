@@ -121,7 +121,7 @@ def run_sampler():
     KNOT_LENGTH = 100
     CONVERGENCE_TOL = 0.01
 
-    if prog_params.mode.startwith('c'):
+    if prog_params.mode.startswith('c'):
         autocorr_estimate = []
         step = 0
         current_tau = np.inf
@@ -153,7 +153,7 @@ def run_sampler():
 
         return autocorr_estimate[-1]
 
-    elif prog_params.mode.startwith('d'):
+    elif prog_params.mode.startswith('d'):
         sampler.run_mcmc(ini_pos, prog_params.nsteps, progress=True)
 
         samples = sampler.get_chain(flat=True, thin=prog_params.thinby)
