@@ -49,7 +49,8 @@ def parse_ext_args():
     """
     parser = ArgumentParser("luminosity-function-fitting")
 
-    parser.add_argument('--task', type=str, default=None)
+    parser.add_argument('--task', type=str, default='make')
+    parser.add_argument('--mode', type=str, default='continuous')
 
     parser.add_argument('--data-file', type=str, default=None)
     parser.add_argument('--prior-file', type=str, default=None)
@@ -120,35 +121,53 @@ def run_sampler():
     KNOT_LENGTH = 100
     CONVERGENCE_TOL = 0.01
 
-    autocorr_estimate = []
-    step = 0
-    current_tau = np.inf
-    for sample in sampler.sample(
-            ini_pos, iterations=prog_params.nsteps, thin_by=prog_params.thinby,
-            tune=True, progress=True
-        ):
-        # Record at knot points.
-        if sampler.iteration % KNOT_LENGTH:
-            continue
+    if prog_params.mode.startwith('c'):
+        autocorr_estimate = []
+        step = 0
+        current_tau = np.inf
+        for sample in sampler.sample(
+                ini_pos,
+                iterations=prog_params.nsteps, thin_by=prog_params.thinby,
+                tune=True, progress=True
+            ):
+            # Record at knot points.
+            if sampler.iteration % KNOT_LENGTH:
+                continue
 
-        tau = sampler.get_autocorr_time(tol=0)
+            tau = sampler.get_autocorr_time(tol=0)
 
-        autocorr_estimate.append(tau)
-        step += 1
+            autocorr_estimate.append(tau)
+            step += 1
 
-        # Break at convergence.
-        converged = np.all(KNOT_LENGTH * tau < sampler.iteration) \
-            & np.all(np.abs(tau - current_tau) < CONVERGENCE_TOL * current_tau)
+            # Break at convergence.
+            converged = np.all(
+                KNOT_LENGTH * tau < sampler.iteration
+            ) & np.all(
+                np.abs(tau - current_tau) < CONVERGENCE_TOL * current_tau
+            )
 
-        current_tau = tau
+            current_tau = tau
 
-        if converged:
-            return current_tau
+            if converged:
+                return current_tau
 
-    return autocorr_estimate[-1]
+        return autocorr_estimate[-1]
+
+    elif prog_params.mode.startwith('d'):
+        sampler.run_mcmc(ini_pos, prog_params.nsteps, progress=True)
+
+        samples = sampler.get_chain(flat=True, thin=prog_params.thinby)
+        np.save(
+            (PATHOUT/prog_params.chain_file).with_suffix('.npy'),
+            samples
+        )
+
+        autocorr = sampler.get_autocorr_time()
+
+        return autocorr
 
 
-def load_chains(burnin=0, reduce=1):
+def load_chains(burnin=0, reduce=1, savefig=True):
     """Load and view a chain file.
 
     Parameters
@@ -157,6 +176,8 @@ def load_chains(burnin=0, reduce=1):
         Number of burn-in steps to discard (default is 0).
     reduce : int, optional
         Thinning factor for reducing the chain (default is 1).
+    savefig : bool, optional
+        If `True` (default), save the figure.
 
     Returns
     -------
@@ -166,14 +187,20 @@ def load_chains(burnin=0, reduce=1):
         Auto-correlation time estimate.
 
     """
-    mcmc_file = (PATHOUT/prog_params.chain_file).with_suffix('.h5')
-    reader = mc.backends.HDFBackend(mcmc_file, read_only=True)
+    mcmc_file = PATHOUT/prog_params.chain_file
+
+    reader = mc.backends.HDFBackend(
+        mcmc_file.with_suffix('.h5'), read_only=True
+    )
 
     chain = reader.get_chain(flat=True, discard=burnin, thin=reduce)
 
     tau = reader.get_autocorr_time()
 
     fig = corner.corner(chain, quiet=True, rasterized=True)
+
+    if savefig:
+        fig.savefig(mcmc_file.with_suffix('.pdf'), format='pdf')
 
     return fig, tau
 
