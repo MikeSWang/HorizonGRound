@@ -59,7 +59,7 @@ def parse_ext_args():
 
     parser.add_argument('--nwalkers', type=int, default=100)
     parser.add_argument('--nsteps', type=int, default=10000)
-    parser.add_argument('--thinby', type=int, default=10)
+    parser.add_argument('--thinby', type=int, default=1)
 
     return parser.parse_args()
 
@@ -215,6 +215,6 @@ if __name__ == '__main__':
         sampler, ini_pos, ndim = initialise_sampler()
         autocorr = run_sampler()
     elif prog_params.task.startswith('get'):
-        figure, autocorr = load_chains()
+        figure, autocorr = load_chains(reduce=prog_params.thinby)
 
     print("Auto-correlation estimate: {}. ".format(autocorr))
