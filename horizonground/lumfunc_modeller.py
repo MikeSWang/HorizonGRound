@@ -439,8 +439,8 @@ class LumFuncModeller:
             threshold value.
         cosmology : :class:`astropy.cosmology.Cosmology`
             Background cosmological model.
-    **model_parameters
-        Model parameters to be passed to `lumfunc_model` as.
+        **model_parameters
+            Model parameters to be passed to `lumfunc_model` as.
 
         """
         with open(parameter_file, 'r') as pfile:
