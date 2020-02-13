@@ -2,6 +2,7 @@ r"""Luminosity function model fitting.
 
 Examples
 --------
+>>> from horizonground.lumfunc_modeller import quasar_PLE_model
 >>> prior_file = PATHIN/"PLE_model_prior.txt"
 >>> data_file = PATHEXT/"eBOSS_QSO_LF.txt"
 >>> parameter_file = PATHEXT/"PLE_model_fits.txt"
@@ -31,7 +32,7 @@ import corner
 import emcee as mc
 import numpy as np
 
-from config import PATHEXT, PATHIN, PATHOUT, use_local_package
+from config import PATHEXT, PATHIN, PATHOUT, sci_notation, use_local_package
 
 use_local_package("../../HorizonGRound/")
 
@@ -78,6 +79,12 @@ def initialise_sampler():
 
     """
     pprint(vars(prog_params))
+
+    prog_params.chain_file += "_{}_{}_by{}".format(
+        prog_params.nwalkers,
+        sci_notation(prog_params.nsteps),
+        prog_params.thinby
+    )
 
     # Set up likelihood and prior.
     from horizonground.lumfunc_modeller import quasar_PLE_model

@@ -50,6 +50,27 @@ def major_version(package):
     return int(package.__version__.split(".")[0])
 
 
+def sci_notation(num):
+    """Format integers in scientific notation.
+
+    Parameters
+    ----------
+    num : int
+        Integer to be formatted.
+
+    Returns
+    -------
+    num_str : str
+        Formatted string in scientific notation.
+
+    """
+    base, index = "{:.0e}".format(num).split("e")
+    index = index.lstrip("+").lstrip("-").lstrip("0")
+
+    num_str = "E".join([base, index])
+
+    return num_str
+
 mpl.pyplot.style.use(
     mpl.rc_params_from_file(
         "../config/horizon.mplstyle",
