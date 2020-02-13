@@ -1,35 +1,12 @@
-r"""Luminosity function model fitting.
-
-Examples
---------
->>> prior_file = PATHIN/"PLE_model_prior.txt"
->>> data_file = PATHEXT/"eBOSS_QSO_LF.txt"
->>> parameter_file = PATHEXT/"PLE_model_fits.txt"
->>> likelihood = LumFuncLikelihood(quasar_PLE_model, prior_file, data_file)
->>> with open(parameter_file, 'r') as pfile:
-...     parameters = tuple(
-...         map(
-...             lambda var_name: var_name.strip(" "),
-...             pfile.readline().strip("#").strip("\n").split(",")
-...         )
-...     )
-...     estimates = tuple(
-...         map(lambda value: float(value), pfile.readline().split(","))
-...     )
-...     parameter_set = dict(zip(parameters, estimates))
-...     for parameter in parameters:
-...         if parameter.startswith("\Delta"):
-...             del parameter_set[parameter]
-...
->>> print(likelihood(list(parameter_set.values())))
+r"""Luminosity function model fitting with ``zeus``.
 
 """
 from argparse import ArgumentParser
 from pprint import pprint
 
 import corner
-import emcee as mc
 import numpy as np
+import zeus
 
 from config import PATHEXT, PATHIN, PATHOUT, use_local_package
 
@@ -50,7 +27,7 @@ def parse_ext_args():
     parser = ArgumentParser("luminosity-function-fitting")
 
     parser.add_argument('--task', type=str, default='make')
-    parser.add_argument('--mode', type=str, default='continuous')
+    parser.add_argument('--mode', type=str, default='dump')
     parser.add_argument('--progress', action='store_true')
 
     parser.add_argument('--data-file', type=str, default=None)
@@ -90,23 +67,17 @@ def initialise_sampler():
 
     # Set up numerics.
     dimension = len(log_likelihood.prior)
-    prior_ranges = np.array(list(log_likelihood.prior.values()))
-
-    # Set up backend.
-    output_file = (PATHOUT/prog_params.chain_file).with_suffix('.h5')
-    backend = mc.backends.HDFBackend(output_file)
-    backend.reset(prog_params.nwalkers, dimension)
+    prior_ranges = list(log_likelihood.prior.values())
 
     # Set up sampler and initial state.
-    mcmc_sampler = mc.EnsembleSampler(
-        prog_params.nwalkers, dimension, log_likelihood, backend=backend
+    mcmc_sampler = zeus.sampler(
+        log_likelihood, prog_params.nwalkers, dimension
     )
 
-    initial_state = np.mean(prior_ranges, axis=1) \
-        + np.random.uniform(
-            low=prior_ranges[:, 0], high=prior_ranges[:, -1],
-            size=(prog_params.nwalkers, dimension)
-        )
+    initial_state = np.ones((prog_params.nwalkers, 1)) \
+            * np.mean(prior_ranges, axis=1) \
+        + np.random.randn(prog_params.nwalkers, dimension) \
+            * np.diff(prior_ranges, axis=1).reshape(-1)
 
     return mcmc_sampler, initial_state, dimension
 
@@ -157,15 +128,14 @@ def run_sampler():
         return autocorr_estimate[-1]
 
     elif prog_params.mode.startswith('d'):
-        sampler.run_mcmc(ini_pos, prog_params.nsteps, progress=True)
+        sampler.run(ini_pos, prog_params.nsteps, progress=True)
 
-        samples = sampler.get_chain(flat=True, thin=prog_params.thinby)
         np.save(
             (PATHOUT/prog_params.chain_file).with_suffix('.npy'),
-            samples
+            sampler.chain
         )
 
-        autocorr = sampler.get_autocorr_time()
+        autocorr = sampler.autocorr_time
 
         return autocorr
 
@@ -192,7 +162,7 @@ def load_chains(burnin=0, reduce=1, savefig=True):
     """
     mcmc_file = PATHOUT/prog_params.chain_file
 
-    reader = mc.backends.HDFBackend(
+    reader = zeus.backends.HDFBackend(
         mcmc_file.with_suffix('.h5'), read_only=True
     )
 

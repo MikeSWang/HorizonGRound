@@ -200,6 +200,9 @@ def _normal_log_pdf(data_vector, model_vector, covariance_matrix):
     data_vector = np.asarray(data_vector)
     model_vector = np.asarray(model_vector)
 
+    if not all(np.isfinite(model_vector)):
+        return - np.inf
+
     log_p = - 1/2 * np.matmul(
         (data_vector - model_vector).T,
         np.matmul(covariance_matrix, data_vector - model_vector)
@@ -244,7 +247,7 @@ class LumFuncLikelihood(LumFuncMeasurements):
 
         self._data_vector, self._data_covariance = self.get_statistics()
 
-    def __call__(self, param_point):
+    def __call__(self, param_point, use_prior=False):
         """Evaluate the logarithmic likelihood at the model parameter
         point.
 
@@ -254,6 +257,10 @@ class LumFuncLikelihood(LumFuncMeasurements):
             A vector of all model parameters associated with
             :attr:`lumfunc_model` except the luminosity function arguments
             (luminosity/magnitude and redshift).
+        use_prior : bool, optional
+            If `True` (default is `False`), use the user-input prior
+            (i.e. set ``-numpy.inf`` at parameter point outside the prior
+            range).
 
         Returns
         -------
@@ -268,23 +275,22 @@ class LumFuncLikelihood(LumFuncMeasurements):
 
         model_params = OrderedDict(zip(list(self.prior.keys()), param_point))
 
-        if self._lg_conversion:
-            model_vector = [
-                np.log10(self._lumfunc_model(*data_point, **model_params))
-                for data_point in self.data_points
-            ]
+        model_vector = [
+            self._lumfunc_model(
+                *data_point,  base10_log=self._lg_conversion, **model_params
+            )
+            for data_point in self.data_points
+        ]
+
+        if use_prior:
+            log_prior = _uniform_log_pdf(
+                np.reshape(param_point, -1), list(self.prior.values())
+            )
+
+            if not np.isfinite(log_prior):
+                return log_prior
         else:
-            model_vector = [
-                self._lumfunc_model(*data_point, **model_params)
-                for data_point in self.data_points
-            ]
-
-        log_prior = _uniform_log_pdf(
-            np.reshape(param_point, -1), list(self.prior.values())
-        )
-
-        if not np.isfinite(log_prior):
-            return log_prior
+            log_prior = 0.
 
         log_likelihood = _normal_log_pdf(
             self._data_vector, model_vector, self._data_covariance

@@ -135,7 +135,7 @@ from scipy.integrate import quad
 from scipy.misc import derivative
 
 
-def quasar_PLE_model(magnitude, redshift, redshift_pivot=2.2,
+def quasar_PLE_model(magnitude, redshift, redshift_pivot=2.2, base10_log=True,
                      **model_parameters):
     """Evaluate the pure luminosity evolution (PLE) model for the quasar
     luminosity function at the given magnitude and redshift.
@@ -153,6 +153,8 @@ def quasar_PLE_model(magnitude, redshift, redshift_pivot=2.2,
         Quasar redshift.
     redshift_pivot : float, optional
         Pivot redshift.
+    base10_log : bool, optional
+        If `True` (default), return the base-10 logarithmic value.
     **model_parameters
         PLE model parameters.
 
@@ -160,7 +162,8 @@ def quasar_PLE_model(magnitude, redshift, redshift_pivot=2.2,
     -------
     comoving_density : float :class:`numpy.ndarray`
         Predicted qausar comoving number density per unit magnitude (in
-        inverse cubic Mpc).
+        inverse cubic Mpc).  If `base10_log` is `True`, the base-10
+        logarithmic value is returned.
 
     """
     # Re-definitions.
@@ -173,7 +176,6 @@ def quasar_PLE_model(magnitude, redshift, redshift_pivot=2.2,
         subscript = r'\textrm{{{}}}'.format('h')
 
     # Set parameters.
-    Phi_star = 10**model_parameters[r'\lg\Phi_\ast']
     M_g_star_p = model_parameters[r'M_{g\ast}(z_\textrm{p})']
 
     alpha = model_parameters[r'\alpha_{}'.format(subscript)]
@@ -186,16 +188,34 @@ def quasar_PLE_model(magnitude, redshift, redshift_pivot=2.2,
     exponent_magnitude_factor = M_g - M_g_star_p \
          + 2.5*(k_1 * (z - z_p) + k_2 * (z - z_p)**2)
 
-    faint_power_law = 10 ** (0.4*(alpha + 1) * exponent_magnitude_factor)
-    bright_power_law = 10 ** (0.4*(beta + 1) * exponent_magnitude_factor)
+    try:
+        faint_power_law = 10 ** (0.4*(alpha + 1) * exponent_magnitude_factor)
+    except OverflowError:
+        if (alpha + 1) * exponent_magnitude_factor > 0.:
+            faint_power_law = np.inf
+        else:
+            faint_power_law = 0.
+    try:
+        bright_power_law = 10 ** (0.4*(beta + 1) * exponent_magnitude_factor)
+    except OverflowError:
+        if (beta + 1) * exponent_magnitude_factor > 0.:
+            bright_power_law = np.inf
+        else:
+            bright_power_law = 0.
 
-    comoving_density = Phi_star / (faint_power_law + bright_power_law)
+    if base10_log:
+        lg_Phi_star = model_parameters[r'\lg\Phi_\ast']
+        comoving_density = lg_Phi_star \
+            - np.log10(faint_power_law + bright_power_law)
+    else:
+        Phi_star = 10**model_parameters[r'\lg\Phi_\ast']
+        comoving_density = Phi_star / (faint_power_law + bright_power_law)
 
     return comoving_density
 
 
 def quasar_hybrid_model(magnitude, redshift, redshift_pivot=2.2,
-                        **model_parameters):
+                        base10_log=True, **model_parameters):
     """Evaluate the hybrid model (pure luminosity evolution and luminosity
     evolution--density evolution, 'PLE+LEDE') for the quasar luminosity
     function at the given magnitude and redshift.
@@ -213,6 +233,8 @@ def quasar_hybrid_model(magnitude, redshift, redshift_pivot=2.2,
         Quasar redshift.
     redshift_pivot : float, optional
         Pivot redshift.
+    base10_log : bool, optional
+        If `True` (default), return the base-10 logarithmic value.
     **model_parameters
         'PLE+LEDE' hybrid model parameters.
 
@@ -220,13 +242,15 @@ def quasar_hybrid_model(magnitude, redshift, redshift_pivot=2.2,
     -------
     comoving_density : float :class:`numpy.ndarray`
         Predicted qausar comoving number density per unit magnitude (in
-        inverse cubic Mpc).
+        inverse cubic Mpc).  If `base10_log` is `True`, the base-10
+        logarithmic value is returned.
 
     """
     raise NotImplementedError
 
 
-def alpha_emitter_schechter_model(lg_luminosity, redshift, **model_parameters):
+def alpha_emitter_schechter_model(lg_luminosity, redshift, base10_log=True,
+                                  **model_parameters):
     r"""Evaluate the Schechter model for the H |alpha| -emitter
     luminosity function at the given base-10 logarithmic luminosity and
     redshift.
@@ -237,6 +261,8 @@ def alpha_emitter_schechter_model(lg_luminosity, redshift, **model_parameters):
         Emitter luminosity in base-10 logarithm.
     redshift : float
         Emitter redshift.
+    base10_log : bool, optional
+        If `True` (default), return the base-10 logarithmic value.
     **model_parameters
         Schechter model parameters.
 
@@ -244,15 +270,14 @@ def alpha_emitter_schechter_model(lg_luminosity, redshift, **model_parameters):
     -------
     comoving_density : float :class:`numpy.ndarray`
         Predicted emitter comoving number density per unit base-10
-        logarithmic luminosity (in inverse cubic Mpc).
+        logarithmic luminosity (in inverse cubic Mpc).  If `base10_log` is
+        `True`, the base-10 logarithmic value is returned.
 
     """
     # Re-definitions.
-    y0 = 10**(lg_luminosity - model_parameters[r'\lg{L_{\ast0}}'])
     z = redshift
 
     # Set parameters.
-    Phi_star0 = 10**model_parameters[r'\lg\Phi_{\ast0}']
     z_b = model_parameters[r'z_\textrm{b}']
 
     alpha = model_parameters[r'\alpha']
@@ -260,14 +285,33 @@ def alpha_emitter_schechter_model(lg_luminosity, redshift, **model_parameters):
     epsilon = model_parameters[r'\epsilon']
 
     # Evaluate the model prediction.
-    if z <= z_b:
-        Phi_star = Phi_star0 * (1 + z)**epsilon
+    if base10_log:
+        lg_Phi_star0 = model_parameters[r'\lg\Phi_{\ast0}']
     else:
-        Phi_star = Phi_star0 * (1 + z_b)**(2*epsilon) / (1 + z)**epsilon
+        Phi_star0 = 10**model_parameters[r'\lg\Phi_{\ast0}']
 
-    y = y0 / (1 + z)**delta
+    if z <= z_b:
+        if base10_log:
+            lg_Phi_star = lg_Phi_star0 + epsilon * np.log10(1 + z)
+        else:
+            Phi_star = Phi_star0 * (1 + z)**epsilon
+    else:
+        if base10_log:
+            lg_Phi_star = lg_Phi_star0 \
+                + 2*epsilon * np.log10(1 + z_b) \
+                - epsilon * np.log10(1 + z)
+        else:
+            Phi_star = Phi_star0 * (1 + z_b)**(2*epsilon) / (1 + z)**epsilon
 
-    comoving_density = np.log(10) * Phi_star * y**(alpha + 1) * np.exp(-y)
+    if base10_log:
+        lg_y0 = lg_luminosity - model_parameters[r'\lg{L_{\ast0}}']
+        lg_y = lg_y0 - delta * np.log10(1 + z)
+        comoving_density = np.log10(np.log(10)) + lg_Phi_star \
+            + (alpha + 1) * lg_y - np.log10(np.e) * 10**lg_y
+    else:
+        y0 = 10**(lg_luminosity - model_parameters[r'\lg{L_{\ast0}}'])
+        y = y0 / (1 + z)**delta
+        comoving_density = np.log(10) * Phi_star * y**(alpha + 1) * np.exp(-y)
 
     return comoving_density
 
@@ -334,9 +378,15 @@ class LumFuncModeller:
     def __init__(self, lumfunc_model, brightness_variable, threshold_value,
                  threshold_variable, cosmology, **model_parameters):
 
+        self.model_parameters = model_parameters
+        self.cosmology = cosmology
+
         self.luminosity_function = np.vectorize(
             lambda lum, z: lumfunc_model(lum, z, **self.model_parameters)
         )
+
+        # HINT: Default values agrees with luminosity function models.
+        self._lg_conversion = self.model_parameters.get('base10_log', True)
 
         self._threshold_variable = self._alias(threshold_variable)
         if self._threshold_variable == 'flux':
@@ -357,9 +407,6 @@ class LumFuncModeller:
                 .format(self._threshold_variable, self.brightness_variable)
             )
 
-        self.model_parameters = model_parameters
-        self.cosmology = cosmology
-
         self._comoving_number_density = None
         self._evolution_bias = None
         self._magnification_bias = None
@@ -367,7 +414,8 @@ class LumFuncModeller:
     @classmethod
     def from_parameters_file(cls, parameter_file, lumfunc_model,
                              brightness_variable, threshold_value,
-                             threshold_variable, cosmology=None):
+                             threshold_variable, cosmology=None,
+                             **model_parameters):
         """Instantiate the modeller by loading model parameter values from
         a file.
 
@@ -391,6 +439,8 @@ class LumFuncModeller:
             threshold value.
         cosmology : :class:`astropy.cosmology.Cosmology`
             Background cosmological model.
+    **model_parameters
+        Model parameters to be passed to `lumfunc_model` as.
 
         """
         with open(parameter_file, 'r') as pfile:
@@ -404,10 +454,12 @@ class LumFuncModeller:
                 map(lambda value: float(value), pfile.readline().split(","))
             )
 
+        model_parameters.update(dict(zip(parameters, estimates)))
+
         return cls(
             lumfunc_model, brightness_variable,
             threshold_value, threshold_variable,
-            cosmology=cosmology, **dict(zip(parameters, estimates))
+            cosmology=cosmology, **model_parameters
         )
 
     @property
@@ -424,9 +476,15 @@ class LumFuncModeller:
         if callable(self._comoving_number_density):
             return self._comoving_number_density
 
+        if self._lg_conversion:
+            def _luminosity_function(*args, **kwargs):
+                return 10**self.luminosity_function(*args, **kwargs)
+        else:
+            _luminosity_function = self.luminosity_function
+
         self._comoving_number_density = lambda z: np.abs(
             quad(
-                self.luminosity_function,
+                _luminosity_function,
                 self.brightness_threshold(z),  # faint end
                 self.brightness_bound[self.brightness_variable],  # bright end
                 args=(z,)
