@@ -51,6 +51,7 @@ def parse_ext_args():
 
     parser.add_argument('--task', type=str, default='make')
     parser.add_argument('--mode', type=str, default='continuous')
+    parser.add_argument('--progress', action='store_true')
 
     parser.add_argument('--data-file', type=str, default=None)
     parser.add_argument('--prior-file', type=str, default=None)
@@ -127,8 +128,9 @@ def run_sampler():
         current_tau = np.inf
         for sample in sampler.sample(
                 ini_pos,
-                iterations=prog_params.nsteps, thin_by=prog_params.thinby,
-                tune=True, progress=True
+                iterations=prog_params.nsteps,
+                thin_by=prog_params.thinby,
+                progress=prog_params.progress
             ):
             # Record at knot points.
             if sampler.iteration % KNOT_LENGTH:
