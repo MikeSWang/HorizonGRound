@@ -203,9 +203,12 @@ def _normal_log_pdf(data_vector, model_vector, covariance_matrix):
     if not all(np.isfinite(model_vector)):
         return - np.inf
 
-    log_p = - 1/2 * np.matmul(
-        (data_vector - model_vector).T,
-        np.matmul(covariance_matrix, data_vector - model_vector)
+    log_p = - 1/2 * np.linalg.multi_dot(
+        [
+            data_vector - model_vector,
+            np.linalg.inv(covariance_matrix),
+            data_vector - model_vector
+        ]
     )
 
     return log_p

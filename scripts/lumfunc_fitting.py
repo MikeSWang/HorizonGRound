@@ -30,12 +30,15 @@ from pprint import pprint
 
 import corner
 import emcee as mc
+import matplotlib.pyplot as plt
 import numpy as np
+from emcee.autocorr import AutocorrError
 
 from config import PATHEXT, PATHIN, PATHOUT, sci_notation, use_local_package
 
 use_local_package("../../HorizonGRound/")
 
+import horizonground.lumfunc_modeller as lumfunc_modeller
 from horizonground.lumfunc_likelihood import LumFuncLikelihood
 
 
@@ -44,25 +47,41 @@ def parse_ext_args():
 
     Returns
     -------
-    :class:`argparse.Namespace`
-        Parsed arguments.
+    parsed_args : :class:`argparse.Namespace`
+        Parsed program arguments.
 
     """
     parser = ArgumentParser("luminosity-function-fitting")
 
-    parser.add_argument('--task', type=str, default='make')
-    parser.add_argument('--mode', type=str, default='continuous')
-    parser.add_argument('--progress', action='store_true')
+    parser.add_argument('--task', type=str.lower, choices=['make', 'get'])
+    parser.add_argument(
+        '--mode', type=str.lower,
+        choices=['continuous', 'dump'], default='continuous'
+    )
+    parser.add_argument('--quiet', action='store_false')
+    parser.add_argument('--use-prior', action='store_true')
 
+    parser.add_argument('--model-name', type=str, default=None)
     parser.add_argument('--data-file', type=str, default=None)
     parser.add_argument('--prior-file', type=str, default=None)
     parser.add_argument('--chain-file', type=str, default=None)
 
     parser.add_argument('--nwalkers', type=int, default=100)
     parser.add_argument('--nsteps', type=int, default=10000)
+    parser.add_argument('--burnin', type=int, default=0)
     parser.add_argument('--thinby', type=int, default=1)
 
-    return parser.parse_args()
+    parsed_args = parser.parse_args()
+
+    parsed_args.chain_file += "_{}_{}_by{}".format(
+        prog_params.nwalkers,
+        sci_notation(prog_params.nsteps),
+        prog_params.thinby
+    )
+
+    pprint(vars(parsed_args))
+
+    return parsed_args
 
 
 def initialise_sampler():
@@ -70,6 +89,10 @@ def initialise_sampler():
 
     Returns
     -------
+    log_likelihood : :class:`lumfunc_likelihood.LumFuncLikelihood`
+        Logarithmic likelihood.
+    prior_ranges : :class:`numpy.ndarray`
+        Parameter-space boundaries.
     mcmc_sampler : :class:`emcee.EnsembleSampler`
         Likelihood sampler.
     initial_state : :class:`numpy.ndarray`
@@ -78,19 +101,11 @@ def initialise_sampler():
         Dimension of the parameter space.
 
     """
-    pprint(vars(prog_params))
-
-    prog_params.chain_file += "_{}_{}_by{}".format(
-        prog_params.nwalkers,
-        sci_notation(prog_params.nsteps),
-        prog_params.thinby
-    )
-
     # Set up likelihood and prior.
-    from horizonground.lumfunc_modeller import quasar_PLE_model
+    lumfunc_model = getattr(lumfunc_modeller, prog_params.model_name)
 
     log_likelihood = LumFuncLikelihood(
-        quasar_PLE_model,
+        lumfunc_model,
         PATHIN/prog_params.prior_file,
         PATHEXT/prog_params.data_file
     )
@@ -99,23 +114,26 @@ def initialise_sampler():
     dimension = len(log_likelihood.prior)
     prior_ranges = np.array(list(log_likelihood.prior.values()))
 
-    # Set up backend.
-    output_file = (PATHOUT/prog_params.chain_file).with_suffix('.h5')
-    backend = mc.backends.HDFBackend(output_file)
-    backend.reset(prog_params.nwalkers, dimension)
+    if prog_params.task.lower().startswith("get"):
+        return log_likelihood, prior_ranges, dimension
+    elif prog_params.task.lower().startswith("m"):
+        # Set up backend.
+        output_file = (PATHOUT/prog_params.chain_file).with_suffix('.h5')
+        backend = mc.backends.HDFBackend(output_file)
+        backend.reset(prog_params.nwalkers, dimension)
 
-    # Set up sampler and initial state.
-    mcmc_sampler = mc.EnsembleSampler(
-        prog_params.nwalkers, dimension, log_likelihood, backend=backend
-    )
-
-    initial_state = np.mean(prior_ranges, axis=1) \
-        + np.random.uniform(
-            low=prior_ranges[:, 0], high=prior_ranges[:, -1],
-            size=(prog_params.nwalkers, dimension)
+        # Set up sampler and initial state.
+        mcmc_sampler = mc.EnsembleSampler(
+            prog_params.nwalkers, dimension, log_likelihood, backend=backend
         )
 
-    return mcmc_sampler, initial_state, dimension
+        initial_state = np.mean(prior_ranges, axis=1) \
+            + np.random.uniform(
+                low=prior_ranges[:, 0], high=prior_ranges[:, -1],
+                size=(prog_params.nwalkers, dimension)
+            )
+
+        return mcmc_sampler, initial_state, dimension
 
 
 def run_sampler():
@@ -123,14 +141,14 @@ def run_sampler():
 
     Returns
     -------
-    float array_like
+    list of float
         Auto-correlation time estimate.
 
     """
     KNOT_LENGTH = 100
     CONVERGENCE_TOL = 0.01
 
-    if prog_params.mode.startswith('c'):
+    if prog_params.mode == 'continuous':
         autocorr_estimate = []
         step = 0
         current_tau = np.inf
@@ -138,7 +156,7 @@ def run_sampler():
                 ini_pos,
                 iterations=prog_params.nsteps,
                 thin_by=prog_params.thinby,
-                progress=prog_params.progress
+                progress=prog_params.quiet
             ):
             # Record at knot points.
             if sampler.iteration % KNOT_LENGTH:
@@ -163,10 +181,13 @@ def run_sampler():
 
         return autocorr_estimate[-1]
 
-    elif prog_params.mode.startswith('d'):
-        sampler.run_mcmc(ini_pos, prog_params.nsteps, progress=True)
+    elif prog_params.mode.startswith('dump'):
+        sampler.run_mcmc(
+            ini_pos, prog_params.nsteps, progress=prog_params.quiet
+        )
 
         samples = sampler.get_chain(flat=True, thin=prog_params.thinby)
+
         np.save(
             (PATHOUT/prog_params.chain_file).with_suffix('.npy'),
             samples
@@ -199,30 +220,57 @@ def load_chains(burnin=0, reduce=1, savefig=True):
     """
     mcmc_file = PATHOUT/prog_params.chain_file
 
+    print("\nLoading chain file: {}.h5.\n".format(mcmc_file.stem))
+
     reader = mc.backends.HDFBackend(
         mcmc_file.with_suffix('.h5'), read_only=True
     )
 
-    chain = reader.get_chain(flat=True, discard=burnin, thin=reduce)
+    # Visualise chain.
+    chain = reader.get_chain()
 
-    tau = reader.get_autocorr_time()
+    chain_fig, axes = plt.subplots(ndim, figsize=(ndim, 7), sharex=True)
+    for i in range(ndim):
+        ax = axes[i]
+        ax.plot(chain[:, ::(prog_params.nwalkers//10), i], 'k', alpha=0.25)
+        ax.set_xlim(0, len(chain))
+    axes[-1].set_xlabel("steps")
 
-    fig = corner.corner(chain, quiet=True, rasterized=True)
+    if SAVEFIG:
+        chain_fig.savefig(mcmc_file.with_suffix('.chain.pdf'), format='pdf')
 
-    if savefig:
-        fig.savefig(mcmc_file.with_suffix('.pdf'), format='pdf')
+    # Flatten the chain.
+    chain_flat = reader.get_chain(
+        flat=True, discard=prog_params.burnin, thin=prog_params.thinby
+    )
 
-    return fig, tau
+    try:
+        tau = reader.get_autocorr_time()
+    except AutocorrError as ae:
+        print(ae)
+        tau = [np.nan] * chain_flat.shape[-1]
+
+    contour_fig = corner.corner(chain_flat, quiet=True, rasterized=True)
+
+    if SAVEFIG:
+        contour_fig.savefig(
+            mcmc_file.with_suffix('.contour.pdf'), format='pdf'
+        )
+
+    return tau
 
 
 if __name__ == '__main__':
 
+    SAVEFIG = True
+
     prog_params = parse_ext_args()
 
-    if prog_params.task.startswith('make'):
+    if prog_params.task == 'make':
         sampler, ini_pos, ndim = initialise_sampler()
         autocorr = run_sampler()
-    elif prog_params.task.startswith('get'):
-        figure, autocorr = load_chains(reduce=prog_params.thinby)
+    elif prog_params.task == 'get':
+        log_likelihood, prior_ranges, ndim = initialise_sampler()
+        autocorr = load_chains()
 
     print("Auto-correlation estimate: {}. ".format(autocorr))
