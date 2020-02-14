@@ -79,7 +79,9 @@ def parse_ext_args():
         parsed_args.thinby
     )
 
+    print('\n')
     pprint(vars(parsed_args))
+    print('\n')
 
     return parsed_args
 
@@ -114,9 +116,9 @@ def initialise_sampler():
     dimension = len(log_likelihood.prior)
     prior_ranges = np.array(list(log_likelihood.prior.values()))
 
-    if prog_params.task.lower().startswith("get"):
+    if prog_params.task == "get":
         return log_likelihood, prior_ranges, dimension
-    elif prog_params.task.lower().startswith("m"):
+    elif prog_params.task == "make":
         # Set up backend.
         output_file = (PATHOUT/prog_params.chain_file).with_suffix('.h5')
         backend = mc.backends.HDFBackend(output_file)
@@ -198,17 +200,8 @@ def run_sampler():
         return autocorr
 
 
-def load_chains(burnin=0, reduce=1, savefig=True):
+def load_chains():
     """Load and view a chain file.
-
-    Parameters
-    ----------
-    burnin : int, optional
-        Number of burn-in steps to discard (default is 0).
-    reduce : int, optional
-        Thinning factor for reducing the chain (default is 1).
-    savefig : bool, optional
-        If `True` (default), save the figure.
 
     Returns
     -------
