@@ -2,10 +2,9 @@ r"""Luminosity function model fitting with ``zeus``.
 
 """
 from argparse import ArgumentParser
+from multiprocessing import Pool
 from pprint import pprint
 
-import corner
-import matplotlib.pyplot as plt
 import numpy as np
 import zeus
 
@@ -95,8 +94,9 @@ def initialise_sampler():
         return log_likelihood, prior_ranges, dimension
     elif prog_params.task == "make":
         # Set up sampler and initial state.
+
         mcmc_sampler = zeus.sampler(
-            log_likelihood, prog_params.nwalkers, dimension
+            log_likelihood, prog_params.nwalkers, dimension, pool=pool
         )
 
         initial_state = np.mean(prior_ranges, axis=1) \
@@ -187,8 +187,9 @@ if __name__ == '__main__':
     prog_params = parse_ext_args()
 
     if prog_params.task == 'make':
-        sampler, ini_pos, ndim = initialise_sampler()
-        autocorr = run_sampler()
+        with Pool() as pool:
+            sampler, ini_pos, ndim = initialise_sampler()
+            autocorr = run_sampler()
     elif prog_params.task == 'get':
         log_likelihood, prior_ranges, ndim = initialise_sampler()
         autocorr = load_chains()

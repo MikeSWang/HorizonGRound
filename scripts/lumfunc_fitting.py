@@ -68,8 +68,10 @@ def parse_ext_args():
 
     parser.add_argument('--nwalkers', type=int, default=100)
     parser.add_argument('--nsteps', type=int, default=10000)
-    parser.add_argument('--burnin', type=int, default=0)
     parser.add_argument('--thinby', type=int, default=1)
+
+    parser.add_argument('--burnin', type=int, default=0)
+    parser.add_argument('--reduce', type=int, default=1)
 
     parsed_args = parser.parse_args()
 
@@ -234,7 +236,7 @@ def load_chains():
 
     # Flatten the chain.
     chain_flat = reader.get_chain(
-        flat=True, discard=prog_params.burnin, thin=prog_params.thinby
+        flat=True, discard=prog_params.burnin, thin=prog_params.reduce
     )
 
     try:
@@ -261,9 +263,9 @@ if __name__ == '__main__':
 
     if prog_params.task == 'make':
         sampler, ini_pos, ndim = initialise_sampler()
-        autocorr = run_sampler()
+        autocorr_est = run_sampler()
     elif prog_params.task == 'get':
         log_likelihood, prior_ranges, ndim = initialise_sampler()
-        autocorr = load_chains()
+        autocorr_est = load_chains()
 
-    print("Auto-correlation estimate: {}. ".format(autocorr))
+    print("Auto-correlation time estimate: {}. ".format(autocorr_est))
