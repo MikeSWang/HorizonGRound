@@ -235,18 +235,22 @@ class LumFuncLikelihood(LumFuncMeasurements):
     base10_log : bool, optional
         If `True` (default), all values are converted to base-10
         logarithms.
+    fixed_file : str or :class:`pathlib.Path` or None, optional
+        Luminosity function model fixed parameter file path.
 
     """
 
-    def __init__(self, lumfunc_model, prior_file, data_file, base10_log=True):
+    def __init__(self, lumfunc_model, prior_file, data_file, base10_log=True,
+                 fixed_file=None):
 
         self._lumfunc_model = lumfunc_model
         self._prior_source_path = prior_file
+        self._fixed_source_path = fixed_file
 
         super().__init__(data_file, base10_log=base10_log)
 
         self.data_points = self._setup_data_points()
-        self.prior = self._setup_prior()
+        self.prior, self._fixed = self._setup_prior()
 
         self._data_vector, self._data_covariance = self.get_statistics()
 
@@ -276,15 +280,6 @@ class LumFuncLikelihood(LumFuncMeasurements):
         else:
             param_point = list(param_point)
 
-        model_params = OrderedDict(zip(list(self.prior.keys()), param_point))
-
-        model_vector = [
-            self._lumfunc_model(
-                *data_point,  base10_log=self._lg_conversion, **model_params
-            )
-            for data_point in self.data_points
-        ]
-
         if use_prior:
             log_prior = _uniform_log_pdf(
                 np.reshape(param_point, -1), list(self.prior.values())
@@ -294,6 +289,16 @@ class LumFuncLikelihood(LumFuncMeasurements):
                 return log_prior
         else:
             log_prior = 0.
+
+        model_params = OrderedDict(zip(list(self.prior.keys()), param_point))
+        model_params.update(self._fixed)
+
+        model_vector = [
+            self._lumfunc_model(
+                *data_point, base10_log=self._lg_conversion, **model_params
+            )
+            for data_point in self.data_points
+        ]
 
         log_likelihood = _normal_log_pdf(
             self._data_vector, model_vector, self._data_covariance
@@ -310,11 +315,20 @@ class LumFuncLikelihood(LumFuncMeasurements):
                     file.readline().strip("#").strip("\n").split(",")
                 )
             )
-
         prior_data = np.genfromtxt(self._prior_source_path, unpack=True)
         prior_ranges = list(map(tuple, prior_data))
 
-        return OrderedDict(zip(parameter_names, prior_ranges))
+        with open(self._fixed_source_path, 'r') as file:
+            fixed_names = list(
+                map(
+                    lambda header: header.strip(" "),
+                    file.readline().strip("#").strip("\n").split(",")
+                )
+            )
+        fixed_values = np.genfromtxt(self._prior_source_path, unpack=True)
+
+        return OrderedDict(zip(parameter_names, prior_ranges)), \
+            OrderedDict(zip(fixed_names, fixed_values))
 
     def _setup_data_points(self):
 

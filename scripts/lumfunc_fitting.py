@@ -64,6 +64,7 @@ def parse_ext_args():
     parser.add_argument('--model-name', type=str, default=None)
     parser.add_argument('--data-file', type=str, default=None)
     parser.add_argument('--prior-file', type=str, default=None)
+    parser.add_argument('--fixed-file', type=str, default=None)
     parser.add_argument('--chain-file', type=str, default=None)
 
     parser.add_argument('--nwalkers', type=int, default=100)
@@ -111,7 +112,8 @@ def initialise_sampler():
     log_likelihood = LumFuncLikelihood(
         lumfunc_model,
         PATHIN/prog_params.prior_file,
-        PATHEXT/prog_params.data_file
+        PATHEXT/prog_params.data_file,
+        fixed_file==PATHIN/prog_params.fixed_file
     )
 
     # Set up numerics.
