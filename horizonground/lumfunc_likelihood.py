@@ -325,7 +325,7 @@ class LumFuncLikelihood(LumFuncMeasurements):
                     file.readline().strip("#").strip("\n").split(",")
                 )
             )
-        fixed_values = np.genfromtxt(self._prior_source_path, unpack=True)
+        fixed_values = np.genfromtxt(self._fixed_source_path, unpack=True)
 
         return OrderedDict(zip(parameter_names, prior_ranges)), \
             OrderedDict(zip(fixed_names, fixed_values))
