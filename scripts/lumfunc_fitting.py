@@ -113,7 +113,7 @@ def initialise_sampler():
         lumfunc_model,
         PATHIN/prog_params.prior_file,
         PATHEXT/prog_params.data_file,
-        fixed_file==PATHIN/prog_params.fixed_file
+        fixed_file=PATHIN/prog_params.fixed_file
     )
 
     # Set up numerics.
