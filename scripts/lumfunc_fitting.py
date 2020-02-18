@@ -26,6 +26,7 @@ Examples
 
 """
 from argparse import ArgumentParser
+from datetime import datetime
 from pprint import pprint
 
 import corner
@@ -53,7 +54,10 @@ def parse_ext_args():
     """
     parser = ArgumentParser("luminosity-function-fitting")
 
-    parser.add_argument('--task', type=str.lower, choices=['make', 'get'])
+    parser.add_argument(
+        '--task', type=str.lower,
+        choices=['make', 'get', 'resume'], default='make'
+    )
     parser.add_argument(
         '--mode', type=str.lower,
         choices=['continuous', 'dump'], default='continuous'
@@ -122,24 +126,27 @@ def initialise_sampler():
 
     if prog_params.task == "get":
         return log_likelihood, prior_ranges, dimension
-    elif prog_params.task == "make":
-        # Set up backend.
-        output_file = (PATHOUT/prog_params.chain_file).with_suffix('.h5')
+
+    # Set up backend.
+    output_file = (PATHOUT/prog_params.chain_file).with_suffix('.h5')
+    if prog_params.task == "make":
         backend = mc.backends.HDFBackend(output_file)
         backend.reset(prog_params.nwalkers, dimension)
+    elif prog_params.task == "resume":
+        backend = mc.backends.HDFBackend(output_file, name=str(datetime.now()))
 
-        # Set up sampler and initial state.
-        mcmc_sampler = mc.EnsembleSampler(
-            prog_params.nwalkers, dimension, log_likelihood, backend=backend
+    # Set up sampler and initial state.
+    mcmc_sampler = mc.EnsembleSampler(
+        prog_params.nwalkers, dimension, log_likelihood, backend=backend
+    )
+
+    initial_state = np.mean(prior_ranges, axis=1) \
+        + np.random.uniform(
+            low=prior_ranges[:, 0], high=prior_ranges[:, -1],
+            size=(prog_params.nwalkers, dimension)
         )
 
-        initial_state = np.mean(prior_ranges, axis=1) \
-            + np.random.uniform(
-                low=prior_ranges[:, 0], high=prior_ranges[:, -1],
-                size=(prog_params.nwalkers, dimension)
-            )
-
-        return mcmc_sampler, initial_state, dimension
+    return mcmc_sampler, initial_state, dimension
 
 
 def run_sampler():
@@ -187,7 +194,7 @@ def run_sampler():
 
         return autocorr_estimate[-1]
 
-    elif prog_params.mode.startswith('dump'):
+    if prog_params.mode.startswith('dump'):
         sampler.run_mcmc(
             ini_pos, prog_params.nsteps, progress=prog_params.quiet
         )
@@ -215,6 +222,22 @@ def load_chains():
         Auto-correlation time estimate.
 
     """
+    COLOUR = "#A3C1AD"
+    QUANTILES = [0.1587, 0.5, 0.8413]
+    levels = 1.0 - np.exp(- np.square([1, 2]) / 2)
+    corner_opt = dict(
+        quiet=True, rasterized=True, show_titles=True, use_math_text=True,
+        plot_datapoints=False, plot_contours=True, fill_contours=True,
+        quantiles=QUANTILES, color=COLOUR,
+        levels=levels, label_kwargs={'visible': False},
+    )
+
+    # Parameter labels.
+    labels = list(
+        map(lambda s: "$" + s + "$", list(log_likelihood.prior.keys()))
+    )
+
+    # Load the chain.
     mcmc_file = PATHOUT/prog_params.chain_file
 
     print("\nLoading chain file: {}.h5.\n".format(mcmc_file.stem))
@@ -223,32 +246,38 @@ def load_chains():
         mcmc_file.with_suffix('.h5'), read_only=True
     )
 
+    try:
+        tau = reader.get_autocorr_time()
+    except AutocorrError as ae:
+        print(ae)
+        tau = [np.nan] * len(labels)
+
+    if prog_params.burnin == 0:
+        burnin = 2 * int(np.max(tau))
+    else:
+        burnin = prog_params.burnin
+    if prog_params.reduce == 1:
+        reduce = int(np.min(tau)) // 2
+    else:
+        reduce = prog_params.reduce
+
+    chain = reader.get_chain(flat=True, discard=burnin, thin=reduce)
+
     # Visualise chain.
-    chain = reader.get_chain()
+    plt.close('all')
 
     chain_fig, axes = plt.subplots(ndim, figsize=(ndim, 7), sharex=True)
     for i in range(ndim):
         ax = axes[i]
-        ax.plot(chain[:, ::(prog_params.nwalkers//10), i], 'k', alpha=0.25)
+        ax.plot(chain[:, i], color=COLOUR, alpha=0.66)
         ax.set_xlim(0, len(chain))
+        ax.set_ylabel(labels[i])
     axes[-1].set_xlabel("steps")
 
     if SAVEFIG:
         chain_fig.savefig(mcmc_file.with_suffix('.chain.pdf'), format='pdf')
 
-    # Flatten the chain.
-    chain_flat = reader.get_chain(
-        flat=True, discard=prog_params.burnin, thin=prog_params.reduce
-    )
-
-    try:
-        tau = reader.get_autocorr_time()
-    except AutocorrError as ae:
-        print(ae)
-        tau = [np.nan] * chain_flat.shape[-1]
-
-    contour_fig = corner.corner(chain_flat, quiet=True, rasterized=True)
-
+    contour_fig = corner.corner(chain, labels=labels, **corner_opt)
     if SAVEFIG:
         contour_fig.savefig(
             mcmc_file.with_suffix('.contour.pdf'), format='pdf'
@@ -270,4 +299,4 @@ if __name__ == '__main__':
         log_likelihood, prior_ranges, ndim = initialise_sampler()
         autocorr_est = load_chains()
 
-    print("Auto-correlation time estimate: {}. ".format(autocorr_est))
+    print("\nAuto-correlation time estimate: {}.\n".format(autocorr_est))

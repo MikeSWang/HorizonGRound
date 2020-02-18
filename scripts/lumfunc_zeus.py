@@ -5,6 +5,8 @@ from argparse import ArgumentParser
 from multiprocessing import Pool
 from pprint import pprint
 
+import corner
+import matplotlib.pyplot as plt
 import numpy as np
 import zeus
 
@@ -27,23 +29,29 @@ def parse_ext_args():
     """
     parser = ArgumentParser("luminosity-function-fitting")
 
-    parser.add_argument('--task', type=str.lower, choices=['make', 'get'])
+    parser.add_argument(
+        '--task', type=str.lower,
+        choices=['make', 'get', 'resume'], default='make'
+    )
     parser.add_argument(
         '--mode', type=str.lower,
-        choices=['continuous', 'dump'], default='continuous'
+        choices=['continuous', 'dump'], default='dump'
     )
     parser.add_argument('--quiet', action='store_false')
     parser.add_argument('--use-prior', action='store_true')
 
     parser.add_argument('--model-name', type=str, default=None)
     parser.add_argument('--data-file', type=str, default=None)
+    parser.add_argument('--fixed-file', type=str, default=None)
     parser.add_argument('--prior-file', type=str, default=None)
     parser.add_argument('--chain-file', type=str, default=None)
 
     parser.add_argument('--nwalkers', type=int, default=100)
     parser.add_argument('--nsteps', type=int, default=10000)
-    parser.add_argument('--burnin', type=int, default=0)
     parser.add_argument('--thinby', type=int, default=1)
+
+    parser.add_argument('--burnin', type=int, default=0)
+    parser.add_argument('--reduce', type=int, default=1)
 
     parsed_args = parser.parse_args()
 
@@ -83,7 +91,8 @@ def initialise_sampler():
     log_likelihood = LumFuncLikelihood(
         lumfunc_model,
         PATHIN/prog_params.prior_file,
-        PATHEXT/prog_params.data_file
+        PATHEXT/prog_params.data_file,
+        fixed_file=PATHIN/prog_params.fixed_file
     )
 
     # Set up numerics.
@@ -94,7 +103,6 @@ def initialise_sampler():
         return log_likelihood, prior_ranges, dimension
     elif prog_params.task == "make":
         # Set up sampler and initial state.
-
         mcmc_sampler = zeus.sampler(
             log_likelihood, prog_params.nwalkers, dimension, pool=pool
         )
@@ -117,51 +125,18 @@ def run_sampler():
         Auto-correlation time estimate.
 
     """
-    KNOT_LENGTH = 100
-    CONVERGENCE_TOL = 0.01
-
     if prog_params.mode == 'continuous':
-        autocorr_estimate = []
-        step = 0
-        current_tau = np.inf
-        for sample in sampler.sample(
-                ini_pos,
-                iterations=prog_params.nsteps,
-                thin_by=prog_params.thinby,
-                progress=prog_params.quiet
-            ):
-            # Record at knot points.
-            if sampler.iteration % KNOT_LENGTH:
-                continue
-
-            tau = sampler.get_autocorr_time(tol=0)
-
-            autocorr_estimate.append(tau)
-            step += 1
-
-            # Break at convergence.
-            converged = np.all(
-                KNOT_LENGTH * tau < sampler.iteration
-            ) & np.all(
-                np.abs(tau - current_tau) < CONVERGENCE_TOL * current_tau
-            )
-
-            current_tau = tau
-
-            if converged:
-                return current_tau
-
-        return autocorr_estimate[-1]
-
+        pass
     elif prog_params.mode.startswith('dump'):
         sampler.run(ini_pos, prog_params.nsteps, progress=True)
 
-        np.save(
-            (PATHOUT/prog_params.chain_file).with_suffix('.npy'),
-            sampler.chain
-        )
+        mcmc_results = {
+            'chain': sampler.chain,
+            'autocorr_time': sampler.autocorr_time,
+        }
+        mcmc_file = (PATHOUT/prog_params.chain_file).with_suffix('.npy')
 
-        autocorr = sampler.autocorr_time
+        np.save(mcmc_file, mcmc_results)
 
         return autocorr
 
@@ -177,7 +152,65 @@ def load_chains():
         Auto-correlation time estimate.
 
     """
-    pass
+    COLOUR = "#A3C1AD"
+    QUANTILES = [0.1587, 0.5, 0.8413]
+    levels = 1.0 - np.exp(- np.square([1, 2]) / 2)
+    corner_opt = dict(
+        quiet=True, rasterized=True, show_titles=True, use_math_text=True,
+        plot_datapoints=False, plot_contours=True, fill_contours=True,
+        quantiles=QUANTILES, color=COLOUR,
+        levels=levels, label_kwargs={'visible': False},
+    )
+
+    # Parameter labels.
+    labels = list(
+        map(lambda s: "$" + s + "$", list(log_likelihood.prior.keys()))
+    )
+
+    # Load the chain.
+    mcmc_file = PATHOUT/prog_params.chain_file
+
+    print("\nLoading chain file: {}.npy.\n".format(mcmc_file.stem))
+
+    mcmc_results = np.load(mcmc_file).item()
+
+    tau = mcmc_results['autocorr_time']
+
+    if prog_params.burnin == 0:
+        burnin = 2 * int(np.max(tau))
+    else:
+        burnin = prog_params.burnin
+    if prog_params.reduce == 1:
+        reduce = int(np.min(tau)) // 2
+    else:
+        reduce = prog_params.reduce
+
+    chain = mcmc_results['chain']
+    chain_flat = chain[:, burnin::reduce, :].reshape((-1, ndim), order='F')
+
+    # Visualise chain.
+    plt.close('all')
+
+    chain_fig, axes = plt.subplots(ndim, figsize=(ndim, 7), sharex=True)
+    for i in range(ndim):
+        ax = axes[i]
+        ax.plot(
+            chain[:, ::(prog_params.nwalkers//10), i], color=COLOUR, alpha=0.66
+        )
+        ax.set_xlim(0, len(chain))
+        ax.set_ylabel(labels[i])
+    axes[-1].set_xlabel("steps")
+
+    if SAVEFIG:
+        chain_fig.savefig(mcmc_file.with_suffix('.chain.pdf'), format='pdf')
+
+    contour_fig = corner.corner(chain_flat, labels=labels, **corner_opt)
+    if SAVEFIG:
+        contour_fig.savefig(
+            mcmc_file.with_suffix('.contour.pdf'), format='pdf'
+        )
+
+    return tau
 
 
 if __name__ == '__main__':
@@ -192,6 +225,6 @@ if __name__ == '__main__':
             autocorr = run_sampler()
     elif prog_params.task == 'get':
         log_likelihood, prior_ranges, ndim = initialise_sampler()
-        autocorr = load_chains()
+        autocorr_est = load_chains()
 
-    print("Auto-correlation estimate: {}. ".format(autocorr))
+    print("\nAuto-correlation estimate: {}.\n".format(autocorr_est))
