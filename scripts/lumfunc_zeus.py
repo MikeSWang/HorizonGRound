@@ -205,7 +205,8 @@ def load_chains():
     for i in range(ndim):
         ax = axes[i]
         ax.plot(
-            chain[:, ::(prog_params.nwalkers//10), i], color=COLOUR, alpha=0.66
+            chain[:, ::(prog_params.nwalkers//10), i], 
+            color=COLOUR, alpha=0.66, rasterized=True
         )
         ax.set_xlim(0, len(chain))
         ax.set_ylabel(labels[i])

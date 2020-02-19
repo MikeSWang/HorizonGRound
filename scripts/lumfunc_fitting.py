@@ -287,7 +287,7 @@ def load_chains():
     chain_fig, axes = plt.subplots(ndim, figsize=(ndim, 7), sharex=True)
     for i in range(ndim):
         ax = axes[i]
-        ax.plot(chain[:, i], color=COLOUR, alpha=0.66)
+        ax.plot(chain[:, i], color=COLOUR, alpha=0.66, rasterized=True)
         ax.set_xlim(0, len(chain))
         ax.set_ylabel(labels[i])
     axes[-1].set_xlabel("steps")
