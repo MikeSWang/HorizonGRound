@@ -64,8 +64,9 @@ def parse_ext_args():
         parsed_args.thinby
     )
 
-    print('\nProgram parameters:')
+    print("\nProgram parameters: ")
     pprint(vars(parsed_args))
+    print("\n")
 
     return parsed_args
 
@@ -97,10 +98,12 @@ def initialise_sampler():
         fixed_file=PATHIN/prog_params.fixed_file
     )
 
-    print("\nPrior parameters:")
+    print("\nPrior parameters: ")
     pprint(log_likelihood.prior)
-    print("\nFixed parameters:")
+    print("\n")
+    print("\nFixed parameters: ")
     pprint(log_likelihood.fixed)
+    print("\n")
 
     # Set up numerics.
     dimension = len(log_likelihood.prior)
@@ -177,7 +180,7 @@ def load_chains():
     # Load the chain.
     mcmc_file = PATHOUT/prog_params.chain_file
 
-    print("\nLoading chain file: {}.npy. ".format(mcmc_file.stem))
+    print("\nLoading chain file: {}.npy.\n".format(mcmc_file.stem))
 
     mcmc_results = np.load(mcmc_file).item()
 
@@ -234,4 +237,4 @@ if __name__ == '__main__':
         log_likelihood, prior_ranges, ndim = initialise_sampler()
         autocorr_est = load_chains()
 
-    print("\nAuto-correlation estimate: {}. ".format(autocorr_est))
+    print("\nAuto-correlation estimate: {}.\n".format(autocorr_est))
