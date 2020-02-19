@@ -262,11 +262,17 @@ def load_chains():
         tau = [np.nan] * len(labels)
 
     if prog_params.burnin == 0:
-        burnin = 2 * int(np.max(tau))
+        try:
+            burnin = 2 * int(np.max(tau))
+        except ValueError:
+            burnin = prog_params.burnin
     else:
         burnin = prog_params.burnin
     if prog_params.reduce == 1:
-        reduce = int(np.min(tau)) // 2
+        try:
+            reduce = int(np.min(tau)) // 2
+        except ValueError:
+            reduce = prog_params.reduce
     else:
         reduce = prog_params.reduce
 
