@@ -250,7 +250,7 @@ class LumFuncLikelihood(LumFuncMeasurements):
         super().__init__(data_file, base10_log=base10_log)
 
         self.data_points = self._setup_data_points()
-        self.prior, self._fixed = self._setup_prior()
+        self.prior, self.fixed = self._setup_prior()
 
         self._data_vector, self._data_covariance = self.get_statistics()
 
@@ -291,8 +291,8 @@ class LumFuncLikelihood(LumFuncMeasurements):
             log_prior = 0.
 
         model_params = OrderedDict(zip(list(self.prior.keys()), param_point))
-        if self._fixed is not None:
-            model_params.update(self._fixed)
+        if self.fixed is not None:
+            model_params.update(self.fixed)
 
         model_vector = [
             self._lumfunc_model(

@@ -90,9 +90,8 @@ def parse_ext_args():
         parsed_args.thinby
     )
 
-    print('\n')
+    print('\nProgram parameters:')
     pprint(vars(parsed_args))
-    print('\n')
 
     return parsed_args
 
@@ -123,6 +122,11 @@ def initialise_sampler():
         PATHEXT/prog_params.data_file,
         fixed_file=PATHIN/prog_params.fixed_file
     )
+
+    print("\nPrior parameters:")
+    pprint(log_likelihood.prior)
+    print("\nFixed parameters:")
+    pprint(log_likelihood._fixed)
 
     # Set up numerics.
     dimension = len(log_likelihood.prior)
@@ -245,7 +249,7 @@ def load_chains():
     # Load the chain.
     mcmc_file = PATHOUT/prog_params.chain_file
 
-    print("\nLoading chain file: {}.h5.\n".format(mcmc_file.stem))
+    print("\nLoading chain file: {}.h5. ".format(mcmc_file.stem))
 
     reader = mc.backends.HDFBackend(
         mcmc_file.with_suffix('.h5'), read_only=True
@@ -305,4 +309,4 @@ if __name__ == '__main__':
         log_likelihood, prior_ranges, ndim = initialise_sampler()
         autocorr_est = load_chains()
 
-    print("\nAuto-correlation time estimate: {}.\n".format(autocorr_est))
+    print("\nAuto-correlation time estimate: {}. ".format(autocorr_est))
