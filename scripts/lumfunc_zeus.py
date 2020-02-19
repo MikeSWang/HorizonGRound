@@ -148,7 +148,7 @@ def run_sampler():
 
         np.save(mcmc_file, mcmc_results)
 
-        return autocorr
+        return sampler.autocorr_time
 
 
 def load_chains():
