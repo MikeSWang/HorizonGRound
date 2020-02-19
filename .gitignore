@@ -105,5 +105,6 @@ venv.bak/
 .mypy_cache/
 
 # User customised
+jobs/
 data/input/
 data/output/

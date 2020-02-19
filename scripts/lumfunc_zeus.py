@@ -178,7 +178,7 @@ def load_chains():
     )
 
     # Load the chain.
-    mcmc_file = PATHOUT/prog_params.chain_file
+    mcmc_file = (PATHOUT/prog_params.chain_file).with_suffix('.npy')
 
     print("\nLoading chain file: {}.npy.\n".format(mcmc_file.stem))
 
