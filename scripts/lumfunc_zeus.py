@@ -1,9 +1,12 @@
 r"""Luminosity function model fitting with ``zeus``.
 
 """
+import os
 from argparse import ArgumentParser
 from multiprocessing import Pool
 from pprint import pprint
+
+os.environ["OMP_NUM_THREADS"] = "1"
 
 import corner
 import matplotlib.pyplot as plt
