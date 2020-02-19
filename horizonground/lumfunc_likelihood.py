@@ -266,7 +266,7 @@ class LumFuncLikelihood(LumFuncMeasurements):
             (luminosity/magnitude and redshift).
         use_prior : bool, optional
             If `True` (default is `False`), use the user-input prior
-            (i.e. set ``-numpy.inf`` at parameter point outside the prior
+            (i.e. set ``-numpy.inf`` at parameter points outside the prior
             range).
 
         Returns
@@ -291,7 +291,8 @@ class LumFuncLikelihood(LumFuncMeasurements):
             log_prior = 0.
 
         model_params = OrderedDict(zip(list(self.prior.keys()), param_point))
-        model_params.update(self._fixed)
+        if self._fixed is not None:
+            model_params.update(self._fixed)
 
         model_vector = [
             self._lumfunc_model(
@@ -317,18 +318,22 @@ class LumFuncLikelihood(LumFuncMeasurements):
             )
         prior_data = np.genfromtxt(self._prior_source_path, unpack=True)
         prior_ranges = list(map(tuple, prior_data))
+        prior = OrderedDict(zip(parameter_names, prior_ranges))
 
-        with open(self._fixed_source_path, 'r') as file:
-            fixed_names = list(
-                map(
-                    lambda header: header.strip(" "),
-                    file.readline().strip("#").strip("\n").split(",")
+        if self._fixed_source_path is not None:
+            with open(self._fixed_source_path, 'r') as file:
+                fixed_names = list(
+                    map(
+                        lambda header: header.strip(" "),
+                        file.readline().strip("#").strip("\n").split(",")
+                    )
                 )
-            )
-        fixed_values = np.genfromtxt(self._fixed_source_path, unpack=True)
+            fixed_values = np.genfromtxt(self._fixed_source_path, unpack=True)
+            fixed = OrderedDict(zip(fixed_names, fixed_values))
+        else:
+            fixed = None
 
-        return OrderedDict(zip(parameter_names, prior_ranges)), \
-            OrderedDict(zip(fixed_names, fixed_values))
+        return prior, fixed
 
     def _setup_data_points(self):
 

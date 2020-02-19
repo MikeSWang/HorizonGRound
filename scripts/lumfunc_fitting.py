@@ -25,9 +25,13 @@ Examples
 >>> print(likelihood(list(parameter_set.values())))
 
 """
+import os
 from argparse import ArgumentParser
 from datetime import datetime
+from multiprocessing import Pool
 from pprint import pprint
+
+os.environ["OMP_NUM_THREADS"] = "1"
 
 import corner
 import emcee as mc
@@ -137,7 +141,8 @@ def initialise_sampler():
 
     # Set up sampler and initial state.
     mcmc_sampler = mc.EnsembleSampler(
-        prog_params.nwalkers, dimension, log_likelihood, backend=backend
+        prog_params.nwalkers, dimension, log_likelihood,
+        backend=backend, pool=pool
     )
 
     initial_state = np.mean(prior_ranges, axis=1) \
@@ -292,9 +297,10 @@ if __name__ == '__main__':
 
     prog_params = parse_ext_args()
 
-    if prog_params.task == 'make':
-        sampler, ini_pos, ndim = initialise_sampler()
-        autocorr_est = run_sampler()
+    if prog_params.task in ['make', 'resume']:
+        with Pool() as pool:
+            sampler, ini_pos, ndim = initialise_sampler()
+            autocorr_est = run_sampler()
     elif prog_params.task == 'get':
         log_likelihood, prior_ranges, ndim = initialise_sampler()
         autocorr_est = load_chains()
