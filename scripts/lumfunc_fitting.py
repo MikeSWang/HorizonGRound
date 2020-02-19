@@ -318,4 +318,6 @@ if __name__ == '__main__':
         log_likelihood, prior_ranges, ndim = initialise_sampler()
         autocorr_est = load_chains()
 
-    print("\nAuto-correlation time estimate: {}.\n".format(autocorr_est))
+    print("\nAuto-correlation time estimate: {}.\n"
+      .format(["{:.2f}".format(act) for act in autocorr_est])
+    )
