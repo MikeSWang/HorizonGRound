@@ -181,11 +181,10 @@ def initialise_sampler():
         backend=backend, pool=pool
     )
 
-    initial_state = np.mean(prior_ranges, axis=1) \
-        + np.random.uniform(
-            low=prior_ranges[:, 0], high=prior_ranges[:, -1],
-            size=(prog_params.nwalkers, dimension)
-        )
+    initial_state = np.random.uniform(
+        low=prior_ranges[:, 0], high=prior_ranges[:, -1],
+        size=(prog_params.nwalkers, dimension)
+    )
 
     return mcmc_sampler, initial_state, dimension
 

@@ -120,15 +120,14 @@ def initialise_sampler():
     elif prog_params.task == "make":
         # Set up sampler and initial state.
         mcmc_sampler = zeus.sampler(
-            log_likelihood, prog_params.nwalkers, dimension, pool=pool,
+            log_likelihood, prog_params.nwalkers, dimension, pool=None,
             kwargs={'use_prior': prog_params.use_prior}
         )
 
-        initial_state = np.mean(prior_ranges, axis=1) \
-            + np.random.uniform(
-                low=prior_ranges[:, 0], high=prior_ranges[:, -1],
-                size=(prog_params.nwalkers, dimension)
-            )
+        initial_state = np.random.uniform(
+            low=prior_ranges[:, 0], high=prior_ranges[:, -1],
+            size=(prog_params.nwalkers, dimension)
+        )
 
         return mcmc_sampler, initial_state, dimension
 
@@ -238,9 +237,9 @@ if __name__ == '__main__':
     prog_params = parse_ext_args()
 
     if prog_params.task == 'make':
-        with Pool() as pool:
-            sampler, ini_pos, ndim = initialise_sampler()
-            autocorr = run_sampler()
+        #with Pool() as pool:
+        sampler, ini_pos, ndim = initialise_sampler()
+        autocorr = run_sampler()
     elif prog_params.task == 'get':
         log_likelihood, prior_ranges, ndim = initialise_sampler()
         autocorr_est = load_chains()
