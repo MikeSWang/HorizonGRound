@@ -105,9 +105,11 @@ def initialise_sampler():
     print("\nPrior parameters--- ")
     pprint(dict(log_likelihood.prior.items()))
     print("\n")
-    print("\nFixed parameters--- ")
-    pprint(dict(log_likelihood.fixed.items()))
-    print("\n")
+
+    if log_likelihood.fixed:
+        print("\nFixed parameters--- ")
+        pprint(dict(log_likelihood.fixed.items()))
+        print("\n")
 
     # Set up numerics.
     dimension = len(log_likelihood.prior)
