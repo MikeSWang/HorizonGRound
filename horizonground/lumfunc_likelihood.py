@@ -192,7 +192,7 @@ def _uniform_log_pdf(param_vals, param_ranges):
         if p_val < p_range[0] or p_val > p_range[-1]:
             return - np.inf
 
-    return 0
+    return 0.
 
 
 def _normal_log_pdf(data_vector, model_vector, covariance_matrix):
@@ -228,10 +228,10 @@ class LumFuncLikelihood(LumFuncMeasurements):
     ----------
     lumfunc_model : callable
         Luminosity function model.
-    prior_file : str or :class:`pathlib.Path`
-        Luminosity function model prior file path.
     data_file : str or :class:`pathlib.Path`
         Luminosity function data file path.
+    prior_file : str or :class:`pathlib.Path`
+        Luminosity function model prior file path.
     base10_log : bool, optional
         If `True` (default), all values are converted to base-10
         logarithms.
@@ -240,7 +240,7 @@ class LumFuncLikelihood(LumFuncMeasurements):
 
     """
 
-    def __init__(self, lumfunc_model, prior_file, data_file, base10_log=True,
+    def __init__(self, lumfunc_model, data_file, prior_file, base10_log=True,
                  fixed_file=None):
 
         self._lumfunc_model = lumfunc_model

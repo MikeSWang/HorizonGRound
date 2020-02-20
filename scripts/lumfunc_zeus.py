@@ -6,7 +6,7 @@ from argparse import ArgumentParser
 from multiprocessing import Pool
 from pprint import pprint
 
-os.environ["OMP_NUM_THREADS"] = "1"
+os.environ['OMP_NUM_THREADS'] = '1'
 
 import corner
 import matplotlib.pyplot as plt
@@ -64,7 +64,7 @@ def parse_ext_args():
         parsed_args.thinby
     )
 
-    print("\nProgram parameters: ")
+    print("\nProgram configuration--- ")
     pprint(vars(parsed_args))
     print("\n")
 
@@ -97,16 +97,16 @@ def initialise_sampler():
 
     log_likelihood = LumFuncLikelihood(
         lumfunc_model,
-        PATHIN/prog_params.prior_file,
         PATHEXT/prog_params.data_file,
+        PATHIN/prog_params.prior_file,
         fixed_file=fixed_file
     )
 
-    print("\nPrior parameters: ")
-    pprint(log_likelihood.prior)
+    print("\nPrior parameters--- ")
+    pprint(dict(log_likelihood.prior.items()))
     print("\n")
-    print("\nFixed parameters: ")
-    pprint(log_likelihood.fixed)
+    print("\nFixed parameters--- ")
+    pprint(dict(log_likelihood.fixed.items()))
     print("\n")
 
     # Set up numerics.
@@ -118,7 +118,8 @@ def initialise_sampler():
     elif prog_params.task == "make":
         # Set up sampler and initial state.
         mcmc_sampler = zeus.sampler(
-            log_likelihood, prog_params.nwalkers, dimension, pool=pool
+            log_likelihood, prog_params.nwalkers, dimension, pool=pool,
+            kwargs={'use_prior': prog_params.use_prior}
         )
 
         initial_state = np.mean(prior_ranges, axis=1) \
@@ -209,7 +210,7 @@ def load_chains():
     for i in range(ndim):
         ax = axes[i]
         ax.plot(
-            chain[:, ::(prog_params.nwalkers//10), i], 
+            chain[:, ::(prog_params.nwalkers//10), i],
             color=COLOUR, alpha=0.66, rasterized=True
         )
         ax.set_xlim(0, len(chain))
@@ -242,6 +243,7 @@ if __name__ == '__main__':
         log_likelihood, prior_ranges, ndim = initialise_sampler()
         autocorr_est = load_chains()
 
-    print("\nAuto-correlation estimate: {}.\n"
-      .format(["{:.2f}".format(act) for act in autocorr_est])
+    print(
+        "\nAuto-correlation estimate: {}.\n"
+        .format(["{:.2f}".format(act) for act in autocorr_est])
     )

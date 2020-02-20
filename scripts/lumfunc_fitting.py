@@ -3,11 +3,14 @@ r"""Luminosity function model fitting.
 Examples
 --------
 >>> from horizonground.lumfunc_modeller import quasar_PLE_model
->>> prior_file = PATHIN/"PLE_model_prior.txt"
 >>> data_file = PATHEXT/"eBOSS_QSO_LF.txt"
->>> parameter_file = PATHEXT/"PLE_model_invalid.txt"
->>> likelihood = LumFuncLikelihood(quasar_PLE_model, prior_file, data_file)
->>> parameter_set = load_parameter_fits(parameter_fits_file)
+>>> prior_file = PATHIN/"PLE_model_prior_varied.txt"
+>>> fixed_file = PATHIN/"PLE_model_prior_fixed.txt"
+>>> likelihood = LumFuncLikelihood(
+...     quasar_PLE_model, data_file, prior_file, fixed_file=fixed_file
+... )
+>>> parameter_set_file = PATHEXT/"PLE_model_fits.txt"
+>>> parameter_set = load_parameter_set(parameter_set_file)
 >>> print(likelihood(list(parameter_set.values()), use_prior=True))
 
 """
@@ -17,7 +20,7 @@ from datetime import datetime
 from multiprocessing import Pool
 from pprint import pprint
 
-os.environ["OMP_NUM_THREADS"] = "1"
+os.environ['OMP_NUM_THREADS'] = '1'
 
 import corner
 import emcee as mc
@@ -33,9 +36,21 @@ import horizonground.lumfunc_modeller as lumfunc_modeller
 from horizonground.lumfunc_likelihood import LumFuncLikelihood
 
 
-def load_parameter_fits(parameter_fits_file):
+def load_parameter_set(parameter_set_file):
+    """Load a parameter set from a file into a dictionary.
 
-    with open(parameter_fits_file, 'r') as pfile:
+    Parameters
+    ----------
+    parameter_set_file : str or :class:`pathlib.Path`
+        Parameter set file.
+
+    Returns
+    -------
+    parameter_set : dict
+        Parameter set.
+
+    """
+    with open(parameter_set_file, 'r') as pfile:
         parameters = tuple(
             map(
                 lambda var_name: var_name.strip(" "),
@@ -45,10 +60,11 @@ def load_parameter_fits(parameter_fits_file):
         estimates = tuple(
             map(lambda value: float(value), pfile.readline().split(","))
         )
-        parameter_set = dict(zip(parameters, estimates))
-        for parameter in parameters:
-            if parameter.startswith("\Delta"):
-                del parameter_set[parameter]
+
+    parameter_set = dict(zip(parameters, estimates))
+    for parameter in parameters:
+        if parameter.startswith(r"\Delta"):
+            del parameter_set[parameter]
 
     return parameter_set
 
@@ -96,7 +112,7 @@ def parse_ext_args():
         parsed_args.thinby
     )
 
-    print("\nProgram parameters: ")
+    print("\nProgram configuration--- ")
     pprint(vars(parsed_args))
     print("\n")
 
@@ -129,16 +145,16 @@ def initialise_sampler():
 
     log_likelihood = LumFuncLikelihood(
         lumfunc_model,
-        PATHIN/prog_params.prior_file,
         PATHEXT/prog_params.data_file,
+        PATHIN/prog_params.prior_file,
         fixed_file=fixed_file
     )
 
-    print("\nPrior parameters: ")
-    pprint(log_likelihood.prior)
+    print("\nPrior parameters--- ")
+    pprint(dict(log_likelihood.prior.items()))
     print("\n")
-    print("\nFixed parameters: ")
-    pprint(log_likelihood.fixed)
+    print("\nFixed parameters--- ")
+    pprint(dict(log_likelihood.fixed.items()))
     print("\n")
 
     # Set up numerics.
@@ -159,6 +175,7 @@ def initialise_sampler():
     # Set up sampler and initial state.
     mcmc_sampler = mc.EnsembleSampler(
         prog_params.nwalkers, dimension, log_likelihood,
+        kwargs={'use_prior': prog_params.use_prior},
         backend=backend, pool=pool
     )
 
@@ -328,6 +345,7 @@ if __name__ == '__main__':
         log_likelihood, prior_ranges, ndim = initialise_sampler()
         autocorr_est = load_chains()
 
-    print("\nAuto-correlation time estimate: {}.\n"
-      .format(["{:.2f}".format(act) for act in autocorr_est])
+    print(
+        "\nAuto-correlation time estimate: {}.\n"
+        .format(["{:.2f}".format(act) for act in autocorr_est])
     )
