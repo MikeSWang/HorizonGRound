@@ -91,7 +91,7 @@ def initialise_sampler():
     # Set up likelihood and prior.
     lumfunc_model = getattr(lumfunc_modeller, prog_params.model_name)
 
-    fixed_file = prog_params.fixed_file \
+    fixed_file = PATHIN/prog_params.fixed_file \
         if prog_params.fixed_file \
         else None
 

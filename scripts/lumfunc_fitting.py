@@ -5,24 +5,10 @@ Examples
 >>> from horizonground.lumfunc_modeller import quasar_PLE_model
 >>> prior_file = PATHIN/"PLE_model_prior.txt"
 >>> data_file = PATHEXT/"eBOSS_QSO_LF.txt"
->>> parameter_file = PATHEXT/"PLE_model_fits.txt"
+>>> parameter_file = PATHEXT/"PLE_model_invalid.txt"
 >>> likelihood = LumFuncLikelihood(quasar_PLE_model, prior_file, data_file)
->>> with open(parameter_file, 'r') as pfile:
-...     parameters = tuple(
-...         map(
-...             lambda var_name: var_name.strip(" "),
-...             pfile.readline().strip("#").strip("\n").split(",")
-...         )
-...     )
-...     estimates = tuple(
-...         map(lambda value: float(value), pfile.readline().split(","))
-...     )
-...     parameter_set = dict(zip(parameters, estimates))
-...     for parameter in parameters:
-...         if parameter.startswith("\Delta"):
-...             del parameter_set[parameter]
-...
->>> print(likelihood(list(parameter_set.values())))
+>>> parameter_set = load_parameter_fits(parameter_fits_file)
+>>> print(likelihood(list(parameter_set.values()), use_prior=True))
 
 """
 import os
@@ -45,6 +31,26 @@ use_local_package("../../HorizonGRound/")
 
 import horizonground.lumfunc_modeller as lumfunc_modeller
 from horizonground.lumfunc_likelihood import LumFuncLikelihood
+
+
+def load_parameter_fits(parameter_fits_file):
+
+    with open(parameter_fits_file, 'r') as pfile:
+        parameters = tuple(
+            map(
+                lambda var_name: var_name.strip(" "),
+                pfile.readline().strip("#").strip("\n").split(",")
+            )
+        )
+        estimates = tuple(
+            map(lambda value: float(value), pfile.readline().split(","))
+        )
+        parameter_set = dict(zip(parameters, estimates))
+        for parameter in parameters:
+            if parameter.startswith("\Delta"):
+                del parameter_set[parameter]
+
+    return parameter_set
 
 
 def parse_ext_args():
@@ -117,7 +123,7 @@ def initialise_sampler():
     # Set up likelihood and prior.
     lumfunc_model = getattr(lumfunc_modeller, prog_params.model_name)
 
-    fixed_file = prog_params.fixed_file \
+    fixed_file = PATHIN/prog_params.fixed_file \
         if prog_params.fixed_file \
         else None
 
@@ -308,7 +314,7 @@ def load_chains():
     return tau
 
 
-if __name__ == '__main__':
+if __name__ != '__main__':
 
     SAVEFIG = True
 
