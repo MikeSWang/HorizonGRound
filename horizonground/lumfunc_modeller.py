@@ -391,8 +391,8 @@ class LumFuncModeller:
     ----------
     luminosity_function : callable
         Luminosity function of luminosity or magnitude and redshift
-        variables only (in that order) (in inverse cubic Mpc/:math:`h`
-        per unit brightness).
+        variables only (in that order) (in inverse cubic
+        :math:`\textrm{Mpc}/h` per unit brightness).
     brightness_variable : {'luminosity', 'magnitude'}, str
         Brightness variable, either ``'luminosity'`` or ``'magnitude'``.
     brightness_threshold : callable
@@ -522,7 +522,8 @@ class LumFuncModeller:
         Returns
         -------
         float
-            Comoving number density (in inverse cubic Mpc/:math:`h`).
+            Comoving number density (in inverse cubic
+            :math:`\textrm{Mpc}/h`).
 
         """
         _comoving_number_density = np.abs(
