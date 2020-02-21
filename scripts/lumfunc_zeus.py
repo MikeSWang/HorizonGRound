@@ -239,7 +239,7 @@ if __name__ == '__main__':
     if prog_params.task == 'make':
         #with Pool() as pool:
         sampler, ini_pos, ndim = initialise_sampler()
-        autocorr = run_sampler()
+        autocorr_est = run_sampler()
     elif prog_params.task == 'get':
         log_likelihood, prior_ranges, ndim = initialise_sampler()
         autocorr_est = load_chains()
