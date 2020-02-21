@@ -3,7 +3,7 @@
 ``HorizonGRound``
 ###########################################################################
 
-.. topic:: Legal disclaimer
+.. topic:: Licence
 
     Copyright (C) 2019, M S Wang
 
@@ -22,7 +22,7 @@
 
 """
 __author__ = "Mike (Shengbo) Wang"
-__copyright__ = "Copyright 2019, HorizonGRound / M S Wang"
-__date__ = "2019"
+__copyright__ = "Copyright 2020, HorizonGRound / M S Wang"
+__date__ = "2020"
 __license__ = "GPL 3.0"
-__version__ = "0.0.dev0"
+__version__ = "0.0.0"

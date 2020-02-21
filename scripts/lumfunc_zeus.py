@@ -17,7 +17,7 @@ from config import PATHEXT, PATHIN, PATHOUT, sci_notation, use_local_package
 
 use_local_package("../../HorizonGRound/")
 
-import horizonground.lumfunc_modeller as lumfunc_modeller
+import horizonground.lumfunc_modeller as modeller
 from horizonground.lumfunc_likelihood import LumFuncLikelihood
 
 
@@ -42,6 +42,7 @@ def parse_ext_args():
     )
     parser.add_argument('--quiet', action='store_false')
     parser.add_argument('--use-prior', action='store_true')
+    parser.add_argument('--use-constraint', action='store_true')
 
     parser.add_argument('--model-name', type=str, default=None)
     parser.add_argument('--data-file', type=str, default=None)
@@ -89,7 +90,11 @@ def initialise_sampler():
 
     """
     # Set up likelihood and prior.
-    lumfunc_model = getattr(lumfunc_modeller, prog_params.model_name)
+    lumfunc_model = getattr(modeller, prog_params.model_name)
+
+    lumfunc_model_constraint = getattr(
+        modeller, prog_params.model_name + '_constraint', None
+    ) if prog_params.use_constraint else None
 
     fixed_file = PATHIN/prog_params.fixed_file \
         if prog_params.fixed_file \
@@ -99,7 +104,8 @@ def initialise_sampler():
         lumfunc_model,
         PATHEXT/prog_params.data_file,
         PATHIN/prog_params.prior_file,
-        fixed_file=fixed_file
+        fixed_file=fixed_file,
+        model_constraint=lumfunc_model_constraint
     )
 
     print("\nPrior parameters--- ")

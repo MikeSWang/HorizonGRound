@@ -68,8 +68,9 @@ also differ below and above the pivot redshift.
 
 This is a parametric model with 10 parameters: :math:`\Phi_\ast`,
 :math:`m_\ast(z_\textrm{p})`, :math:`(\alpha, \beta, k_1, k_2)_\textrm{l}`
-for :math:`z < z_\textrm{p}` and
-:math:`(\alpha, \beta, k_1, k_2)_\textrm{h}` for :math:`z > z_\textrm{p}`.
+for :math:`z < z_\textrm{p}` and :math:`(\alpha, \beta, k_1,
+k_2)_\textrm{h}` for :math:`z > z_\textrm{p}`.
+
 
 **Hybrid evolution model (PLE+LEDE)**
 
@@ -214,6 +215,34 @@ def quasar_PLE_model(magnitude, redshift, redshift_pivot=2.2, base10_log=True,
     return comoving_density
 
 
+def quasar_PLE_model_constraint(model_parameters):
+    """Impose the pure luminosity evolution (PLE) model constraint on
+    model parameters as a logrithmic prior distribution.
+
+    Parameters
+    ----------
+    model_parameters : dict
+        PLE model parameters.
+
+    Returns
+    -------
+    log_prior : {0., ``-numpy.inf``}, float
+        Constraint logarithmic prior.
+
+    """
+    constraint = (
+        model_parameters[r'\alpha_\textrm{l}']
+        < model_parameters[r'\beta_\textrm{l}']
+    ) and (
+        model_parameters[r'\alpha_\textrm{h}']
+        < model_parameters[r'\beta_\textrm{h}']
+    )
+
+    log_prior = 0. if constraint else -np.inf
+
+    return log_prior
+
+
 def quasar_hybrid_model(magnitude, redshift, redshift_pivot=2.2,
                         base10_log=True, **model_parameters):
     """Evaluate the hybrid model (pure luminosity evolution and luminosity
@@ -244,6 +273,25 @@ def quasar_hybrid_model(magnitude, redshift, redshift_pivot=2.2,
         Predicted qausar comoving number density per unit magnitude (in
         inverse cubic Mpc).  If `base10_log` is `True`, the base-10
         logarithmic value is returned.
+
+    """
+    raise NotImplementedError
+
+
+def quasar_hybrid_model_constraint(model_parameters):
+    """Impose the hybrid model (pure luminosity evolution and luminosity
+    evolution--density evolution, 'PLE+LEDE') constraint on model
+    parameters as a logrithmic prior distribution.
+
+    Parameters
+    ----------
+    model_parameters : dict
+        PLE model parameters.
+
+    Returns
+    -------
+    log_prior : {0., ``-numpy.inf``}, float
+        Constraint logarithmic prior.
 
     """
     raise NotImplementedError
@@ -385,14 +433,13 @@ class LumFuncModeller:
             lambda lum, z: lumfunc_model(lum, z, **self.model_parameters)
         )
 
-        # HINT: Default values agrees with luminosity function models.
+        # HINT: Default value `True` agrees with luminosity function models.
         self._lg_conversion = self.model_parameters.get('base10_log', True)
 
         self._threshold_variable = self._alias(threshold_variable)
         if self._threshold_variable == 'flux':
             self.brightness_threshold = lambda z: np.log10(
-                4*np.pi
-                * threshold_value
+                4*np.pi * threshold_value
                 * self.cosmology.luminosity_distance(z).to(units.cm).value**2
             )
             self._threshold_variable = 'luminosity'
@@ -450,9 +497,7 @@ class LumFuncModeller:
                     pfile.readline().strip("#").strip("\n").split(",")
                 )
             )
-            estimates = tuple(
-                map(lambda value: float(value), pfile.readline().split(","))
-            )
+            estimates = tuple(map(float, pfile.readline().split(",")))
 
         model_parameters.update(dict(zip(parameters, estimates)))
 

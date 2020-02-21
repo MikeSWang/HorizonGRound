@@ -231,28 +231,45 @@ class LumFuncLikelihood(LumFuncMeasurements):
     data_file : str or :class:`pathlib.Path`
         Luminosity function data file path.
     prior_file : str or :class:`pathlib.Path`
-        Luminosity function model prior file path.
+        Luminosity function model prior file path.  The prior parameter
+        values (parameter ranges) may not matter, but the parameter names
+        provided in the file do.
     base10_log : bool, optional
         If `True` (default), all values are converted to base-10
         logarithms.
     fixed_file : str or :class:`pathlib.Path` or None, optional
-        Luminosity function model fixed parameter file path.
+        Luminosity function model fixed parameter file path.  This covers
+        any model parameter(s) not included in the prior.
+    model_constraint : callable or None, optional
+        Additional model constraint(s) to be imposed on model parameters
+        as a prior (default is `None`).
+
+    Attributes
+    ----------
+    data_points : list of float
+        A vector of (brightness, redshift) coordinates for each valid
+        luminosity function measurements.
+    prior, fixed : :class:`collections.OrderedDict` or None
+        Ordered dictionary of varied prior parameter names and values or
+        fixed parameter names and values.  The parameters are ordered
+        as in the input files, so the ordering of likelihood function
+        arguments is consistently the same.
 
     """
 
     def __init__(self, lumfunc_model, data_file, prior_file, base10_log=True,
-                 fixed_file=None):
+                 fixed_file=None, model_constraint=None):
+
+        super().__init__(data_file, base10_log=base10_log)
 
         self._lumfunc_model = lumfunc_model
         self._prior_source_path = prior_file
         self._fixed_source_path = fixed_file
-
-        super().__init__(data_file, base10_log=base10_log)
+        self._data_vector, self._data_covariance = self.get_statistics()
 
         self.data_points = self._setup_data_points()
         self.prior, self.fixed = self._setup_prior()
-
-        self._data_vector, self._data_covariance = self.get_statistics()
+        self._model_constraint = model_constraint
 
     def __call__(self, param_point, use_prior=False):
         """Evaluate the logarithmic likelihood at the model parameter
@@ -293,6 +310,9 @@ class LumFuncLikelihood(LumFuncMeasurements):
         model_params = OrderedDict(zip(list(self.prior.keys()), param_point))
         if self.fixed is not None:
             model_params.update(self.fixed)
+
+        if callable(self._model_constraint):
+            log_prior += self._model_constraint(model_params)
 
         model_vector = [
             self._lumfunc_model(
@@ -337,6 +357,7 @@ class LumFuncLikelihood(LumFuncMeasurements):
 
     def _setup_data_points(self):
 
+        # The primary axis is brightness, secondary redshift.
         data_points_flat = list(map(
             lambda tup: tuple(reversed(tup)),
             iterproduct(self.redshift_bins, self.brightness_bins)

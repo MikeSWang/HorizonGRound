@@ -149,6 +149,8 @@ import numpy as np
 from nbodykit.lab import cosmology as nbk_cosmology
 
 _SPEED_OF_LIGHT_IN_KM_PER_S = 2998792.
+_SPHERICAL_COLLAPSE_CRITICAL_OVERDENSITY = 1.686
+_TRANSFER_FUNCTION_NORMALISATION = 1.27
 
 FIDUCIAL_COSMOLOGY = nbk_cosmology.Planck15
 r""":class:`nbodykit.cosmology.Cosmology`: Default Planck15 cosmology.
@@ -213,11 +215,8 @@ def scale_dependence_kernel(redshift, cosmo=FIDUCIAL_COSMOLOGY):
         :math:`h/\textrm{Mpc}`).
 
     """
-    SPHERICAL_COLLAPSE_CRITICAL_OVERDENSITY = 1.686
-    EQUALITY_NORMALISATION = 1.27
-
-    numerical_constants = 3 * SPHERICAL_COLLAPSE_CRITICAL_OVERDENSITY \
-        * cosmo.Om0 * EQUALITY_NORMALISATION \
+    numerical_constants = 3 * _SPHERICAL_COLLAPSE_CRITICAL_OVERDENSITY \
+        * cosmo.Om0 * _TRANSFER_FUNCTION_NORMALISATION \
         * (100*FIDUCIAL_COSMOLOGY.h / _SPEED_OF_LIGHT_IN_KM_PER_S)**2 \
 
     transfer_function = nbk_cosmology.power.transfers.CLASS(cosmo, redshift)
@@ -297,7 +296,8 @@ def relativistic_correction_func(cosmo=FIDUCIAL_COSMOLOGY, geometric=True,
     astropy_cosmo = cosmo.to_astropy()
 
     a = astropy_cosmo.scale_factor
-    aH = lambda z: a(z) * astropy_cosmo.H(z).value / _SPEED_OF_LIGHT_IN_KM_PER_S
+    aH = lambda z: a(z) * astropy_cosmo.H(z).value \
+        / _SPEED_OF_LIGHT_IN_KM_PER_S
     chi = lambda z: astropy_cosmo.comoving_distance(z).value
 
     if geometric:
