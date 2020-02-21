@@ -516,7 +516,7 @@ class LumFuncModeller:
 
         Parameters
         ----------
-        redshift : float array_like
+        redshift : float
             Redshift.
 
         Returns
@@ -542,7 +542,7 @@ class LumFuncModeller:
 
         Parameters
         ----------
-        redshift : float array_like
+        redshift : float
             Redshift.
 
         Returns
@@ -562,7 +562,7 @@ class LumFuncModeller:
 
         Parameters
         ----------
-        redshift : float array_like
+        redshift : float
             Redshift.
 
         Returns
