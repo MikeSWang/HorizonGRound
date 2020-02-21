@@ -429,12 +429,20 @@ class LumFuncModeller:
         self.model_parameters = model_parameters
         self.cosmology = cosmology
 
-        self.luminosity_function = np.vectorize(
-            lambda lum, z: lumfunc_model(lum, z, **self.model_parameters)
-        )
-
         # HINT: Default value `True` agrees with luminosity function models.
         self._lg_conversion = self.model_parameters.get('base10_log', True)
+
+        # Reconvert luminosity function in base-10 logarithm to normal.
+        if self._lg_conversion:
+            self.luminosity_function = np.vectorize(
+                lambda lum, z: pow(
+                    10, lumfunc_model(lum, z, **self.model_parameters)
+                )
+            )
+        else:
+            self.luminosity_function = np.vectorize(
+                lambda lum, z: lumfunc_model(lum, z, **self.model_parameters)
+            )
 
         self._threshold_variable = self._alias(threshold_variable)
         if self._threshold_variable == 'flux':
@@ -453,10 +461,6 @@ class LumFuncModeller:
                 "`brightness_variable` '{}'. "
                 .format(self._threshold_variable, self.brightness_variable)
             )
-
-        self._comoving_number_density = None
-        self._evolution_bias = None
-        self._magnification_bias = None
 
     @classmethod
     def from_parameters_file(cls, parameter_file, lumfunc_model,
@@ -507,79 +511,75 @@ class LumFuncModeller:
             cosmology=cosmology, **model_parameters
         )
 
-    @property
-    def comoving_number_density(self):
-        r"""Comoving number density.
+    def comoving_number_density(self, redshift):
+        r"""Return the comoving number density at a given redshift.
+
+        Parameters
+        ----------
+        redshift : float array_like
+            Redshift.
 
         Returns
         -------
-        callable
-            Comoving number density (in inverse cubic Mpc/:math:`h`)
-            as a function of redshift.
+        float
+            Comoving number density (in inverse cubic Mpc/:math:`h`).
 
         """
-        if callable(self._comoving_number_density):
-            return self._comoving_number_density
-
-        if self._lg_conversion:
-            def _luminosity_function(*args, **kwargs):
-                return 10**self.luminosity_function(*args, **kwargs)
-        else:
-            _luminosity_function = self.luminosity_function
-
-        self._comoving_number_density = lambda z: np.abs(
+        _comoving_number_density = np.abs(
             quad(
-                _luminosity_function,
-                self.brightness_threshold(z),  # faint end
+                self.luminosity_function,
+                self.brightness_threshold(redshift),  # faint end
                 self.brightness_bound[self.brightness_variable],  # bright end
-                args=(z,)
+                args=(redshift,)
             )[0]
         ) / self.cosmology.h**3
 
-        return np.vectorize(self._comoving_number_density)
+        return _comoving_number_density
 
-    @property
-    def evolution_bias(self):
-        r"""Evolution bias.
+    def evolution_bias(self, redshift):
+        r"""Return the evolution bias at a given redshift.
 
-        Returns
-        -------
-        callable
-            Evolution bias as a function of redshift.
-
-        """
-        if callable(self._evolution_bias):
-            return self._evolution_bias
-
-        self._evolution_bias = lambda z: - (1 + z) * derivative(
-            self.comoving_number_density, z, dx=self.redshift_stepsize
-        ) / self.comoving_number_density(z)
-
-        return np.vectorize(self._evolution_bias)
-
-    @property
-    def magnification_bias(self):
-        r"""Magnification bias.
+        Parameters
+        ----------
+        redshift : float array_like
+            Redshift.
 
         Returns
         -------
-        callable
-            Magnification bias as a function of redshift.
+        float
+            Evolution bias.
 
         """
-        if callable(self._magnification_bias):
-            return self._magnification_bias
+        _evolution_bias = - (1 + redshift) * derivative(
+            self.comoving_number_density, redshift, dx=self.redshift_stepsize
+        ) / self.comoving_number_density(redshift)
 
+        return _evolution_bias
+
+    def magnification_bias(self, redshift):
+        r"""Return the agnification bias at a given redshift.
+
+        Parameters
+        ----------
+        redshift : float array_like
+            Redshift.
+
+        Returns
+        -------
+        float
+            Magnification bias.
+
+        """
         if self.brightness_variable == 'luminosity':
             prefactor = 2/5 * 1/np.log(10)
         elif self.brightness_variable == 'magnitude':
             prefactor = 1/np.log(10)
 
-        self._magnification_bias = lambda z: prefactor \
-            * self.luminosity_function(self.brightness_threshold(z), z) \
-            / self.comoving_number_density(z)
+        _magnification_bias = prefactor * self.luminosity_function(
+            self.brightness_threshold(redshift), redshift
+        ) / self.comoving_number_density(redshift)
 
-        return np.vectorize(self._magnification_bias)
+        return _magnification_bias
 
     @staticmethod
     def _alias(brightness_variable):
