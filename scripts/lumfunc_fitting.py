@@ -106,6 +106,9 @@ def parse_ext_args():
 
     parsed_args = parser.parse_args()
 
+    parsed_args.mode = parsed_args.mode \
+        if parsed_args.task != 'get' else "plot"
+
     parsed_args.chain_file += "_{}_{}_by{}".format(
         parsed_args.nwalkers,
         sci_notation(parsed_args.nsteps),
@@ -331,7 +334,8 @@ def load_chains():
 
     chains_fig, axes = plt.subplots(ndim, figsize=(12, ndim), sharex=True)
 
-    skip_chains = prog_params.nwalkers // 25
+    skip_chains = 1 if prog_params.skip_chains is None \
+        else prog_params.nwalkers // prog_params.skip_chains
     for param_idx in range(ndim):
         ax = axes[param_idx]
         ax.plot(

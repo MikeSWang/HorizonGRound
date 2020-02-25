@@ -54,10 +54,14 @@ def parse_ext_args():
     parser.add_argument('--nsteps', type=int, default=10000)
     parser.add_argument('--thinby', type=int, default=1)
 
+    parser.add_argument('--skipchains', type=int, default=None)
     parser.add_argument('--burnin', type=int, default=None)
     parser.add_argument('--reduce', type=int, default=None)
 
     parsed_args = parser.parse_args()
+
+    parsed_args.mode = parsed_args.mode \
+        if parsed_args.task != 'get' else "plot"
 
     parsed_args.chain_file += "_{}_{}_by{}".format(
         parsed_args.nwalkers,
@@ -227,7 +231,8 @@ def load_chains():
 
     chains_fig, axes = plt.subplots(ndim, figsize=(12, ndim), sharex=True)
 
-    skip_chains = prog_params.nwalkers // 25
+    skip_chains = 1 if prog_params.skip_chains is None \
+        else prog_params.nwalkers // prog_params.skip_chains
     for param_idx in range(ndim):
         ax = axes[param_idx]
         ax.plot(
