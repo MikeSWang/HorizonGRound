@@ -304,14 +304,14 @@ def load_chains():
 
     if prog_params.burnin == 0:
         try:
-            burnin = 2 * int(np.max(tau))
+            burnin = 4 * int(np.max(tau))  # can change 4 to 2
         except ValueError:
             burnin = prog_params.burnin
     else:
         burnin = prog_params.burnin
     if prog_params.reduce == 1:
         try:
-            reduce = int(np.min(tau)) // 2
+            reduce = int(np.min(tau)) // 10  # can change 10 to 2
         except ValueError:
             reduce = prog_params.reduce
     else:
