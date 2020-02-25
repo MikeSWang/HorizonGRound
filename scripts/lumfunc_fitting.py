@@ -218,7 +218,7 @@ def run_sampler():
         step = 0
         current_tau = np.inf
         first_convergence_point = True
-        for sample in sampler.sample(
+        for _ in sampler.sample(
                 ini_pos,
                 iterations=prog_params.nsteps,
                 thin_by=prog_params.thinby,
