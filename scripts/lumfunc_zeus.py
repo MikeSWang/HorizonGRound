@@ -130,7 +130,7 @@ def initialise_sampler():
     elif prog_params.task == "make":
         # Set up sampler and initial state.
         mcmc_sampler = zeus.sampler(
-            log_likelihood, prog_params.nwalkers, dimension, pool=None,
+            log_likelihood, prog_params.nwalkers, dimension, pool=pool,
             kwargs={'use_prior': prog_params.use_prior}
         )
 
