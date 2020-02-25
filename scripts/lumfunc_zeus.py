@@ -219,16 +219,18 @@ def load_chains():
         reduce = prog_params.reduce
 
     chains = mcmc_results['chain'][:, burnin:, :]
-    chain_flat = chains[:, burnin::reduce, :].reshape((-1, ndim), order='F')
+    chain_flat = chains[:, ::reduce, :].reshape((-1, ndim), order='F')
 
     # Visualise chain.
     plt.close('all')
 
     chains_fig, axes = plt.subplots(ndim, figsize=(12, ndim), sharex=True)
+
+    skip_chains = prog_params.nwalkers // 25
     for i in range(ndim):
         ax = axes[i]
         ax.plot(
-            chains[:, ::(prog_params.nwalkers//25), i], 
+            chains[::skip_chains, :, i],
             alpha=0.66, rasterized=True
         )
         ax.set_xlim(0, len(chains))

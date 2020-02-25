@@ -323,17 +323,19 @@ def load_chains():
     else:
         reduce = prog_params.reduce
 
-    # Visualise chain.
     chains = reader.get_chain(discard=burnin, thin=reduce)
     chain_flat = reader.get_chain(flat=True, discard=burnin, thin=reduce)
 
+    # Visualise chain.
     plt.close('all')
 
     chains_fig, axes = plt.subplots(ndim, figsize=(12, ndim), sharex=True)
+
+    skip_chains = prog_params.nwalkers // 25
     for i in range(ndim):
         ax = axes[i]
         ax.plot(
-            chains[:, ::(prog_params.nwalkers//25), i], 
+            chains[:, ::skip_chains, i],
             alpha=0.66, rasterized=True
         )
         ax.set_xlim(0, len(chains))
