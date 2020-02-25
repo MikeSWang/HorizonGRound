@@ -197,7 +197,6 @@ def initialise_sampler():
 
     print("\nStarting positions (walker, parameter)--- ")
     print(initial_state[::(prog_params.nwalkers // 10), :])
-    print("\n")
     print("... (~10 walkers shown)\n")
 
     return mcmc_sampler, initial_state, dimension
