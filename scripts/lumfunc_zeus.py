@@ -200,6 +200,7 @@ def load_chains():
 
     mcmc_results = np.load(mcmc_file).item()
 
+    # Get autocorrelation time, burn-in and thinning.
     tau = mcmc_results['autocorr_time']
 
     if prog_params.burnin is None:
@@ -218,8 +219,8 @@ def load_chains():
     else:
         reduce = prog_params.reduce
 
-    chains = mcmc_results['chain'][:, burnin:, :]
-    chain_flat = chains[:, ::reduce, :].reshape((-1, ndim), order='F')
+    chains = np.swapaxes(mcmc_results['chain'], 0, 1)[burnin:, :, :]
+    chain_flat = chains[::reduce, :, :].reshape((-1, ndim))
 
     # Visualise chain.
     plt.close('all')
@@ -227,27 +228,27 @@ def load_chains():
     chains_fig, axes = plt.subplots(ndim, figsize=(12, ndim), sharex=True)
 
     skip_chains = prog_params.nwalkers // 25
-    for i in range(ndim):
-        ax = axes[i]
+    for param_idx in range(ndim):
+        ax = axes[param_idx]
         ax.plot(
-            chains[::skip_chains, :, i],
+            chains[:, ::skip_chains, param_idx],
             alpha=0.66, rasterized=True
         )
         ax.set_xlim(0, len(chains))
-        ax.set_ylabel(labels[i])
+        ax.set_ylabel(labels[param_idx])
     axes[-1].set_xlabel("steps")
 
     if SAVEFIG:
         chains_fig.savefig(mcmc_file.with_suffix('.chains.pdf'), format='pdf')
 
     chain_flat_fig, axes = plt.subplots(ndim, figsize=(12, ndim), sharex=True)
-    for i in range(ndim):
-        ax = axes[i]
+    for param_idx in range(ndim):
+        ax = axes[param_idx]
         ax.plot(
-            chain_flat[:, i], color=COLOUR, alpha=0.66, rasterized=True
+            chain_flat[:, param_idx], color=COLOUR, alpha=0.66, rasterized=True
         )
         ax.set_xlim(0, len(chain_flat))
-        ax.set_ylabel(labels[i])
+        ax.set_ylabel(labels[param_idx])
     axes[-1].set_xlabel("steps")
 
     if SAVEFIG:
