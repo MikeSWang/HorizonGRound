@@ -87,7 +87,7 @@ def parse_ext_args():
         choices=['continuous', 'dump'], default='continuous'
     )
     parser.add_argument('--quiet', action='store_false')
-    parser.add_argument('--autostop', action='store_false')
+    parser.add_argument('--nonautostop', action='store_true')
     parser.add_argument('--use-prior', action='store_true')
     parser.add_argument('--use-constraint', action='store_true')
 
@@ -236,7 +236,7 @@ def run_sampler():
             current_tau = tau
 
             if converged:
-                if prog_params.autostop:
+                if not prog_params.nonautostop:
                     return current_tau
                 if first_convergence_point:
                     print("Chain converged at step {}.\n".format(step))
