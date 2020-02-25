@@ -207,7 +207,7 @@ def load_chains():
         burnin = prog_params.burnin
     if prog_params.reduce == 1:
         try:
-            reduce = int(np.min(tau)) // 10  # can change 10 to 2
+            reduce = int(np.min(tau)) // 5  # can change 5 to 2
         except ValueError:
             reduce = prog_params.reduce
     else:
@@ -249,9 +249,9 @@ if __name__ == '__main__':
     prog_params = parse_ext_args()
 
     if prog_params.task == 'make':
-        #with Pool() as pool:
-        sampler, ini_pos, ndim = initialise_sampler()
-        autocorr_est = run_sampler()
+        with Pool() as pool:
+            sampler, ini_pos, ndim = initialise_sampler()
+            autocorr_est = run_sampler()
     elif prog_params.task == 'get':
         log_likelihood, prior_ranges, ndim = initialise_sampler()
         autocorr_est = load_chains()

@@ -311,7 +311,7 @@ def load_chains():
         burnin = prog_params.burnin
     if prog_params.reduce == 1:
         try:
-            reduce = int(np.min(tau)) // 10  # can change 10 to 2
+            reduce = int(np.min(tau)) // 5  # can change 5 to 2
         except ValueError:
             reduce = prog_params.reduce
     else:
