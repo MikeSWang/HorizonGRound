@@ -54,7 +54,7 @@ def parse_ext_args():
     parser.add_argument('--nsteps', type=int, default=10000)
     parser.add_argument('--thinby', type=int, default=1)
 
-    parser.add_argument('--skipchains', type=int, default=None)
+    parser.add_argument('--skip-chains', type=int, default=None)
     parser.add_argument('--burnin', type=int, default=None)
     parser.add_argument('--reduce', type=int, default=None)
 
