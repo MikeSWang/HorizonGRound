@@ -228,7 +228,7 @@ def load_chains():
     for i in range(ndim):
         ax = axes[i]
         ax.plot(
-            chains[:, ::(prog_params.nwalkers//5), i], 
+            chains[:, ::(prog_params.nwalkers//25), i], 
             alpha=0.66, rasterized=True
         )
         ax.set_xlim(0, len(chains))
