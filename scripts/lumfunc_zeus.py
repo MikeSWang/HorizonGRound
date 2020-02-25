@@ -184,8 +184,8 @@ def load_chains():
     corner_opt = dict(
         quiet=True, rasterized=True, show_titles=True,
         plot_datapoints=False, plot_contours=True, fill_contours=True,
-        quantiles=QUANTILES, color=COLOUR,
-        levels=levels, label_kwargs={'visible': False},
+        quantiles=QUANTILES, color=COLOUR, levels=levels,
+        label_kwargs={'visible': False},
     )
 
     # Parameter labels.
@@ -219,30 +219,44 @@ def load_chains():
         reduce = prog_params.reduce
 
     chains = mcmc_results['chain'][:, burnin:, :]
-    chain_flat = chain[:, burnin::reduce, :].reshape((-1, ndim), order='F')
+    chain_flat = chains[:, burnin::reduce, :].reshape((-1, ndim), order='F')
 
     # Visualise chain.
     plt.close('all')
 
-    chain_fig, axes = plt.subplots(ndim, figsize=(10, ndim), sharex=True)
+    chains_fig, axes = plt.subplots(ndim, figsize=(12, ndim), sharex=True)
     for i in range(ndim):
         ax = axes[i]
         ax.plot(
-            chains[::(prog_params.nwalkers//10), :, i],
+            chains[:, ::(prog_params.nwalkers//5), i], 
             alpha=0.66, rasterized=True
         )
-        ax.set_xlim(0, len(chain))
+        ax.set_xlim(0, len(chains))
         ax.set_ylabel(labels[i])
     axes[-1].set_xlabel("steps")
 
     if SAVEFIG:
-        chain_fig.savefig(mcmc_file.with_suffix('.chain.pdf'), format='pdf')
+        chains_fig.savefig(mcmc_file.with_suffix('.chains.pdf'), format='pdf')
+
+    chain_flat_fig, axes = plt.subplots(ndim, figsize=(12, ndim), sharex=True)
+    for i in range(ndim):
+        ax = axes[i]
+        ax.plot(
+            chain_flat[:, i], color=COLOUR, alpha=0.66, rasterized=True
+        )
+        ax.set_xlim(0, len(chain_flat))
+        ax.set_ylabel(labels[i])
+    axes[-1].set_xlabel("steps")
+
+    if SAVEFIG:
+        chain_flat_fig.savefig(
+            mcmc_file.with_suffix('.flatchain.pdf'), format='pdf'
+        )
 
     contour_fig = corner.corner(chain_flat, labels=labels, **corner_opt)
+
     if SAVEFIG:
-        contour_fig.savefig(
-            mcmc_file.with_suffix('.contour.pdf'), format='pdf'
-        )
+        contour_fig.savefig(mcmc_file.with_suffix('.pdf'), format='pdf')
 
     return tau
 

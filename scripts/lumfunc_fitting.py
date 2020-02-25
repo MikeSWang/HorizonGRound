@@ -282,8 +282,8 @@ def load_chains():
     corner_opt = dict(
         quiet=True, rasterized=True, show_titles=True,
         plot_datapoints=False, plot_contours=True, fill_contours=True,
-        quantiles=QUANTILES, color=COLOUR,
-        levels=levels, label_kwargs={'visible': False},
+        quantiles=QUANTILES, color=COLOUR, levels=levels,
+        label_kwargs={'visible': False},
     )
 
     # Parameter labels.
@@ -300,6 +300,7 @@ def load_chains():
         mcmc_file.with_suffix('.h5'), read_only=True
     )
 
+    # Get autocorrelation time, burn-in and thinning.
     try:
         tau = reader.get_autocorr_time()
     except AutocorrError as ae:
@@ -322,32 +323,45 @@ def load_chains():
     else:
         reduce = prog_params.reduce
 
+    # Visualise chain.
     chains = reader.get_chain(discard=burnin, thin=reduce)
     chain_flat = reader.get_chain(flat=True, discard=burnin, thin=reduce)
 
-    # Visualise chain.
     plt.close('all')
 
-    chain_fig, axes = plt.subplots(ndim, figsize=(10, ndim), sharex=True)
+    chains_fig, axes = plt.subplots(ndim, figsize=(12, ndim), sharex=True)
     for i in range(ndim):
         ax = axes[i]
         ax.plot(
-            chain[:, ::(prog_params.nwalkers//10), i], 
+            chains[:, ::(prog_params.nwalkers//5), i], 
             alpha=0.66, rasterized=True
         )
-        ax.set_xlim(0, len(chain))
+        ax.set_xlim(0, len(chains))
         ax.set_ylabel(labels[i])
     axes[-1].set_xlabel("steps")
 
     if SAVEFIG:
-        chain_fig.savefig(mcmc_file.with_suffix('.chain.pdf'), format='pdf')
+        chains_fig.savefig(mcmc_file.with_suffix('.chains.pdf'), format='pdf')
+
+    chain_flat_fig, axes = plt.subplots(ndim, figsize=(12, ndim), sharex=True)
+    for i in range(ndim):
+        ax = axes[i]
+        ax.plot(
+            chain_flat[:, i], color=COLOUR, alpha=0.66, rasterized=True
+        )
+        ax.set_xlim(0, len(chain_flat))
+        ax.set_ylabel(labels[i])
+    axes[-1].set_xlabel("steps")
+
+    if SAVEFIG:
+        chain_flat_fig.savefig(
+            mcmc_file.with_suffix('.flatchain.pdf'), format='pdf'
+        )
 
     contour_fig = corner.corner(chain_flat, labels=labels, **corner_opt)
 
     if SAVEFIG:
-        contour_fig.savefig(
-            mcmc_file.with_suffix('.contour.pdf'), format='pdf'
-        )
+        contour_fig.savefig(mcmc_file.with_suffix('.pdf'), format='pdf')
 
     return tau
 
