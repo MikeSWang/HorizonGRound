@@ -54,8 +54,8 @@ def parse_ext_args():
     parser.add_argument('--nsteps', type=int, default=10000)
     parser.add_argument('--thinby', type=int, default=1)
 
-    parser.add_argument('--burnin', type=int, default=0)
-    parser.add_argument('--reduce', type=int, default=1)
+    parser.add_argument('--burnin', type=int, default=None)
+    parser.add_argument('--reduce', type=int, default=None)
 
     parsed_args = parser.parse_args()
 
@@ -135,6 +135,10 @@ def initialise_sampler():
             size=(prog_params.nwalkers, dimension)
         )
 
+        print("\nStarting positions (walker, parameter)--- ")
+        print(initial_state[::(prog_params.nwalkers//10), :])
+        print("\n")
+
         return mcmc_sampler, initial_state, dimension
 
 
@@ -178,7 +182,7 @@ def load_chains():
     QUANTILES = [0.1587, 0.5, 0.8413]
     levels = 1.0 - np.exp(- np.square([1, 2]) / 2)
     corner_opt = dict(
-        quiet=True, rasterized=True, show_titles=True, use_math_text=True,
+        quiet=True, rasterized=True, show_titles=True,
         plot_datapoints=False, plot_contours=True, fill_contours=True,
         quantiles=QUANTILES, color=COLOUR,
         levels=levels, label_kwargs={'visible': False},
@@ -198,33 +202,34 @@ def load_chains():
 
     tau = mcmc_results['autocorr_time']
 
-    if prog_params.burnin == 0:
+    if prog_params.burnin is None:
         try:
             burnin = 4 * int(np.max(tau))  # can change 4 to 2
         except ValueError:
-            burnin = prog_params.burnin
+            burnin = 0
     else:
         burnin = prog_params.burnin
-    if prog_params.reduce == 1:
+
+    if prog_params.reduce is None:
         try:
             reduce = int(np.min(tau)) // 5  # can change 5 to 2
         except ValueError:
-            reduce = prog_params.reduce
+            reduce = 1
     else:
         reduce = prog_params.reduce
 
-    chain = mcmc_results['chain']
+    chains = mcmc_results['chain'][:, burnin:, :]
     chain_flat = chain[:, burnin::reduce, :].reshape((-1, ndim), order='F')
 
     # Visualise chain.
     plt.close('all')
 
-    chain_fig, axes = plt.subplots(ndim, figsize=(ndim, 7), sharex=True)
+    chain_fig, axes = plt.subplots(ndim, figsize=(10, ndim), sharex=True)
     for i in range(ndim):
         ax = axes[i]
         ax.plot(
-            chain[:, ::(prog_params.nwalkers//10), i],
-            color=COLOUR, alpha=0.66, rasterized=True
+            chains[::(prog_params.nwalkers//10), :, i],
+            alpha=0.66, rasterized=True
         )
         ax.set_xlim(0, len(chain))
         ax.set_ylabel(labels[i])
@@ -257,6 +262,6 @@ if __name__ == '__main__':
         autocorr_est = load_chains()
 
     print(
-        "\nAuto-correlation estimate: {}.\n"
+        "\nAuto-correlation time estimate: {}.\n"
         .format(["{:.2f}".format(act) for act in autocorr_est])
     )
