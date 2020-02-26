@@ -14,10 +14,13 @@ Examples
 >>> print(likelihood(list(parameter_set.values()), use_prior=True))
 
 """
+import os
 from argparse import ArgumentParser
 from datetime import datetime
 from multiprocessing import Pool
 from pprint import pformat
+
+os.environ["OMP_NUM_THREADS"] = '1'
 
 import corner
 import emcee as mc
