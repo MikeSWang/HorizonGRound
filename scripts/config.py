@@ -1,6 +1,7 @@
 """Configuration for scripts.
 
 """
+import logging
 import os
 import sys
 from pathlib import Path
@@ -31,6 +32,28 @@ def use_local_package(package_paths):
     else:
         package_paths = os.path.abspath(package_paths)
         sys.path.insert(0, package_paths)
+
+
+def setup_logger():
+    """Return the root logger suitably formatted.
+
+    Returns
+    -------
+    logger : :class:`logging.Logger`
+        Formatted root logger.
+
+    """
+    _logger = logging.getLogger()
+    logging_handler = logging.StreamHandler(sys.stdout)
+    logging_formatter = logging.Formatter(
+        fmt='[%(asctime)s %(levelname)s] %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+
+    logging_handler.setFormatter(logging_formatter)
+    _logger.addHandler(logging_handler)
+
+    return _logger
 
 
 def major_version(package):
@@ -72,16 +95,22 @@ def sci_notation(num):
 
     return num_str
 
+
+# Path variables.
+PATH = Path("../data/")
+PATHEXT = Path("../data/external")
+PATHIN = Path("../data/input")
+PATHOUT = Path("../data/output")
+
+# Visualisation settings.
 mpl.pyplot.style.use(
     mpl.rc_params_from_file(
         "../config/horizon.mplstyle",
         use_default_template=False
     )
 )
-
 sns.set(style='ticks', font='serif')
 
-PATH = Path("../data/")
-PATHEXT = Path("../data/external")
-PATHIN = Path("../data/input")
-PATHOUT = Path("../data/output")
+# Logging facilities.
+logger = setup_logger()
+logger.setLevel(logging.INFO)

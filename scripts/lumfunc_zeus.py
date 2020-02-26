@@ -4,7 +4,7 @@ r"""Luminosity function model fitting with ``zeus``.
 import os
 from argparse import ArgumentParser
 from multiprocessing import Pool
-from pprint import pprint
+from pprint import pformat
 
 os.environ['OMP_NUM_THREADS'] = '1'
 
@@ -13,7 +13,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import zeus
 
-from config import PATHEXT, PATHIN, PATHOUT, sci_notation, use_local_package
+from config import PATHEXT, PATHIN, PATHOUT
+from config import logger
+from config import sci_notation, use_local_package
 
 use_local_package("../../HorizonGRound/")
 
@@ -69,9 +71,9 @@ def parse_ext_args():
         parsed_args.thinby
     )
 
-    print("\nProgram configuration--- ")
-    pprint(vars(parsed_args))
-    print("\n")
+    logger.info(
+        "\n---Program configuration---\n%s\n", pformat(vars(parsed_args))
+    )
 
     return parsed_args
 
@@ -112,14 +114,15 @@ def initialise_sampler():
         model_constraint=lumfunc_model_constraint
     )
 
-    print("\nPrior parameters--- ")
-    pprint(dict(log_likelihood.prior.items()))
-    print("\n")
-
+    logger.info(
+        "\n---Prior parameters---\n%s\n",
+        pformat(dict(log_likelihood.prior.items()))
+    )
     if log_likelihood.fixed:
-        print("\nFixed parameters--- ")
-        pprint(dict(log_likelihood.fixed.items()))
-        print("\n")
+        logger.info(
+            "\n---Fixed parameters---\n%s\n",
+            pformat(dict(log_likelihood.fixed.items()))
+        )
 
     # Set up numerics.
     dimension = len(log_likelihood.prior)
@@ -127,23 +130,34 @@ def initialise_sampler():
 
     if prog_params.task == "get":
         return log_likelihood, prior_ranges, dimension
-    elif prog_params.task == "make":
-        # Set up sampler and initial state.
-        mcmc_sampler = zeus.sampler(
-            log_likelihood, prog_params.nwalkers, dimension, pool=pool,
-            kwargs={'use_prior': prog_params.use_prior}
+
+    if prog_params.task == "make":
+        pass
+
+    # Set up sampler and initial state.
+    mcmc_sampler = zeus.sampler(
+        log_likelihood, prog_params.nwalkers, dimension, pool=pool,
+        kwargs={'use_prior': prog_params.use_prior}
+    )
+
+    initial_state = np.random.uniform(
+        low=prior_ranges[:, 0], high=prior_ranges[:, -1],
+        size=(prog_params.nwalkers, dimension)
+    )
+
+    logger.info(
+        "\n---Starting positions (~10 walkers, parameters)---\n%s...\n",
+        pformat(
+            np.array2string(
+                initial_state[::(prog_params.nwalkers // 10), :],
+                precision=2
+            )
+            .strip("(").strip(")")
+            .replace("' ", "").replace("'", "").replace("\\n", "")
         )
+    )
 
-        initial_state = np.random.uniform(
-            low=prior_ranges[:, 0], high=prior_ranges[:, -1],
-            size=(prog_params.nwalkers, dimension)
-        )
-
-        print("\nStarting positions (walker, parameter)--- ")
-        print(initial_state[::(prog_params.nwalkers//10), :])
-        print("... (~10 walkers shown)\n")
-
-        return mcmc_sampler, initial_state, dimension
+    return mcmc_sampler, initial_state, dimension
 
 
 def run_sampler():
@@ -200,9 +214,9 @@ def load_chains():
     # Load the chain.
     mcmc_file = (PATHOUT/prog_params.chain_file).with_suffix('.npy')
 
-    print("\nLoading chain file: {}.npy.\n".format(mcmc_file.stem))
-
     mcmc_results = np.load(mcmc_file).item()
+
+    logger.info("Loaded chain file: %s.npy.\n", mcmc_file.stem)
 
     # Get autocorrelation time, burn-in and thinning.
     tau = mcmc_results['autocorr_time']
@@ -283,7 +297,7 @@ if __name__ == '__main__':
         log_likelihood, prior_ranges, ndim = initialise_sampler()
         autocorr_est = load_chains()
 
-    print(
-        "\nAuto-correlation time estimate: {}.\n"
-        .format(["{:.2f}".format(act) for act in autocorr_est])
+    logger.info(
+        "Auto-correlation time estimate: %s",
+        ["{:.1f}".format(act) for act in autocorr_est]
     )

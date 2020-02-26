@@ -18,7 +18,7 @@ import os
 from argparse import ArgumentParser
 from datetime import datetime
 from multiprocessing import Pool
-from pprint import pprint
+from pprint import pformat
 
 os.environ['OMP_NUM_THREADS'] = '1'
 
@@ -28,7 +28,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from emcee.autocorr import AutocorrError
 
-from config import PATHEXT, PATHIN, PATHOUT, sci_notation, use_local_package
+from config import PATHEXT, PATHIN, PATHOUT
+from config import logger
+from config import sci_notation, use_local_package
 
 use_local_package("../../HorizonGRound/")
 
@@ -116,9 +118,9 @@ def parse_ext_args():
         parsed_args.thinby
     )
 
-    print("\nProgram configuration--- ")
-    pprint(vars(parsed_args))
-    print("\n")
+    logger.info(
+        "\n---Program configuration---\n%s\n", pformat(vars(parsed_args))
+    )
 
     return parsed_args
 
@@ -159,14 +161,15 @@ def initialise_sampler():
         model_constraint=lumfunc_model_constraint
     )
 
-    print("\nPrior parameters--- ")
-    pprint(dict(log_likelihood.prior.items()))
-    print("\n")
-
+    logger.info(
+        "\n---Prior parameters---\n%s\n",
+        pformat(dict(log_likelihood.prior.items()))
+    )
     if log_likelihood.fixed:
-        print("\nFixed parameters--- ")
-        pprint(dict(log_likelihood.fixed.items()))
-        print("\n")
+        logger.info(
+            "\n---Fixed parameters---\n%s\n",
+            pformat(dict(log_likelihood.fixed.items()))
+        )
 
     # Set up numerics.
     dimension = len(log_likelihood.prior)
@@ -195,9 +198,17 @@ def initialise_sampler():
         size=(prog_params.nwalkers, dimension)
     )
 
-    print("\nStarting positions (walker, parameter)--- ")
-    print(initial_state[::(prog_params.nwalkers // 10), :])
-    print("... (~10 walkers shown)\n")
+    logger.info(
+        "\n---Starting positions (~10 walkers, parameters)---\n%s...\n",
+        pformat(
+            np.array2string(
+                initial_state[::(prog_params.nwalkers // 10), :],
+                precision=2
+            )
+            .strip("(").strip(")")
+            .replace("' ", "").replace("'", "").replace("\\n", "")
+        )
+    )
 
     return mcmc_sampler, initial_state, dimension
 
@@ -244,11 +255,14 @@ def run_sampler():
             current_tau = tau
 
             if converged:
+                if first_convergence_point:
+                    logger.info(
+                        "Chain converged after %i samples.\n",
+                        prog_params.nwalkers * step
+                    )
+                    first_convergence_point = False
                 if not prog_params.nonautostop:
                     return current_tau
-                if first_convergence_point:
-                    print("Chain converged at step {}.\n".format(step))
-                    first_convergence_point = False
 
         return autocorr_estimate[-1]
 
@@ -298,17 +312,17 @@ def load_chains():
     # Load the chain.
     mcmc_file = PATHOUT/prog_params.chain_file
 
-    print("\nLoading chain file: {}.h5.\n".format(mcmc_file.stem))
-
     reader = mc.backends.HDFBackend(
         mcmc_file.with_suffix('.h5'), read_only=True
     )
 
+    logger.info("Loaded chain file: %s.h5.\n", mcmc_file.stem)
+
     # Get autocorrelation time, burn-in and thinning.
     try:
         tau = reader.get_autocorr_time()
-    except AutocorrError as ae:
-        print("\n", ae, "\n")
+    except AutocorrError as act_warning:
+        logger.warning(act_warning)
         tau = [np.nan] * len(labels)
 
     if prog_params.burnin is None:
@@ -386,7 +400,7 @@ if __name__ == '__main__':
         log_likelihood, prior_ranges, ndim = initialise_sampler()
         autocorr_est = load_chains()
 
-    print(
-        "\nAuto-correlation time estimate: {}.\n"
-        .format(["{:.2f}".format(act) for act in autocorr_est])
+    logger.info(
+        "Auto-correlation time estimate: %s",
+        ["{:.1f}".format(act) for act in autocorr_est]
     )
