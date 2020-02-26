@@ -204,7 +204,7 @@ def initialise_sampler():
         pformat(
             np.array2string(
                 initial_state[::(prog_params.nwalkers // 10), :],
-                formatter={'float_kind': lambda x: '{:.2f}'.format(x)}
+                formatter={'float_kind': '{:.2f}'.format}
             )
         )
         .replace("(", "").replace(")", "")

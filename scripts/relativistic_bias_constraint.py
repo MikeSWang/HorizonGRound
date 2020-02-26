@@ -18,7 +18,13 @@ use_local_package("../../HorizonGRound/")
 import horizonground.lumfunc_modeller as modeller
 from horizonground.lumfunc_modeller import LumFuncModeller
 
-PARAMETERS = None
+PARAMETERS = [
+    'M_{g\\ast}(z_\\textrm{p})', '\\lg\\Phi_\\ast',
+    '\\alpha_\\textrm{l}', '\\alpha_\\textrm{h}',
+    '\\beta_\\textrm{l}', '\\beta_\\textrm{h}',
+    'k_{1\\textrm{l}}', 'k_{1\\textrm{h}}',
+    'k_{2\\textrm{l}}', 'k_{2\\textrm{h}}',
+]
 LABELS = [r'$f_\textrm{e}$', r'$s$']
 
 
@@ -98,20 +104,24 @@ def read_chains():
     return flat_chain
 
 
-def sample_biases(chains):
-    """Extract samples of relativistic biases from chains.
+def sample_biases(lumfunc_model_chains):
+    """Extract samples of relativistic biases from luminosity function
+    parameter chains.
 
     Parameters
     ----------
-    chains :
-        Chains.
+    lumfunc_model_chains :
+        Luminosity function parameter chains.
 
     Returns
     -------
-    samples :
+    bias_samples :
         Relativistic bias samples.
 
     """
+    bias_samples = lumfunc_model_chains  # FIXME
+
+    return bias_samples
 
 
 def view_chain(chain):
@@ -163,7 +173,7 @@ def view_chain(chain):
 
     if SAVEFIG:
         chain_fig.savefig(output_file.with_suffix('.chain.pdf'), format='pdf')
-    logger.info("Saved plot of extracted chains.\n")
+    logger.info("Saved chain plot of relativistic bias samples.\n")
 
     contour_fig = corner.corner(chain, bins=100, smooth=0.4, **corner_opt)
 
@@ -176,6 +186,6 @@ def view_chain(chain):
 
 if __name__ == '__main__':
     progrc = initialise()
-    chain = read_chains()
-    rechain = sample_biases(chain)
+    inchain = read_chains()
+    rechain = sample_biases(inchain)
     figures = view_chain(rechain)
