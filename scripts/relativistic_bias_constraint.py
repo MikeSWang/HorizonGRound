@@ -8,14 +8,13 @@ import corner
 import emcee as mc
 import matplotlib.pyplot as plt
 import numpy as np
+from astropy import cosmology
 
-from config import PATHIN, PATHOUT
-from config import logger
-from config import use_local_package
+from config import PATHOUT, logger, use_local_package
 
 use_local_package("../../HorizonGRound/")
 
-import horizonground.lumfunc_modeller as modeller
+import horizonground.lumfunc_modeller as lumfunc_modeller
 from horizonground.lumfunc_modeller import LumFuncModeller
 
 PARAMETERS = [
@@ -39,12 +38,13 @@ def initialise():
     """
     parser = ArgumentParser("relativistic-bias-constraint")
 
-    parser.add_argument('--model-name', type=str, default=None)
+    parser.add_argument('--redshift', type=float, default=2.)
+
+    parser.add_argument('--model-name', type=str, default='quasar_PLE_model')
     parser.add_argument('--chain-file', type=str, default=None)
 
     parser.add_argument('--burnin', type=int, default=None)
     parser.add_argument('--reduce', type=int, default=None)
-    parser.add_argument('--quiet', action='store_false')
 
     program_configuration = parser.parse_args()
 
@@ -65,13 +65,14 @@ def read_chains():
         Flattened chains.
 
     """
-    chain_file = PATHIN/progrc.chainfile
+    chain_file = PATHOUT/progrc.chain_file
 
     # Read chains into memory.
-    reader = mc.backends.HDFBackend(
-        chain_file.with_suffix('.h5'), read_only=True
-    )
-    logger.info("Loaded chain file: %s.h5.\n", chain_file.stem)
+    if chain_file.suffix == '.h5':
+        reader = mc.backends.HDFBackend(chain_file, read_only=True)
+    elif chain_file.suffix == '.npy':
+        pass  # FIXME
+    logger.info("Loaded chain file: %s.\n", chain_file)
 
     # Process chains by burn-in and thinning.
     try:
@@ -119,7 +120,23 @@ def sample_biases(lumfunc_model_chains):
         Relativistic bias samples.
 
     """
-    bias_samples = lumfunc_model_chains  # FIXME
+    lumfunc_model = getattr(lumfunc_modeller, progrc.model_name)
+
+    modeller_args = (
+        BRIGHTNESS_VARIABLE, THRESHOLD_VALUE, THRESHOLD_VARIABLE, COSMOLOGY
+    )
+
+    bias_samples = np.zeros((len(lumfunc_model_chains), len(LABELS)))
+    for chain_step, chain_params in enumerate(lumfunc_model_chains):
+        model_parameters = dict(zip(PARAMETERS, chain_params))
+        modeller = LumFuncModeller(
+            lumfunc_model, *modeller_args, base10_log=BASE10_LOG,
+            **model_parameters
+        )
+        bias_samples[chain_step] = (
+            modeller.evolution_bias(progrc.redshift),
+            modeller.magnification_bias(progrc.redshift)
+        )
 
     return bias_samples
 
@@ -144,7 +161,7 @@ def view_chain(chain):
     SAVEFIG = True
 
     ndim = len(LABELS)
-    output_file = PATHOUT/progrc.chainfile
+    output_file = PATHOUT/progrc.chain_file
     corner_opt = dict(
         color=COLOUR,
         fill_contours=True,
@@ -184,7 +201,14 @@ def view_chain(chain):
     return chain_fig, contour_fig
 
 
+BRIGHTNESS_VARIABLE = 'magnitude'
+THRESHOLD_VARIABLE = 'magnitude'
+THRESHOLD_VALUE = -21.80
+BASE10_LOG = True
+COSMOLOGY = cosmology.Planck15
+
 if __name__ == '__main__':
+
     progrc = initialise()
     inchain = read_chains()
     rechain = sample_biases(inchain)

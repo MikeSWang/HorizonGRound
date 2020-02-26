@@ -42,7 +42,6 @@ def parse_ext_args():
         '--mode', type=str.lower,
         choices=['continuous', 'dump'], default='dump'
     )
-    parser.add_argument('--quiet', action='store_false')
     parser.add_argument('--use-prior', action='store_true')
     parser.add_argument('--use-constraint', action='store_true')
 
