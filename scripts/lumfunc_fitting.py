@@ -301,7 +301,7 @@ def load_chains():
         quiet=True, rasterized=True, show_titles=True,
         plot_datapoints=False, plot_contours=True, fill_contours=True,
         quantiles=QUANTILES, color=COLOUR, levels=levels,
-        label_kwargs={'visible': False},
+        label_kwargs={'visible': False}, bins=100, smooth=0.4,
     )
 
     # Parameter labels.
@@ -364,6 +364,7 @@ def load_chains():
 
     if SAVEFIG:
         chains_fig.savefig(mcmc_file.with_suffix('.chains.pdf'), format='pdf')
+    logger.info("Saved plot of chains.\n")
 
     chain_flat_fig, axes = plt.subplots(ndim, figsize=(12, ndim), sharex=True)
     for param_idx in range(ndim):
@@ -379,11 +380,13 @@ def load_chains():
         chain_flat_fig.savefig(
             mcmc_file.with_suffix('.flatchain.pdf'), format='pdf'
         )
+    logger.info("Saved plot of flattened chains.\n")
 
     contour_fig = corner.corner(chain_flat, labels=labels, **corner_opt)
 
     if SAVEFIG:
         contour_fig.savefig(mcmc_file.with_suffix('.pdf'), format='pdf')
+    logger.info("Saved contour plot.\n")
 
     return tau
 
