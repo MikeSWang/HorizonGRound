@@ -200,11 +200,12 @@ def initialise_sampler():
         pformat(
             np.array2string(
                 initial_state[::(prog_params.nwalkers // 10), :],
-                precision=2
+                formatter={'float_kind': lambda x: '{:.2f}'.format(x)}
             )
-            .strip("(").strip(")")
-            .replace("' ", "").replace("'", "").replace("\\n", "")
         )
+        .replace("(", "").replace(")", "")
+        .replace("' ", "").replace("'", "")
+        .replace("\\n", "")
     )
 
     return mcmc_sampler, initial_state, dimension
