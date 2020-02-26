@@ -318,7 +318,7 @@ def load_chains():
 
     logger.info("Loaded chain file: %s.h5.\n", mcmc_file.stem)
 
-    # Get autocorrelation time, burn-in and thinning.
+    # Get autocorrelation time, burn-in and thin.
     try:
         tau = reader.get_autocorr_time()
     except AutocorrError as act_warning:
@@ -340,6 +340,8 @@ def load_chains():
             reduce = 1
     else:
         reduce = prog_params.reduce
+
+    logger.info("Burn-in set to %i. Thinning set to %i.\n", burnin, reduce)
 
     chains = reader.get_chain(discard=burnin, thin=reduce)
     chain_flat = reader.get_chain(flat=True, discard=burnin, thin=reduce)

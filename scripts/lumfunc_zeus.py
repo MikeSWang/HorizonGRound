@@ -218,7 +218,7 @@ def load_chains():
 
     logger.info("Loaded chain file: %s.npy.\n", mcmc_file.stem)
 
-    # Get autocorrelation time, burn-in and thinning.
+    # Get autocorrelation time, burn-in and thin.
     tau = mcmc_results['autocorr_time']
 
     if prog_params.burnin is None:
@@ -236,6 +236,8 @@ def load_chains():
             reduce = 1
     else:
         reduce = prog_params.reduce
+
+    logger.info("Burn-in set to %i. Thinning set to %i.\n", burnin, reduce)
 
     chains = np.swapaxes(mcmc_results['chain'], 0, 1)[burnin:, :, :]
     chain_flat = chains[::reduce, :, :].reshape((-1, ndim))
