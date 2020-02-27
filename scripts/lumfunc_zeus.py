@@ -165,7 +165,7 @@ def initialise_sampler():
 
     logger.info(
         "\n---Starting positions (~10 walkers, parameters)---\n%s\n%s...\n",
-        list(log_likelihood.prior.keys()),
+        pformat(list(log_likelihood.prior.keys()), width=79, compact=True),
         pformat(
             np.array2string(
                 initial_state[::(prog_params.nwalkers // 10), :],

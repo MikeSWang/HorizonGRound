@@ -219,7 +219,7 @@ def initialise_sampler():
 
     logger.info(
         "\n---Starting positions (~10 walkers, parameters)---\n%s\n%s...\n",
-        list(log_likelihood.prior.keys()),
+        pformat(list(log_likelihood.prior.keys()), width=79, compact=True),
         pformat(
             np.array2string(
                 initial_state[::(prog_params.nwalkers // 10), :],
@@ -334,7 +334,7 @@ def load_chains():
     mcmc_file = PATHOUT/prog_params.chain_file
 
     reader = mc.backends.HDFBackend(
-        mcmc_file.with_suffix('.h5'), read_only=True
+        mcmc_file.with_suffix('.h5'), read_only=True, name='2020-02-26 19:54:27.327303'
     )
 
     logger.info("Loaded chain file: %s.h5.\n", mcmc_file.stem)
