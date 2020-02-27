@@ -197,7 +197,7 @@ def initialise_sampler():
 
         if lumfunc_model_constraint:
             _ini_pos = []
-            while len(ini_pos) < prog_params.nwalkers:
+            while len(_ini_pos) < prog_params.nwalkers:
                 criterion = False
                 while not criterion:
                     pos = np.random.uniform(
