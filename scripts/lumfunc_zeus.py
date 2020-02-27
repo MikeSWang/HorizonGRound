@@ -223,8 +223,9 @@ def load_chains():
     corner_opt = dict(
         quiet=True, rasterized=True, show_titles=True,
         plot_datapoints=False, plot_contours=True, fill_contours=True,
-        quantiles=QUANTILES, color=COLOUR, levels=levels,
-        label_kwargs={'visible': False}, bins=100, smooth=0.4,
+        quantiles=QUANTILES, levels=levels, color=COLOUR,
+        truth_color='#7851a9', label_kwargs={'visible': False},
+        bins=100, smooth=0.4,
     )
 
     # Parameter labels.
