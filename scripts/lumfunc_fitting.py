@@ -209,7 +209,7 @@ def initialise_sampler():
         else:
             _ini_pos = np.random.uniform(
                 prior_ranges[:, 0], prior_ranges[:, -1],
-                size=(prog_params.nwalkers, ndim)
+                size=(prog_params.nwalkers, dimension)
             )
 
         return np.asarray(_ini_pos)
