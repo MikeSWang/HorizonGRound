@@ -16,7 +16,6 @@ Examples
 """
 import os
 from argparse import ArgumentParser
-from datetime import datetime
 from multiprocessing import Pool
 from pprint import pformat
 
@@ -249,45 +248,57 @@ def run_sampler():
     CONVERGENCE_TOL = 0.01
 
     if prog_params.mode == 'continuous':
-        autocorr_estimate = []
-        step = 0
-        current_tau = np.inf
-        first_convergence_point = True
-        for _ in sampler.sample(
-                ini_pos,
-                iterations=prog_params.nsteps,
+        if prog_params.task == 'make':
+            autocorr_estimate = []
+            step = 0
+            current_tau = np.inf
+            first_convergence_point = True
+            for _ in sampler.sample(
+                    ini_pos,
+                    iterations=prog_params.nsteps,
+                    thin_by=prog_params.thinby,
+                    progress=prog_params.quiet
+                ):
+                # Record at knot points.
+                if sampler.iteration % KNOT_LENGTH:
+                    continue
+
+                tau = sampler.get_autocorr_time(tol=0)
+
+                autocorr_estimate.append(tau)
+                step += 1
+
+                # Break at convergence.
+                converged = np.all(
+                    KNOT_LENGTH * tau < sampler.iteration
+                ) & np.all(
+                    np.abs(tau - current_tau) < CONVERGENCE_TOL * current_tau
+                )
+
+                current_tau = tau
+
+                if converged:
+                    if first_convergence_point:
+                        logger.info(
+                            "Chain converged after %i samples.\n",
+                            prog_params.nwalkers * step
+                        )
+                        first_convergence_point = False
+                    if not prog_params.nonautostop:
+                        return current_tau
+
+            return autocorr_estimate[-1]
+
+        if prog_params.task == 'resume':
+            sampler.run_mcmc(
+                ini_pos, prog_params.nsteps,
                 thin_by=prog_params.thinby,
                 progress=prog_params.quiet
-            ):
-            # Record at knot points.
-            if sampler.iteration % KNOT_LENGTH:
-                continue
-
-            tau = sampler.get_autocorr_time(tol=0)
-
-            autocorr_estimate.append(tau)
-            step += 1
-
-            # Break at convergence.
-            converged = np.all(
-                KNOT_LENGTH * tau < sampler.iteration
-            ) & np.all(
-                np.abs(tau - current_tau) < CONVERGENCE_TOL * current_tau
             )
 
-            current_tau = tau
+            autocorr = sampler.get_autocorr_time()
 
-            if converged:
-                if first_convergence_point:
-                    logger.info(
-                        "Chain converged after %i samples.\n",
-                        prog_params.nwalkers * step
-                    )
-                    first_convergence_point = False
-                if not prog_params.nonautostop:
-                    return current_tau
-
-        return autocorr_estimate[-1]
+            return autocorr_estimate[-1]
 
     if prog_params.mode.startswith('dump'):
         sampler.run_mcmc(
