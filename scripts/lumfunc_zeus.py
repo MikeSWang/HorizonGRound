@@ -6,7 +6,7 @@ from argparse import ArgumentParser
 from multiprocessing import Pool
 from pprint import pformat
 
-os.environ["OMP_NUM_THREADS"] = '1'
+os.environ['OMP_NUM_THREADS'] = '1'
 
 import corner
 import matplotlib.pyplot as plt
@@ -139,10 +139,29 @@ def initialise_sampler():
         kwargs={'use_prior': prog_params.use_prior}
     )
 
-    initial_state = np.random.uniform(
-        low=prior_ranges[:, 0], high=prior_ranges[:, -1],
-        size=(prog_params.nwalkers, dimension)
-    )
+    def _initialise_state():
+
+        if lumfunc_model_constraint:
+            _ini_pos = []
+            while len(ini_pos) < prog_params.nwalkers:
+                criterion = False
+                while not criterion:
+                    pos = np.random.uniform(
+                        prior_ranges[:, 0], prior_ranges[:, -1]
+                    )
+                    criterion = lumfunc_model_constraint(
+                        dict(zip(log_likelihood.prior.keys(), pos))
+                    )
+                _ini_pos.append(pos)
+        else:
+            _ini_pos = np.random.uniform(
+                prior_ranges[:, 0], prior_ranges[:, -1],
+                size=(prog_params.nwalkers, ndim)
+            )
+
+        return np.asarray(_ini_pos)
+
+    initial_state = _initialise_state()
 
     logger.info(
         "\n---Starting positions (~10 walkers, parameters)---\n%s\n%s...\n",

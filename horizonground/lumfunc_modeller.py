@@ -216,8 +216,8 @@ def quasar_PLE_model(magnitude, redshift, redshift_pivot=2.2, base10_log=True,
 
 
 def quasar_PLE_model_constraint(model_parameters):
-    """Impose the pure luminosity evolution (PLE) model constraint on
-    model parameters as a logrithmic prior distribution.
+    """Check the pure luminosity evolution (PLE) model constraint on
+    model parameters.
 
     Parameters
     ----------
@@ -226,21 +226,17 @@ def quasar_PLE_model_constraint(model_parameters):
 
     Returns
     -------
-    log_prior : {0., ``-numpy.inf``}, float
-        Constraint logarithmic prior.
+    bool
+        Whether constraint is satisfied or not.
 
     """
-    constraint = (
+    return (
         model_parameters[r'\alpha_\textrm{l}']
         < model_parameters[r'\beta_\textrm{l}']
     ) and (
         model_parameters[r'\alpha_\textrm{h}']
         < model_parameters[r'\beta_\textrm{h}']
     )
-
-    log_prior = 0. if constraint else -np.inf
-
-    return log_prior
 
 
 def quasar_hybrid_model(magnitude, redshift, redshift_pivot=2.2,

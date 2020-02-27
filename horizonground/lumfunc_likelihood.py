@@ -312,7 +312,8 @@ class LumFuncLikelihood(LumFuncMeasurements):
             model_params.update(self.fixed)
 
         if callable(self._model_constraint):
-            log_prior += self._model_constraint(model_params)
+            if not self._model_constraint(model_params):
+                return - np.inf
 
         model_vector = [
             self._lumfunc_model(
