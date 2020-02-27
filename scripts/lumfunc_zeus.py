@@ -230,6 +230,21 @@ def load_chains():
     labels = list(
         map(lambda s: "$" + s + "$", list(log_likelihood.prior.keys()))
     )
+    truth = None
+    if TRUTH_FILE:
+        with open(TRUTH_FILE, 'r') as pfile:
+            parameters = tuple(
+                map(
+                    lambda var_name: var_name.strip(" "),
+                    pfile.readline().strip("#").strip("\n").split(",")
+                )
+            )
+            estimates = tuple(map(float, pfile.readline().split(",")))
+
+        model_parameters = dict(zip(parameters, estimates))
+        for par_name in model_parameters.keys():
+            if "Delta" in par_name:
+                del model_parameters[par_name]
 
     # Load the chain.
     mcmc_file = (PATHOUT/prog_params.chain_file).with_suffix('.npy')
@@ -299,7 +314,9 @@ def load_chains():
         )
     logger.info("Saved plot of flattened chains.\n")
 
-    contour_fig = corner.corner(chain_flat, labels=labels, **corner_opt)
+    contour_fig = corner.corner(
+        chain_flat, labels=labels, truth=truth, **corner_opt
+    )
 
     if SAVEFIG:
         contour_fig.savefig(mcmc_file.with_suffix('.pdf'), format='pdf')
@@ -311,6 +328,7 @@ def load_chains():
 if __name__ == '__main__':
 
     SAVEFIG = True
+    TRUTH_FILE = "../data/external/PLE_model_fits.txt"
 
     prog_params = parse_ext_args()
 
