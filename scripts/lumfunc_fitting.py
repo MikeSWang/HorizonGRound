@@ -180,11 +180,10 @@ def initialise_sampler():
 
     # Set up backend.
     output_file = (PATHOUT/prog_params.chain_file).with_suffix('.h5')
+    backend = mc.backends.HDFBackend(output_file)
+
     if prog_params.task == "make":
-        backend = mc.backends.HDFBackend(output_file)
         backend.reset(prog_params.nwalkers, dimension)
-    elif prog_params.task == "resume":
-        backend = mc.backends.HDFBackend(output_file, name=str(datetime.now()))
 
     # Set up sampler and initial state.
     mcmc_sampler = mc.EnsembleSampler(
@@ -215,7 +214,10 @@ def initialise_sampler():
 
         return np.asarray(_ini_pos)
 
-    initial_state = _initialise_state()
+    if prog_params.task == "resume":
+        initial_state = None
+    else:
+        initial_state = _initialise_state()
 
     logger.info(
         "\n---Starting positions (~10 walkers, parameters)---\n%s\n%s...\n",
@@ -334,7 +336,7 @@ def load_chains():
     mcmc_file = PATHOUT/prog_params.chain_file
 
     reader = mc.backends.HDFBackend(
-        mcmc_file.with_suffix('.h5'), read_only=True, name='2020-02-26 19:54:27.327303'
+        mcmc_file.with_suffix('.h5'), read_only=True,
     )
 
     logger.info("Loaded chain file: %s.h5.\n", mcmc_file.stem)
