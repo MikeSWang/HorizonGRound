@@ -219,19 +219,19 @@ def initialise_sampler():
     else:
         initial_state = _initialise_state()
 
-    logger.info(
-        "\n---Starting positions (~10 walkers, parameters)---\n%s\n%s...\n",
-        pformat(list(log_likelihood.prior.keys()), width=79, compact=True),
-        pformat(
-            np.array2string(
-                initial_state[::(prog_params.nwalkers // 10), :],
-                formatter={'float_kind': '{:.2f}'.format}
+        logger.info(
+            "\n---Starting positions (walkers, parameters)---\n%s\n%s...\n",
+            pformat(list(log_likelihood.prior.keys()), width=79, compact=True),
+            pformat(
+                np.array2string(
+                    initial_state[::(prog_params.nwalkers // 10), :],
+                    formatter={'float_kind': '{:.2f}'.format}
+                )
             )
+            .replace("(", "").replace(")", "")
+            .replace("' ", "").replace("'", "")
+            .replace("\\n", "")
         )
-        .replace("(", "").replace(")", "")
-        .replace("' ", "").replace("'", "")
-        .replace("\\n", "")
-    )
 
     return mcmc_sampler, initial_state, dimension
 
