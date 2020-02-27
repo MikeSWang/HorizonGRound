@@ -3,6 +3,7 @@ r"""Luminosity function model fitting with ``zeus``.
 """
 import os
 from argparse import ArgumentParser
+from collections import OrderedDict
 from multiprocessing import Pool
 from pprint import pformat
 
@@ -241,8 +242,8 @@ def load_chains():
             )
             estimates = tuple(map(float, pfile.readline().split(",")))
 
-        model_parameters = dict(zip(parameters, estimates))
-        for par_name in model_parameters.keys():
+        model_parameters = OrderedDict(zip(parameters, estimates))
+        for par_name in list(model_parameters.keys()):
             if "Delta" in par_name:
                 del model_parameters[par_name]
 

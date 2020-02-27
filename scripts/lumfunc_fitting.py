@@ -355,7 +355,7 @@ def load_chains():
             estimates = tuple(map(float, pfile.readline().split(",")))
 
         external_fits = OrderedDict(zip(parameters, estimates))
-        for par_name in external_fits.keys():
+        for par_name in list(external_fits.keys()):
             if "Delta" in par_name:
                 del external_fits[par_name]
         truth = list(external_fits.values())
