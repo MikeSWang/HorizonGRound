@@ -434,7 +434,7 @@ def load_chains():
     logger.info("Saved plot of flattened chains.\n")
 
     contour_fig = corner.corner(
-        chain_flat, labels=labels, truth=truth, **corner_opt
+        chain_flat, labels=labels, truths=truth, **corner_opt
     )
 
     if SAVEFIG:
