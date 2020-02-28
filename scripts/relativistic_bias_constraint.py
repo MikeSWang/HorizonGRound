@@ -2,6 +2,7 @@ r"""Relativistic bias constraint from sampled luminosity function model.
 
 """
 import os
+import sys
 import multiprocessing as mp
 from argparse import ArgumentParser
 from pprint import pformat
@@ -174,7 +175,7 @@ def resample_biases(lumfunc_param_chains, pool=None):
     bias_samples = list(
         tqdm(
             mapping(compute_biases_from_lumfunc, lumfunc_param_chains),
-            total=len(lumfunc_param_chains)
+            total=len(lumfunc_param_chains), mininterval=1, file=sys.stdout
         )
     )
     logger.info("\n... finished.\n")
