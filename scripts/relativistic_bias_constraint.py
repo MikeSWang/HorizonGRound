@@ -82,7 +82,7 @@ def read_chains():
     logger.info("Loaded chain file: %s.\n", chain_file)
 
     # Process chains by burn-in and thinning.
-    if progrc.burnin is None and progrc.reduce is None:
+    if progrc.burnin is None or progrc.reduce is None:
         if chain_file.suffix == '.h5':
             try:
                 autocorr_time = reader.get_autocorr_time()
