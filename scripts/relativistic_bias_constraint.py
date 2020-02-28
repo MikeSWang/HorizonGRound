@@ -11,6 +11,7 @@ os.environ['OMP_NUM_THREADS'] = '1'
 
 import corner
 import emcee as mc
+import h5py as hp
 import matplotlib.pyplot as plt
 import numpy as np
 from tqdm import tqdm
@@ -182,7 +183,35 @@ def resample_biases(lumfunc_param_chains, pool=None):
 
     bias_samples = np.array(bias_samples)
 
+    with hp.File(PATHOUT/progrc.chain_file, 'r') as indata, \
+            hp.File(PATHOUT/("relbias_" + progrc.chain_file), 'w') as outdata:
+        outdata.create_group('extract')
+        indata.copy('mcmc/accepted', outdata['/extract'])
+        indata.copy('mcmc/log_prob', outdata['/extract'])
+        outdata.create_dataset('extract/rechain', data=bias_samples)
+
     return bias_samples
+
+
+def load_rechain(rechain_file):
+    """Load resampled relativistic bias chains.
+
+    Parameters
+    ----------
+    rechain_file : :class:`pathlib.Path` or str
+        Resampled relativistic bias chain file path inside ``PATHOUT/``.
+
+    Returns
+    -------
+    rechain_samples : :class:`numpy.ndarray`
+        Relativistic bias samples.
+
+    """
+    h5file = Path(PATHOUT/rechain_file).with_suffix('.h5')
+    with hp.File(h5file, 'r') as chainfile:
+        rechain_samples = chainfile['extract/rechain'][()]
+
+    return rechain_samples
 
 
 def view_chain(chain):
@@ -255,7 +284,7 @@ if __name__ == '__main__':
     progrc = initialise()
     inchain = read_chains()
 
-    with mp.Pool() as pool:
-        rechain = resample_biases(inchain[8250000:], pool=pool)
+    with mp.Pool() as mp_pool:
+        rechain = resample_biases(inchain[8250000:], pool=mp_pool)
 
     figures = view_chain(rechain)
