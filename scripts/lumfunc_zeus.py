@@ -247,6 +247,7 @@ def load_chains():
         for par_name in list(model_parameters.keys()):
             if "Delta" in par_name:
                 del model_parameters[par_name]
+        truth = list(model_parameters.values())
 
     # Load the chain.
     mcmc_file = (PATHOUT/prog_params.chain_file).with_suffix('.npy')
