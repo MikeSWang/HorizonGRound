@@ -5,6 +5,7 @@ import os
 import sys
 import multiprocessing as mp
 from argparse import ArgumentParser
+from pathlib import Path
 from pprint import pformat
 
 os.environ['OMP_NUM_THREADS'] = '1'
@@ -284,10 +285,11 @@ BASE10_LOG = True
 COSMOLOGY = cosmology.Planck15
 
 if __name__ == '__main__':
+
     progrc = initialise()
     inchain = read_chains()
 
     with mp.Pool() as mp_pool:
-        rechain = resample_biases(inchain[8250000:], pool=mp_pool)
+        rechain = resample_biases(inchain, pool=mp_pool)
 
     figures = view_chain(rechain)
