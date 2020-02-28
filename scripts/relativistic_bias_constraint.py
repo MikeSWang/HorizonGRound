@@ -152,7 +152,7 @@ def compute_biases_from_lumfunc(lumfunc_params):
     return bias_evo, bias_mag
 
 
-def resample_biases(lumfunc_param_chains, pool=None):
+def resample_biases(lumfunc_param_chains, save=True, pool=None):
     """Resample relativistic biases from luminosity function
     parameter chains.
 
@@ -160,6 +160,8 @@ def resample_biases(lumfunc_param_chains, pool=None):
     ----------
     lumfunc_model_chains : :class:`numpy.ndarray`
         Luminosity function parameter chains.
+    save : bool, optional
+        If `True`, save the results as a ``.h5`` file.
     pool : :class:`multiprocessing.Pool` or None, optional
         Multiprocessing pool (default is `None`).
 
@@ -181,14 +183,15 @@ def resample_biases(lumfunc_param_chains, pool=None):
     )
     logger.info("\n... finished.\n")
 
-    bias_samples = np.array(bias_samples)
+    bias_samples = np.asarray(bias_samples)
 
-    with hp.File(PATHOUT/progrc.chain_file, 'r') as indata, \
-            hp.File(PATHOUT/("relbias_" + progrc.chain_file), 'w') as outdata:
-        outdata.create_group('extract')
-        indata.copy('mcmc/accepted', outdata['/extract'])
-        indata.copy('mcmc/log_prob', outdata['/extract'])
-        outdata.create_dataset('extract/rechain', data=bias_samples)
+    if save:
+        infile = PATHOUT/progrc.chain_file
+        outfile = PATHOUT/("relbias_" + progrc.chain_file)
+        with hp.File(infile, 'r') as indata, hp.File(outfile, 'w') as outdata:
+            outdata.create_group('extract')
+            indata.copy('mcmc/log_prob', outdata['/extract'])
+            outdata.create_dataset('extract/rechain', data=bias_samples)
 
     return bias_samples
 
