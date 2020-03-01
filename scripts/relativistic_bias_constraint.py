@@ -175,7 +175,7 @@ def resample_biases(lumfunc_param_chain, pool=None):
             total=len(lumfunc_param_chain), mininterval=1, file=sys.stdout
         )
     )
-    logger.info("\n\n... finished.\n")
+    logger.info("... finished.\n")
 
     bias_samples = np.asarray(bias_samples)
 
