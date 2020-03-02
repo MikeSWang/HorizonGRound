@@ -4,11 +4,30 @@
 import logging
 import os
 import sys
+import time
 from pathlib import Path
 
 import matplotlib as mpl
 import seaborn as sns
 
+
+class LoggerFormatter(logging.Formatter):
+    """Customised logging formatter.
+    
+    """
+
+    start_time = time.time()
+
+    def format(self, record):
+
+        elapsed_time = record.created - self.start_time
+        h, remainder_time = divmod(elapsed_time, 3600)
+        m, s = divmod(remainder_time, 60)
+
+        record.elapsed = "(+{}:{:02d}:{:02d})".format(int(h), int(m), int(s))
+
+        return logging.Formatter.format(self, record)
+    
 
 def use_local_package(package_paths):
     """Add local package path(s) to `sys.path` for Python module search.
@@ -45,8 +64,8 @@ def setup_logger():
     """
     _logger = logging.getLogger()
     logging_handler = logging.StreamHandler(sys.stdout)
-    logging_formatter = logging.Formatter(
-        fmt='[%(asctime)s %(levelname)s] %(message)s',
+    logging_formatter = LoggerFormatter(
+        fmt='[%(asctime)s %(elapsed)s %(levelname)s] %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S'
     )
 
