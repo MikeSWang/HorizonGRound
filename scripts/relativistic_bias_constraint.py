@@ -193,16 +193,25 @@ def save_resamples():
     """
     inpath = PATHOUT/progrc.chain_file
 
-    redshift_str = "{}".format(progrc.redshift)
-    redshift_str = redshift_str if "." not in redshift_str \
-        else redshift_str.rstrip("0")
+    redshift_tag = "z{}".format(progrc.redshift)
+    redshift_tag = redshift_tag if "." not in redshift_tag \
+        else redshift_tag.rstrip("0")
 
-    outpath = PATHOUT/("relbias_" + redshift_str + progrc.chain_file)
+    prefix = "relbias_" + redshift_tag + "_"
 
-    with hp.File(inpath, 'r') as indata, hp.File(outpath, 'w') as outdata:
-        outdata.create_group('extract')
-        indata.copy('mcmc/log_prob', outdata['/extract'])
-        outdata.create_dataset('extract/rechain', data=rechain)
+    outpath = (PATHOUT/(prefix + progrc.chain_file)).with_suffix('.h5')
+
+    if inpath.suffix == '.h5':
+        with hp.File(inpath, 'r') as indata, hp.File(outpath, 'w') as outdata:
+            outdata.create_group('extract')
+            indata.copy('mcmc/log_prob', outdata['/extract'])
+            outdata.create_dataset('extract/rechain', data=rechain)
+    if inpath == '.npy':
+        with hp.File(outpath, 'w') as outdata:
+            outdata.create_group('extract')
+            outdata.create_dataset('extract/rechain', data=rechain)
+    
+    logger.info("Resampled chain saved to %s.\n", outpath)
 
     return outpath
 
@@ -262,7 +271,7 @@ def view_resamples(chain):
     )
 
     plt.close('all')
-
+    '''
     chain_fig, axes = plt.subplots(NDIM, figsize=(12, NDIM), sharex=True)
     for param_idx in range(NDIM):
         ax = axes[param_idx]
@@ -276,14 +285,14 @@ def view_resamples(chain):
     if SAVEFIG:
         chain_fig.savefig(outpath.with_suffix('.chain.pdf'), format='pdf')
     logger.info("Saved chain plot of relativistic bias samples.\n")
-
-    contour_fig = corner.corner(chain, bins=100, smooth=0.4, **CORNER_OPTIONS)
+    '''
+    contour_fig = corner.corner(chain, bins=100, smooth=0.95, **CORNER_OPTIONS)
 
     if SAVEFIG:
         contour_fig.savefig(outpath.with_suffix('.pdf'), format='pdf')
     logger.info("Saved contour plot of relativistic bias samples.\n")
 
-    return chain_fig, contour_fig
+    return contour_fig
 
 
 # Model-independent settings.
