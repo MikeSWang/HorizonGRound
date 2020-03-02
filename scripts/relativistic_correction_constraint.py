@@ -58,7 +58,7 @@ def load_samples():
         Relativistic bias samples.
 
     """
-    chain_file = PATHOUT/progrc.chain_file
+    chain_file = (PATHOUT/progrc.chain_file).with_suffix('.h5')
     with hp.File(chain_file, 'r') as chain_data:
         bias_samples = chain_data['extract/chain'][()]
 
@@ -140,7 +140,7 @@ def save_distilled():
         else redshift_tag.rstrip("0")
 
     if redshift_tag not in progrc.chain_file:
-        prefix = "relcrc_" + redshift_tag + "_"
+        prefix = "relcrct_" + redshift_tag + "_"
     else:
         prefix = "relcrct_"
 
