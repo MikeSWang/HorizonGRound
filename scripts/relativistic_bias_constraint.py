@@ -18,7 +18,7 @@ import numpy as np
 from astropy import cosmology
 from tqdm import tqdm
 
-from config import PATHOUT, logger, use_local_package
+from config import FileExtensionError, PATHOUT, logger, use_local_package
 
 use_local_package("../../HorizonGRound/")
 
@@ -190,6 +190,11 @@ def save_resamples():
     outpath : :class:`pathlib.Path`
         Chain output file path.
 
+    Raises
+    ------
+    FileExtensionError
+        If the chain file extension is neither ``.h5`` nor ``.npy``.
+
     """
     inpath = PATHOUT/progrc.chain_file
 
@@ -206,10 +211,14 @@ def save_resamples():
             outdata.create_group('extract')
             indata.copy('mcmc/log_prob', outdata['/extract'])
             outdata.create_dataset('extract/chain', data=resampled_chain)
-    if inpath == '.npy':
+    elif inpath.suffix == '.npy':
         with hp.File(outpath, 'w') as outdata:
             outdata.create_group('extract')
             outdata.create_dataset('extract/chain', data=resampled_chain)
+    else:
+        raise FileExtensionError(
+            f"Unrecognised file extension: {inpath.suffix}."
+        )
 
     logger.info("Resampled chain saved to %s.\n", outpath)
 

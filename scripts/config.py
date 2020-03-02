@@ -11,9 +11,16 @@ import matplotlib as mpl
 import seaborn as sns
 
 
+class FileExtensionError(Exception):
+    """File extension error.
+
+    """
+    pass
+
+
 class LoggerFormatter(logging.Formatter):
     """Customised logging formatter.
-    
+
     """
 
     start_time = time.time()
@@ -27,7 +34,7 @@ class LoggerFormatter(logging.Formatter):
         record.elapsed = "(+{}:{:02d}:{:02d})".format(int(h), int(m), int(s))
 
         return logging.Formatter.format(self, record)
-    
+
 
 def use_local_package(package_paths):
     """Add local package path(s) to `sys.path` for Python module search.
