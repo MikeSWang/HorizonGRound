@@ -60,7 +60,7 @@ def load_samples():
     """
     chain_file = PATHOUT/progrc.chain_file
     with hp.File(chain_file, 'r') as chain_data:
-        bias_samples = chain_data['extract/chain'][()][15600000:]
+        bias_samples = chain_data['extract/chain'][()]
 
     logger.info("Loaded bias samples from file: %s.\n", chain_file)
 
