@@ -248,8 +248,7 @@ def load_extracts(chain_file):
         Relativistic bias samples.
 
     """
-    filepath = Path(PATHOUT/chain_file).with_suffix('.h5')
-    with hp.File(filepath, 'r') as chain_data:
+    with hp.File(PATHOUT/chain_file, 'r') as chain_data:
         extracts = chain_data['extract/chain'][()]
 
     return extracts
@@ -330,9 +329,11 @@ BRIGHTNESS_VARIABLE = 'magnitude'
 THRESHOLD_VARIABLE = 'magnitude'
 THRESHOLD_VALUE = -21.80
 
+# Program-specific settings.
+SAVE = True
+SAVEFIG = True
+
 if __name__ == '__main__':
-    SAVE = True
-    SAVEFIG = True
 
     progrc = initialise()
 
