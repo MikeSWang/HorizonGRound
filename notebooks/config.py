@@ -32,11 +32,17 @@ def use_local_package(package_paths):
         sys.path.insert(0, package_paths)
 
 
+# Path variables.
+PATH = Path("../data/")
+PATHEXT = Path("../data/external")
+PATHIN = Path("../data/input")
+PATHOUT = Path("../data/output")
+
+# Visualisation settings.
 mpl.pyplot.style.use(
     mpl.rc_params_from_file(
         "../config/horizon.mplstyle",
         use_default_template=False
     )
 )
-
 sns.set(style='ticks', font='serif')
