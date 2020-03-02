@@ -58,7 +58,7 @@ def load_samples():
         Relativistic bias samples.
 
     """
-    chain_file = (PATHOUT/progrc.chain_file).with_suffix('.h5')
+    chain_file = PATHOUT/progrc.chain_file
     with hp.File(chain_file, 'r') as chain_data:
         bias_samples = chain_data['extract/chain'][()]
 
