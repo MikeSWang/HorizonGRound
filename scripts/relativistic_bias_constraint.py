@@ -228,15 +228,13 @@ def load_resamples(chain_file):
     -------
     resamples : :class:`numpy.ndarray`
         Relativistic bias samples.
-    filepath : :class:`pathlib.Path`
-        Chain file path.
 
     """
     filepath = Path(PATHOUT/chain_file).with_suffix('.h5')
     with hp.File(filepath, 'r') as chain_data:
         resamples = chain_data['extract/chain'][()]
 
-    return resamples, filepath
+    return resamples
 
 
 def view_resamples(chain):
@@ -286,7 +284,7 @@ def view_resamples(chain):
         chain_fig.savefig(output_path.with_suffix('.chain.pdf'), format='pdf')
     logger.info("Saved chain plot of relativistic bias samples.\n")
 
-    contour_fig = corner.corner(chain, bins=100, smooth=0.95, **CORNER_OPTIONS)
+    contour_fig = corner.corner(chain, bins=100, smooth=0.4, **CORNER_OPTIONS)
 
     if SAVEFIG:
         contour_fig.savefig(output_path.with_suffix('.pdf'), format='pdf')
@@ -318,11 +316,12 @@ if __name__ == '__main__':
 
     progrc = initialise()
 
-    input_chain = read_chains()
+    input_chain = read_chains()  #
 
-    with Pool() as pool:
-        resampled_chain = resample_biases(input_chain, pool=pool)
+    with Pool() as pool:  #
+        resampled_chain = resample_biases(input_chain, pool=pool)  #
 
-    output_path = save_resamples()
+    output_path = save_resamples()  #
+    # resampled_chain = load_resamples(progrc.chain_file)  #
 
     figures = view_resamples(resampled_chain)
