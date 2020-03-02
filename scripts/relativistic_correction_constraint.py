@@ -132,11 +132,6 @@ def save_distilled():
     outpath : :class:`pathlib.Path`
         Chain output file path.
 
-    Raises
-    ------
-    FileExtensionError
-        If the chain file extension is neither ``.h5`` nor ``.npy``.
-
     """
     inpath = PATHOUT/progrc.chain_file
 
