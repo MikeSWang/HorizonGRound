@@ -142,7 +142,7 @@ def save_distilled():
     if redshift_tag not in progrc.chain_file:
         prefix = "relcrc_" + redshift_tag + "_"
     else:
-        prefix = "relcrc_"
+        prefix = "relcrct_"
 
     outpath = (PATHOUT/(prefix + progrc.chain_file)).with_suffix('.h5')
 
