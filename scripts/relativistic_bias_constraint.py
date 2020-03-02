@@ -205,12 +205,12 @@ def save_resamples():
         with hp.File(inpath, 'r') as indata, hp.File(outpath, 'w') as outdata:
             outdata.create_group('extract')
             indata.copy('mcmc/log_prob', outdata['/extract'])
-            outdata.create_dataset('extract/rechain', data=rechain)
+            outdata.create_dataset('extract/chain', data=resampled_chain)
     if inpath == '.npy':
         with hp.File(outpath, 'w') as outdata:
             outdata.create_group('extract')
-            outdata.create_dataset('extract/rechain', data=rechain)
-    
+            outdata.create_dataset('extract/chain', data=resampled_chain)
+
     logger.info("Resampled chain saved to %s.\n", outpath)
 
     return outpath
@@ -234,7 +234,7 @@ def load_resamples(chain_file):
     """
     filepath = Path(PATHOUT/chain_file).with_suffix('.h5')
     with hp.File(filepath, 'r') as chain_data:
-        resamples = chain_data['extract/rechain'][()]
+        resamples = chain_data['extract/chain'][()]
 
     return resamples, filepath
 
@@ -271,7 +271,7 @@ def view_resamples(chain):
     )
 
     plt.close('all')
-    '''
+
     chain_fig, axes = plt.subplots(NDIM, figsize=(12, NDIM), sharex=True)
     for param_idx in range(NDIM):
         ax = axes[param_idx]
@@ -283,13 +283,13 @@ def view_resamples(chain):
     axes[-1].set_xlabel("steps")
 
     if SAVEFIG:
-        chain_fig.savefig(outpath.with_suffix('.chain.pdf'), format='pdf')
+        chain_fig.savefig(output_path.with_suffix('.chain.pdf'), format='pdf')
     logger.info("Saved chain plot of relativistic bias samples.\n")
-    '''
+
     contour_fig = corner.corner(chain, bins=100, smooth=0.95, **CORNER_OPTIONS)
 
     if SAVEFIG:
-        contour_fig.savefig(outpath.with_suffix('.pdf'), format='pdf')
+        contour_fig.savefig(output_path.with_suffix('.pdf'), format='pdf')
     logger.info("Saved contour plot of relativistic bias samples.\n")
 
     return contour_fig
@@ -318,11 +318,11 @@ if __name__ == '__main__':
 
     progrc = initialise()
 
-    inchain = read_chains()
+    input_chain = read_chains()
 
     with Pool() as pool:
-        rechain = resample_biases(inchain, pool=pool)
+        resampled_chain = resample_biases(input_chain, pool=pool)
 
-    outpath = save_resamples()
+    output_path = save_resamples()
 
-    figures = view_resamples(rechain)
+    figures = view_resamples(resampled_chain)
