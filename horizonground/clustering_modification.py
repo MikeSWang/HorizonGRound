@@ -340,9 +340,12 @@ def relativistic_factor(wavenumber, order, redshift, cosmo=FIDUCIAL_COSMOLOGY,
         Base cosmological model (default is ``FIDUCIAL_COSMOLOGY``).
     geometric : bool, optional
         If `True` (default), include geometric perturbations.
-    evolution_bias, magnification_bias : callable or None, optional
-        Evolution bias or magnification bias as a function of redshift
-        (default is `None`).
+    evolution_bias : float or callable or None, optional
+        Evolution bias as a function of redshift, or evaluated at input
+        `redshift` (default is `None`).
+    magnification_bias : float or callable or None, optional
+        Magnification bias as a function of redshift, or evaluated at input
+        `redshift` (default is `None`).
 
     Returns
     -------
@@ -351,16 +354,50 @@ def relativistic_factor(wavenumber, order, redshift, cosmo=FIDUCIAL_COSMOLOGY,
         spectrum.
 
     """
-    correction_function = relativistic_correction_func(
-        cosmo=cosmo,
-        geometric=geometric,
-        evolution_bias=evolution_bias,
-        magnification_bias=magnification_bias
-    )
+    if callable(evolution_bias) and callable(magnification_bias):
+        correction_function = relativistic_correction_func(
+            cosmo=cosmo,
+            geometric=geometric,
+            evolution_bias=evolution_bias,
+            magnification_bias=magnification_bias
+        )
+        modification = correction_function(redshift)**2 \
+            * cosmo.scale_independent_growth_rate(redshift)**2 \
+            / wavenumber**2
+    elif isinstance(evolution_bias, float) \
+            and isinstance(magnification_bias, float):
 
-    modification = correction_function(redshift)**2 \
-        * cosmo.scale_independent_growth_rate(redshift)**2 \
-        / wavenumber**2
+        astropy_cosmo = cosmo.to_astropy()
+        z = redshift
+
+        a = astropy_cosmo.scale_factor(z)
+        aH = (a / _SPEED_OF_LIGHT_IN_KM_PER_S) * astropy_cosmo.H(z).value
+        chi = astropy_cosmo.comoving_distance(z).value
+
+        if geometric:
+            geometric_term = 2 / chi \
+                + aH * (1 - 3/2 * astropy_cosmo.Om0 / a**3)
+        else:
+            geometric_term = 0.
+
+        if evolution_bias:
+            evolution_term = - aH * evolution_bias
+        else:
+            evolution_term = 0.
+
+        if magnification_bias:
+            lensing_term = 5 * magnification_bias * (aH - 1/chi)
+        else:
+            lensing_term = 0.
+
+        modification = (geometric_term + evolution_term + lensing_term)**2 \
+            * cosmo.scale_independent_growth_rate(redshift)**2 \
+            / wavenumber**2
+    else:
+        raise TypeError(
+            "`evolution_bias` and `magnification_bias` must be "
+            "both callable or float or None. "
+        )
 
     if order == 0:
         factor = 1/3 * modification

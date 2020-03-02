@@ -28,6 +28,8 @@ from horizonground.lumfunc_modeller import LumFuncModeller
 LABELS = [r'$f_\textrm{e}$', r'$s$']
 NDIM = len(LABELS)
 
+burnin, reduce = 0, 1
+
 
 def initialise():
     """Initialise program.
@@ -76,6 +78,8 @@ def read_chains():
     logger.info("Loaded chain file: %s.\n", chain_file)
 
     # Process chains by burn-in and thinning.
+    global burnin, reduce
+
     if progrc.burnin is None or progrc.reduce is None:
         if chain_file.suffix == '.h5':
             try:
@@ -209,7 +213,12 @@ def save_resamples():
     if inpath.suffix == '.h5':
         with hp.File(inpath, 'r') as indata, hp.File(outpath, 'w') as outdata:
             outdata.create_group('extract')
-            indata.copy('mcmc/log_prob', outdata['/extract'])
+            outdata.create_dataset(
+                'extract/log_prob',
+                data=np.ravel(
+                    indata['mcmc/log_prob'][burnin::reduce, :], order='F'
+                )
+            )
             outdata.create_dataset('extract/chain', data=resampled_chain)
     elif inpath.suffix == '.npy':
         with hp.File(outpath, 'w') as outdata:
@@ -293,7 +302,9 @@ def view_resamples(chain):
         chain_fig.savefig(output_path.with_suffix('.chain.pdf'), format='pdf')
     logger.info("Saved chain plot of relativistic bias samples.\n")
 
-    contour_fig = corner.corner(chain, bins=100, smooth=0.4, **CORNER_OPTIONS)
+    contour_fig = corner.corner(
+        chain, bins=160, smooth=.75, smooth1d=.95, **CORNER_OPTIONS
+    )
 
     if SAVEFIG:
         contour_fig.savefig(output_path.with_suffix('.pdf'), format='pdf')
