@@ -138,6 +138,7 @@ corrections are
 .. autosummary::
 
     relativistic_correction_func
+    relativistic_correction_eval
     relativistic_factor
 
 |
@@ -322,9 +323,50 @@ def relativistic_correction_func(cosmo=FIDUCIAL_COSMOLOGY, geometric=True,
     )
 
 
-def relativistic_factor(wavenumber, order, redshift, cosmo=FIDUCIAL_COSMOLOGY,
-                        geometric=True, evolution_bias=None,
-                        magnification_bias=None):
+def relativistic_correction_eval(redshift, cosmo=FIDUCIAL_COSMOLOGY,
+                                 geometric=True, evolution_bias=None,
+                                 magnification_bias=None):
+    r"""Evaluate the relativistic correction function :math:`g(z)` at a
+    redshift.
+
+    Parameters
+    ----------
+    redshift : float
+        Redshift.
+    cosmo : :class:`nbodykit.cosmology.Cosmology`, optional
+        Base cosmological model (default is ``FIDUCIAL_COSMOLOGY``).
+    geometric : bool, optional
+        If `True` (default), include geometric perturbations.
+    evolution_bias, magnification_bias : float or None, optional
+        Evolution bias or magnification bias evaluated at input `redshift`
+        (default is `None`).
+
+    Returns
+    -------
+    correction_value : float
+        Relativistic correction function value at the same redshift.
+
+    """
+    astropy_cosmo = cosmo.to_astropy()
+
+    a = astropy_cosmo.scale_factor(redshift)
+    aH = (a / _SPEED_OF_LIGHT_IN_KM_PER_S) * astropy_cosmo.H(redshift).value
+    chi = astropy_cosmo.comoving_distance(redshift).value
+
+    correction_value = 0.
+    if geometric:
+        correction_value += 2 / chi + aH * (1 - 3/2 * astropy_cosmo.Om0 / a**3)
+    if evolution_bias:
+        correction_value += - aH * evolution_bias
+    if magnification_bias:
+        correction_value += 5 * magnification_bias * (aH - 1 / chi)
+
+    return correction_value
+
+
+def relativistic_factor(wavenumber, order, redshift, correction_value=None,
+                        cosmo=FIDUCIAL_COSMOLOGY, geometric=True,
+                        evolution_bias=None, magnification_bias=None):
     r"""Compute power spectrum multipole modified by relativistic
     corrections as multiples of the matter power spectrum.
 
@@ -336,6 +378,10 @@ def relativistic_factor(wavenumber, order, redshift, cosmo=FIDUCIAL_COSMOLOGY,
         Order of the multipole, ``order >= 0``.
     redshift : float
         Redshift.
+    correction_value : float or None, optional
+        If provided and evaluated at input `redshift`, this is directly
+        used as :math:`g(z)` in calculations, and `cosmo`, `geometric`,
+        `evolution_bias` and `magnification_bias` are ignored.
     cosmo : :class:`nbodykit.cosmology.Cosmology`, optional
         Base cosmological model (default is ``FIDUCIAL_COSMOLOGY``).
     geometric : bool, optional
@@ -354,7 +400,11 @@ def relativistic_factor(wavenumber, order, redshift, cosmo=FIDUCIAL_COSMOLOGY,
         spectrum.
 
     """
-    if callable(evolution_bias) and callable(magnification_bias):
+    if correction_value is not None:
+        modification = correction_value**2 \
+            * cosmo.scale_independent_growth_rate(redshift)**2 \
+            / wavenumber**2
+    elif callable(evolution_bias) and callable(magnification_bias):
         correction_function = relativistic_correction_func(
             cosmo=cosmo,
             geometric=geometric,
@@ -366,31 +416,14 @@ def relativistic_factor(wavenumber, order, redshift, cosmo=FIDUCIAL_COSMOLOGY,
             / wavenumber**2
     elif isinstance(evolution_bias, float) \
             and isinstance(magnification_bias, float):
-
-        astropy_cosmo = cosmo.to_astropy()
-        z = redshift
-
-        a = astropy_cosmo.scale_factor(z)
-        aH = (a / _SPEED_OF_LIGHT_IN_KM_PER_S) * astropy_cosmo.H(z).value
-        chi = astropy_cosmo.comoving_distance(z).value
-
-        if geometric:
-            geometric_term = 2 / chi \
-                + aH * (1 - 3/2 * astropy_cosmo.Om0 / a**3)
-        else:
-            geometric_term = 0.
-
-        if evolution_bias:
-            evolution_term = - aH * evolution_bias
-        else:
-            evolution_term = 0.
-
-        if magnification_bias:
-            lensing_term = 5 * magnification_bias * (aH - 1/chi)
-        else:
-            lensing_term = 0.
-
-        modification = (geometric_term + evolution_term + lensing_term)**2 \
+        correction_value = relativistic_correction_eval(
+            redshift,
+            cosmo=cosmo,
+            geometric=geometric,
+            evolution_bias=evolution_bias,
+            magnification_bias=magnification_bias
+        )
+        modification = correction_value**2 \
             * cosmo.scale_independent_growth_rate(redshift)**2 \
             / wavenumber**2
     else:

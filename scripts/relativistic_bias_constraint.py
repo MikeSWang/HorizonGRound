@@ -25,7 +25,7 @@ use_local_package("../../HorizonGRound/")
 import horizonground.lumfunc_modeller as lumfunc_modeller
 from horizonground.lumfunc_modeller import LumFuncModeller
 
-LABELS = [r'$f_\textrm{e}$', r'$s$']
+LABELS = [r'$f_\textrm{e}(z={})$', r'$s(z={})$']
 NDIM = len(LABELS)
 
 burnin, reduce = 0, 1
@@ -152,9 +152,9 @@ def compute_biases_from_lumfunc(lumfunc_params):
     return bias_evo, bias_mag
 
 
-def resample_biases(lumfunc_param_chain, pool=None):
-    """Resample relativistic biases from a luminosity function
-    parameter chain.
+def extract_biases(lumfunc_param_chain, pool=None):
+    """Extract relativistic biases from a luminosity function parameter
+    chain.
 
     Parameters
     ----------
@@ -186,8 +186,8 @@ def resample_biases(lumfunc_param_chain, pool=None):
     return bias_samples
 
 
-def save_resamples():
-    """Save resampled relativistic bias chains.
+def save_extracts():
+    """Save extracted relativistic bias chains.
 
     Returns
     -------
@@ -219,44 +219,44 @@ def save_resamples():
                     indata['mcmc/log_prob'][burnin::reduce, :], order='F'
                 )
             )
-            outdata.create_dataset('extract/chain', data=resampled_chain)
+            outdata.create_dataset('extract/chain', data=extracted_chain)
     elif inpath.suffix == '.npy':
         with hp.File(outpath, 'w') as outdata:
             outdata.create_group('extract')
-            outdata.create_dataset('extract/chain', data=resampled_chain)
+            outdata.create_dataset('extract/chain', data=extracted_chain)
     else:
         raise FileExtensionError(
             f"Unrecognised file extension: {inpath.suffix}."
         )
 
-    logger.info("Resampled chain saved to %s.\n", outpath)
+    logger.info("Extracted chain saved to %s.\n", outpath)
 
     return outpath
 
 
-def load_resamples(chain_file):
-    """Load resampled relativistic bias chains.
+def load_extracts(chain_file):
+    """Load extracted relativistic bias chains.
 
     Parameters
     ----------
     chain_file : :class:`pathlib.Path` or str
-        Resampled relativistic bias chain file path inside ``PATHOUT/``.
+        Extracted relativistic bias chain file path inside ``PATHOUT/``.
 
     Returns
     -------
-    resamples : :class:`numpy.ndarray`
+    extracts : :class:`numpy.ndarray`
         Relativistic bias samples.
 
     """
     filepath = Path(PATHOUT/chain_file).with_suffix('.h5')
     with hp.File(filepath, 'r') as chain_data:
-        resamples = chain_data['extract/chain'][()]
+        extracts = chain_data['extract/chain'][()]
 
-    return resamples
+    return extracts
 
 
-def view_resamples(chain):
-    """View the resampled chain of relativistic biases.
+def view_extracts(chain):
+    """View the extracted chain of relativistic biases.
 
     Parameters
     ----------
@@ -275,7 +275,7 @@ def view_resamples(chain):
     CORNER_OPTIONS = dict(
         color=COLOUR,
         fill_contours=True,
-        labels=LABELS,
+        labels=[lab.format(progrc.redshift) for lab in LABELS],
         label_kwargs={'visible': False},
         levels=LEVELS,
         plot_datapoints=False,
@@ -339,9 +339,9 @@ if __name__ == '__main__':
     input_chain = read_chains()  #
 
     with Pool() as pool:  #
-        resampled_chain = resample_biases(input_chain, pool=pool)  #
+        extracted_chain = extract_biases(input_chain, pool=pool)  #
 
-    output_path = save_resamples()  #
-    # resampled_chain = load_resamples(progrc.chain_file)  #
+    output_path = save_extracts()  #
+    # extracted_chain = load_extracts(progrc.chain_file)  #
 
-    figures = view_resamples(resampled_chain)
+    figures = view_extracts(extracted_chain)
