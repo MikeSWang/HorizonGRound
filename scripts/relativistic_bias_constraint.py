@@ -5,7 +5,6 @@ import os
 import sys
 from argparse import ArgumentParser
 from multiprocessing import Pool, cpu_count
-from pathlib import Path
 from pprint import pformat
 
 os.environ['OMP_NUM_THREADS'] = '1'
@@ -18,7 +17,7 @@ import numpy as np
 from astropy import cosmology
 from tqdm import tqdm
 
-from config import FileExtensionError, PATHOUT, logger, use_local_package
+from config import PATHOUT, logger, use_local_package
 
 use_local_package("../../HorizonGRound/")
 
@@ -45,6 +44,7 @@ def initialise():
     parser.add_argument('--model-name', type=str, default='quasar_PLE_model')
     parser.add_argument('--redshift', type=float, default=2.)
 
+    parser.add_argument('--sampler', type=str.lower, choices=['emcee', 'zeus'])
     parser.add_argument('--chain-file', type=str, default=None)
     parser.add_argument('--burnin', type=int, default=None)
     parser.add_argument('--reduce', type=int, default=None)
@@ -68,27 +68,28 @@ def read_chains():
         Flattened chains.
 
     """
-    chain_file = PATHOUT/progrc.chain_file
-
     # Read chains into memory.
-    if chain_file.suffix == '.h5':
+    chain_file = (PATHOUT/progrc.chain_file).with_suffix('.h5')
+
+    if progrc.sampler == 'emcee':
         reader = mc.backends.HDFBackend(chain_file, read_only=True)
-    elif chain_file.suffix == '.npy':
-        reader = np.load(chain_file).item()
+    elif progrc.sampler == 'zeus':
+        with hp.File(chain_file, 'r') as chain_data:
+            reader = chain_data['mcmc']
+
     logger.info("Loaded chain file: %s.\n", chain_file)
 
     # Process chains by burn-in and thinning.
     global burnin, reduce
 
     if progrc.burnin is None or progrc.reduce is None:
-        if chain_file.suffix == '.h5':
-            try:
-                autocorr_time = reader.get_autocorr_time()
-            except mc.autocorr.AutocorrError as act_warning:
-                autocorr_time = None
-                logger.warning(act_warning)
-        elif chain_file.suffix == '.npy':
-            autocorr_time = reader['autocorr_time']
+        try:
+            autocorr_time = reader.get_autocorr_time()
+        except AttributeError:
+            autocorr_time = reader['autocorr_time'][()]
+        except mc.autocorr.AutocorrError as act_warning:
+            logger.warning(act_warning)
+            autocorr_time = None
 
     if progrc.burnin is None:
         try:
@@ -107,11 +108,12 @@ def read_chains():
         reduce = progrc.reduce
 
     # Flatten chains.
-    if chain_file.suffix == '.h5':
+    if progrc.sampler == 'emcee':
         flat_chain = reader.get_chain(flat=True, discard=burnin, thin=reduce)
-    elif chain_file.suffix == '.npy':
-        flat_chain = np.swapaxes(reader['chain'], 0, 1)[burnin::reduce, :, :]\
+    elif progrc.sampler == 'zeus':
+        flat_chain = reader['chain'][burnin::reduce, :, :]\
             .reshape((-1, len(PARAMETERS)))
+
     logger.info(
         "Chain flattened with %i burn-in and %i thinning.\n", burnin, reduce
     )
@@ -200,7 +202,7 @@ def save_extracts():
         If the chain file extension is neither ``.h5`` nor ``.npy``.
 
     """
-    inpath = PATHOUT/progrc.chain_file
+    infile = (PATHOUT/progrc.chain_file).with_suffix('.h5')
 
     redshift_tag = "z{}".format(progrc.redshift)
     redshift_tag = redshift_tag if "." not in redshift_tag \
@@ -208,30 +210,20 @@ def save_extracts():
 
     prefix = "relbias_" + redshift_tag + "_"
 
-    outpath = (PATHOUT/(prefix + progrc.chain_file)).with_suffix('.h5')
+    outfile = (PATHOUT/(prefix + progrc.chain_file)).with_suffix('.h5')
 
-    if inpath.suffix == '.h5':
-        with hp.File(inpath, 'r') as indata, hp.File(outpath, 'w') as outdata:
-            outdata.create_group('extract')
+    with hp.File(infile, 'r') as indata, hp.File(outfile, 'w') as outdata:
+        outdata.create_group('extract')
+        outdata.create_dataset('extract/chain', data=extracted_chain)
+        if progrc.sampler == 'emcee':
             outdata.create_dataset(
                 'extract/log_prob',
-                data=np.ravel(
-                    indata['mcmc/log_prob'][burnin::reduce, :], order='F'
-                )
+                data=np.ravel(indata['mcmc/log_prob'][burnin::reduce, :])
             )
-            outdata.create_dataset('extract/chain', data=extracted_chain)
-    elif inpath.suffix == '.npy':
-        with hp.File(outpath, 'w') as outdata:
-            outdata.create_group('extract')
-            outdata.create_dataset('extract/chain', data=extracted_chain)
-    else:
-        raise FileExtensionError(
-            f"Unrecognised file extension: {inpath.suffix}."
-        )
 
-    logger.info("Extracted chain saved to %s.\n", outpath)
+    logger.info("Extracted chain saved to %s.\n", outfile)
 
-    return outpath
+    return outfile
 
 
 def load_extracts(chain_file):

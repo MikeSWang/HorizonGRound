@@ -58,7 +58,7 @@ def load_samples():
         Relativistic bias samples.
 
     """
-    chain_file = PATHOUT/progrc.chain_file
+    chain_file = (PATHOUT/progrc.chain_file).with_suffix('.h5')
     with hp.File(chain_file, 'r') as chain_data:
         bias_samples = chain_data['extract/chain'][()]
 
@@ -78,7 +78,7 @@ def compute_correction_from_biases(biases):
 
     Returns
     -------
-    correction : list of float
+    correction : [float]
         Relativistic correction value.
 
     """
@@ -133,7 +133,7 @@ def save_distilled():
         Chain output file path.
 
     """
-    inpath = PATHOUT/progrc.chain_file
+    infile = (PATHOUT/progrc.chain_file).with_suffix('.h5')
 
     redshift_tag = "z{}".format(progrc.redshift)
     redshift_tag = redshift_tag if "." not in redshift_tag \
@@ -144,9 +144,9 @@ def save_distilled():
     else:
         prefix = "relcrct_"
 
-    outpath = (PATHOUT/(prefix + progrc.chain_file)).with_suffix('.h5')
+    outfile = (PATHOUT/(prefix + progrc.chain_file)).with_suffix('.h5')
 
-    with hp.File(inpath, 'r') as indata, hp.File(outpath, 'w') as outdata:
+    with hp.File(infile, 'r') as indata, hp.File(outfile, 'w') as outdata:
         outdata.create_group('distill')
         try:
             indata.copy('extract/log_prob', outdata['distill'])
@@ -154,9 +154,9 @@ def save_distilled():
             pass
         outdata.create_dataset('distill/chain', data=distilled_chain)
 
-    logger.info("Distilled chain saved to %s.\n", outpath)
+    logger.info("Distilled chain saved to %s.\n", outfile)
 
-    return outpath
+    return outfile
 
 
 def view_distilled(chain):

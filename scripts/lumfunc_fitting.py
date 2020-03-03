@@ -24,8 +24,10 @@ os.environ['OMP_NUM_THREADS'] = '1'
 
 import corner
 import emcee as mc
+import h5py as hp
 import matplotlib.pyplot as plt
 import numpy as np
+import zeus
 from emcee.autocorr import AutocorrError
 
 from config import PATHEXT, PATHIN, PATHOUT
@@ -84,10 +86,8 @@ def parse_ext_args():
         '--task', type=str.lower,
         choices=['make', 'get', 'resume'], default='make'
     )
-    parser.add_argument(
-        '--mode', type=str.lower,
-        choices=['continuous', 'dump'], default='continuous'
-    )
+    parser.add_argument('--sampler', type=str.lower, choices=['emcee', 'zeus'])
+
     parser.add_argument('--nonautostop', action='store_true')
     parser.add_argument('--quiet', action='store_false')
     parser.add_argument('--use-prior', action='store_true')
@@ -108,9 +108,6 @@ def parse_ext_args():
     parser.add_argument('--reduce', type=int, default=None)
 
     parsed_args = parser.parse_args()
-
-    parsed_args.mode = parsed_args.mode \
-        if parsed_args.task != 'get' else "plot"
 
     parsed_args.chain_file += "_{}_{}_by{}".format(
         parsed_args.nwalkers,
@@ -134,8 +131,8 @@ def initialise_sampler():
         Logarithmic likelihood.
     prior_ranges : :class:`numpy.ndarray`
         Parameter-space boundaries.
-    mcmc_sampler : :class:`emcee.EnsembleSampler`
-        Likelihood sampler.
+    mcmc_sampler : :class:`emcee.EnsembleSampler` or :class:`zeus.sampler`
+        Markov chain Monte Carlo sampler.
     initial_state : :class:`numpy.ndarray`
         Initial parameter-space state.
     dimension : int
@@ -178,19 +175,25 @@ def initialise_sampler():
     if prog_params.task == "get":
         return log_likelihood, prior_ranges, dimension
 
-    # Set up backend.
-    output_file = (PATHOUT/prog_params.chain_file).with_suffix('.h5')
-    backend = mc.backends.HDFBackend(output_file)
-
-    if prog_params.task == "make":
-        backend.reset(prog_params.nwalkers, dimension)
 
     # Set up sampler and initial state.
-    mcmc_sampler = mc.EnsembleSampler(
-        prog_params.nwalkers, dimension, log_likelihood,
-        kwargs={'use_prior': prog_params.use_prior},
-        backend=backend, pool=pool
-    )
+    if prog_params.sampler == 'emcee':
+        output_file = (PATHOUT/prog_params.chain_file).with_suffix('.h5')
+
+        backend = mc.backends.HDFBackend(output_file)
+        if prog_params.task == "make":
+            backend.reset(prog_params.nwalkers, dimension)
+
+        mcmc_sampler = mc.EnsembleSampler(
+            prog_params.nwalkers, dimension, log_likelihood,
+            kwargs={'use_prior': prog_params.use_prior},
+            backend=backend, pool=pool
+        )
+    elif prog_params.sampler == 'zeus':
+        mcmc_sampler = zeus.sampler(
+            log_likelihood, prog_params.nwalkers, dimension, pool=pool,
+            kwargs={'use_prior': prog_params.use_prior}
+        )
 
     def _initialise_state():
 
@@ -248,12 +251,16 @@ def run_sampler():
     KNOT_LENGTH = 100
     CONVERGENCE_TOL = 0.01
 
-    if prog_params.mode == 'continuous':
+    # Use ``emcee`` sampler.`
+    if prog_params.sampler == 'emcee':
+
         if prog_params.task == 'make':
+
             autocorr_estimate = []
             step = 0
             current_tau = np.inf
             first_convergence_point = True
+
             for _ in sampler.sample(
                     ini_pos,
                     iterations=prog_params.nsteps,
@@ -291,31 +298,37 @@ def run_sampler():
             return autocorr_estimate[-1]
 
         if prog_params.task == 'resume':
+
             sampler.run_mcmc(
                 ini_pos, prog_params.nsteps,
                 thin_by=prog_params.thinby,
                 progress=prog_params.quiet
             )
 
-            autocorr = sampler.get_autocorr_time()
+            autocorr_estimate = sampler.get_autocorr_time()
 
             return autocorr_estimate[-1]
 
-    if prog_params.mode.startswith('dump'):
-        sampler.run_mcmc(
-            ini_pos, prog_params.nsteps, progress=prog_params.quiet
-        )
+    # Use ``zeus`` sampler.`
+    if prog_params.sampler == 'zeus':
 
-        samples = sampler.get_chain(flat=True, thin=prog_params.thinby)
+        sampler.run(ini_pos, prog_params.nsteps, progress=True)
 
-        np.save(
-            (PATHOUT/prog_params.chain_file).with_suffix('.npy'),
-            samples
-        )
+        output_file = (PATHOUT/prog_params.chain_file).with_suffix('.h5')
+        with hp.File(output_file, 'w') as outdata:
+            outdata.create_group('mcmc')
+            outdata.create_dataset(
+                'mcmc/chain', data=np.swapaxes(sampler.chain, 0, 1)
+            )
+            outdata.create_dataset(
+                'mcmc/autocorr_time', data=sampler.autocorr_time
+            )
+            outdata.create_dataset(
+                'mcmc/effective_sample_size', data=sampler.ess
+            )
+            outdata.create_dataset('mcmc/efficiency', data=sampler.efficiency)
 
-        autocorr = sampler.get_autocorr_time()
-
-        return autocorr
+        return sampler.autocorr_time
 
 
 def load_chains():
@@ -337,7 +350,7 @@ def load_chains():
         plot_datapoints=False, plot_contours=True, fill_contours=True,
         quantiles=QUANTILES, levels=levels, color=COLOUR,
         truth_color='#7851a9', label_kwargs={'visible': False},
-        bins=100, smooth=0.4,
+        bins=160, smooth=0.45,
     )
 
     # Parameter labels.
@@ -362,17 +375,21 @@ def load_chains():
         truth = list(external_fits.values())
 
     # Load the chain.
-    mcmc_file = PATHOUT/prog_params.chain_file
+    mcmc_file = (PATHOUT/prog_params.chain_file).with_suffix('.h5')
 
-    reader = mc.backends.HDFBackend(
-        mcmc_file.with_suffix('.h5'), read_only=True,
-    )
+    if prog_params.sampler == 'emcee':
+        reader = mc.backends.HDFBackend(mcmc_file, read_only=True)
+    elif prog_params.sampler == 'emcee':
+        with hp.File(mcmc_file, 'r') as mcmc_results:
+            reader = mcmc_results['mcmc']
 
-    logger.info("Loaded chain file: %s.h5.\n", mcmc_file.stem)
+    logger.info("Loaded chain file: %s.\n", mcmc_file.name)
 
     # Get autocorrelation time, burn-in and thin.
     try:
         tau = reader.get_autocorr_time()
+    except AttributeError:
+        tau = reader['autocorr_time'][()]
     except AutocorrError as act_warning:
         logger.warning(act_warning)
         tau = [np.nan] * len(labels)
@@ -395,8 +412,12 @@ def load_chains():
 
     logger.info("Burn-in set to %i. Thinning set to %i.\n", burnin, reduce)
 
-    chains = reader.get_chain(discard=burnin, thin=reduce)
-    chain_flat = reader.get_chain(flat=True, discard=burnin, thin=reduce)
+    if prog_params.sampler == 'emcee':
+        chains = reader.get_chain(discard=burnin, thin=reduce)
+        chain_flat = reader.get_chain(flat=True, discard=burnin, thin=reduce)
+    elif prog_params.sampler == 'zeus':
+        chains = reader['chain'][burnin::reduce, :, :]
+        chain_flat = chains.reshape((-1, ndim))
 
     # Visualise chain.
     plt.close('all')

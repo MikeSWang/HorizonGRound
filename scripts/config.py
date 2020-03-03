@@ -11,13 +11,6 @@ import matplotlib as mpl
 import seaborn as sns
 
 
-class FileExtensionError(Exception):
-    """File extension error.
-
-    """
-    pass
-
-
 class LoggerFormatter(logging.Formatter):
     """Customised logging formatter.
 
