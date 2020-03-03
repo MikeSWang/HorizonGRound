@@ -10,6 +10,7 @@ from pprint import pformat
 os.environ['OMP_NUM_THREADS'] = '1'
 
 import corner
+import h5py as hp
 import matplotlib.pyplot as plt
 import numpy as np
 import zeus
@@ -191,8 +192,16 @@ def run_sampler():
 
     """
     if prog_params.mode == 'continuous':
-        pass
-    elif prog_params.mode.startswith('dump'):
+        sampler.run(ini_pos, prog_params.nsteps, progress=True)
+
+        mcmc_file = (PATHOUT/prog_params.chain_file).with_suffix('.h5')
+        with hp.File(mcmc_file, 'w') as outdata:
+            outdata.create_group('mcmc')
+            outdata.create_dataset('mcmc/chain', data=sampler.chain)
+            outdata.create_dataset(
+                'mcmc/autocorr_time', data=sampler.autocorr_time
+            )
+    elif prog_params.mode == 'dump':
         sampler.run(ini_pos, prog_params.nsteps, progress=True)
 
         mcmc_results = {
@@ -203,7 +212,7 @@ def run_sampler():
 
         np.save(mcmc_file, mcmc_results)
 
-        return sampler.autocorr_time
+    return sampler.autocorr_time, sampler.efficiency, sampler.ess
 
 
 def load_chains():
@@ -338,12 +347,15 @@ if __name__ == '__main__':
     if prog_params.task == 'make':
         with Pool() as pool:
             sampler, ini_pos, ndim = initialise_sampler()
-            autocorr_est = run_sampler()
+            autocorr_est, efficiency, effective_size = run_sampler()
+
+        logger.info(
+            "Efficiency %.2f; effective size %i.\n", efficiency, effective_size
+        )
     elif prog_params.task == 'get':
         log_likelihood, prior_ranges, ndim = initialise_sampler()
         autocorr_est = load_chains()
-
     logger.info(
-        "Auto-correlation time estimate: %s",
-        ["{:.1f}".format(act) for act in autocorr_est]
+        "Auto-correlation time estimate: %s.\n",
+        ["{:.0f}".format(act) for act in autocorr_est]
     )

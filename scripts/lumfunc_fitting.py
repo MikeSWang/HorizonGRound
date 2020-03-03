@@ -461,6 +461,6 @@ if __name__ == '__main__':
         autocorr_est = load_chains()
 
     logger.info(
-        "Auto-correlation time estimate: %s",
-        ["{:.1f}".format(act) for act in autocorr_est]
+        "Auto-correlation time estimate: %s.\n",
+        ["{:.0f}".format(act) for act in autocorr_est]
     )
