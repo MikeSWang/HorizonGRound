@@ -10,7 +10,6 @@
 
 import corner
 import h5py as hp
-import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -23,8 +22,6 @@ from horizonground.clustering_modification import (
     relativistic_factor,
     standard_kaiser_factor,
 )
-
-get_ipython().magic(u'matplotlib notebook')
 
 LEGEND_SETTINGS = dict(
     handlelength=1.2,
@@ -58,7 +55,7 @@ wavenumbers = np.logspace(-3.5, -1.5, num=200+1)
 
 
 REL_CORRECTION_CHAIN_FILE = PATHOUT/(
-    "relcrct_relbias_z2._QSO_LF_PLE_emcee_1512630_32_5E5_by1.h5"
+    "decabinet/relcrct_relbias_z2._QSO_LF_PLE_emcee_1512630_32_5E5_by1.h5"
 )
 
 with hp.File(REL_CORRECTION_CHAIN_FILE, 'r') as relcrct_data:
@@ -169,3 +166,5 @@ quadrupole.set_xlabel(r"$k$ [$h$/Mpc]", fontsize=16)
 quadrupole.set_ylabel(r"$\Delta P_2(k) / P_\mathrm{m}(k)$", fontsize=16)
 
 plt.subplots_adjust(wspace=0, hspace=0)
+
+plt.savefig(REL_CORRECTION_CHAIN_FILE.with_suffix('.pdf'), format='pdf')
