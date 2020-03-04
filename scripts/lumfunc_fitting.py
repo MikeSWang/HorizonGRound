@@ -167,7 +167,6 @@ def initialise_sampler():
     if prog_params.task == "get":
         return log_likelihood, prior_ranges, dimension
 
-
     # Set up sampler and initial state.
     if prog_params.sampler == 'emcee':
         output_file = (PATHOUT/prog_params.chain_file).with_suffix('.h5')
@@ -188,7 +187,6 @@ def initialise_sampler():
         )
 
     def _initialise_state():
-
         if lumfunc_model_constraint:
             _ini_pos = []
             while len(_ini_pos) < prog_params.nwalkers:
@@ -206,7 +204,6 @@ def initialise_sampler():
                 prior_ranges[:, 0], prior_ranges[:, -1],
                 size=(prog_params.nwalkers, dimension)
             )
-
         return np.asarray(_ini_pos)
 
     if prog_params.task == "resume":
