@@ -13,10 +13,7 @@ import h5py as hp
 import matplotlib.pyplot as plt
 import numpy as np
 
-from config import PATHOUT, use_local_package
-
-use_local_package("../../HorizonGRound/")
-
+from conf import PATHOUT
 from horizonground.clustering_modification import (
     non_gaussianity_factor,
     relativistic_factor,

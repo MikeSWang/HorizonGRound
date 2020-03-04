@@ -1,13 +1,10 @@
 r"""Relativistic bias constraint from sampled luminosity function model.
 
 """
-import os
 import sys
 from argparse import ArgumentParser
 from multiprocessing import Pool, cpu_count
 from pprint import pformat
-
-os.environ['OMP_NUM_THREADS'] = '1'
 
 import corner
 import emcee as mc
@@ -17,12 +14,9 @@ import numpy as np
 from astropy import cosmology
 from tqdm import tqdm
 
-from config import PATHOUT, logger, use_local_package
-
-use_local_package("../../HorizonGRound/")
-
-import horizonground.lumfunc_modeller as lumfunc_modeller
+from conf import PATHOUT, logger
 from horizonground.lumfunc_modeller import LumFuncModeller
+import horizonground.lumfunc_modeller as lumfunc_modeller
 
 LABELS = [r'$f_\textrm{e}(z={})$', r'$s(z={})$']
 NDIM = len(LABELS)

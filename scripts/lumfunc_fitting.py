@@ -14,13 +14,10 @@ Examples
 >>> print(likelihood(list(parameter_set.values()), use_prior=True))
 
 """
-import os
 from argparse import ArgumentParser
 from collections import OrderedDict
 from multiprocessing import Pool
 from pprint import pformat
-
-os.environ['OMP_NUM_THREADS'] = '1'
 
 import corner
 import emcee as mc
@@ -30,14 +27,9 @@ import numpy as np
 import zeus
 from emcee.autocorr import AutocorrError
 
-from config import PATHEXT, PATHIN, PATHOUT
-from config import logger
-from config import sci_notation, use_local_package
-
-use_local_package("../../HorizonGRound/")
-
-import horizonground.lumfunc_modeller as modeller
+from conf import PATHEXT, PATHIN, PATHOUT, logger, sci_notation
 from horizonground.lumfunc_likelihood import LumFuncLikelihood
+import horizonground.lumfunc_modeller as modeller
 
 
 def load_parameter_set(parameter_set_file):
@@ -466,10 +458,9 @@ def load_chains():
     return tau
 
 
+SAVEFIG = True
+TRUTH_FILE = "../data/external/PLE_model_fits.txt"
 if __name__ == '__main__':
-
-    SAVEFIG = True
-    TRUTH_FILE = "../data/external/PLE_model_fits.txt"
 
     prog_params = parse_ext_args()
 
