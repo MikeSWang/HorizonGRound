@@ -583,17 +583,14 @@ class LumFuncModeller:
 
         try:
             if brightness_variable.lower().startswith('f'):
-                brightness_variable = 'flux'
-            elif brightness_variable.lower().startswith('l'):
-                brightness_variable = 'luminosity'
-            elif brightness_variable.lower().startswith('m'):
-                brightness_variable = 'magnitude'
-            else:
-                raise ValueError(
-                    "Unrecognised brightness variable: '{}'. "
-                    .format(brightness_variable)
-                )
+                return 'flux'
+            if brightness_variable.lower().startswith('l'):
+                return 'luminosity'
+            if brightness_variable.lower().startswith('m'):
+                return 'magnitude'
         except AttributeError:
             raise TypeError("Brightness variable must be a string. ")
-        else:
-            return brightness_variable
+            
+        raise ValueError(
+            f"Unrecognised brightness variable: '{brightness_variable}'. "
+        )
