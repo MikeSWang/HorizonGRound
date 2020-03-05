@@ -84,6 +84,7 @@ def parse_ext_args():
     parser.add_argument('--quiet', action='store_false')
     parser.add_argument('--use-prior', action='store_true')
     parser.add_argument('--use-constraint', action='store_true')
+    parser.add_argument('--jump', action='store_true')
 
     parser.add_argument('--model-name', type=str, default=None)
     parser.add_argument('--data-file', type=str, default=None)
@@ -181,8 +182,25 @@ def initialise_sampler():
             backend=backend, pool=pool
         )
     elif prog_params.sampler == 'zeus':
+
+        if prog_params.jump:
+            proposal = {
+                'differential': 0.85,
+                'gaussian': 0.0,
+                'jump': 0.15,
+                'random': 0.0,
+            }
+        else:
+            proposal = {
+                'differential': 1.0,
+                'gaussian': 0.0,
+                'jump': 0.0,
+                'random': 0.0,
+            }
+
         mcmc_sampler = zeus.sampler(
-            log_likelihood, prog_params.nwalkers, dimension, pool=pool,
+            log_likelihood, prog_params.nwalkers, dimension,
+            proposal=proposal, pool=pool,
             kwargs={'use_prior': prog_params.use_prior}
         )
 
