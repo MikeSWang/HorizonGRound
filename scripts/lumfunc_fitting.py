@@ -386,7 +386,7 @@ def load_chains():
 
     if prog_params.sampler == 'emcee':
         reader = mc.backends.HDFBackend(mcmc_file, read_only=True)
-    elif prog_params.sampler == 'emcee':
+    elif prog_params.sampler == 'zeus':
         with hp.File(mcmc_file, 'r') as mcmc_results:
             reader = mcmc_results['mcmc']
 
