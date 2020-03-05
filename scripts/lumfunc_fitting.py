@@ -396,7 +396,7 @@ def load_chains():
     try:
         tau = reader.get_autocorr_time()
     except AttributeError:
-        tau = reader['mcmc/autocorr_time'][()]
+        tau = reader['autocorr_time'][()]
     except AutocorrError as act_warning:
         logger.warning(act_warning)
         tau = [np.nan] * len(labels)
