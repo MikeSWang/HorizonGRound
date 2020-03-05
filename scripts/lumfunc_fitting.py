@@ -387,8 +387,8 @@ def load_chains():
     if prog_params.sampler == 'emcee':
         reader = mc.backends.HDFBackend(mcmc_file, read_only=True)
     elif prog_params.sampler == 'zeus':
-        with hp.File(mcmc_file, 'r') as mcmc_results:
-            reader = mcmc_results['mcmc']
+        mcmc_results = hp.File(mcmc_file, 'r')
+        reader = mcmc_results['mcmc']
 
     logger.info("Loaded chain file: %s.\n", mcmc_file.name)
 
@@ -425,6 +425,7 @@ def load_chains():
     elif prog_params.sampler == 'zeus':
         chains = reader['chain'][burnin::reduce, :, :]
         chain_flat = chains.reshape((-1, ndim))
+        mcmc_results.close()
 
     # Visualise chain.
     plt.close('all')
