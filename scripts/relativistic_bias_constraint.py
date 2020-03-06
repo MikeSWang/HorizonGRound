@@ -68,8 +68,8 @@ def read_chains():
     if progrc.sampler == 'emcee':
         reader = mc.backends.HDFBackend(chain_file, read_only=True)
     elif progrc.sampler == 'zeus':
-        with hp.File(chain_file, 'r') as chain_data:
-            reader = chain_data['mcmc']
+        chain_data = hp.File(chain_file, 'r')
+        reader = chain_data['mcmc']
 
     logger.info("Loaded chain file: %s.\n", chain_file)
 
@@ -107,6 +107,7 @@ def read_chains():
     elif progrc.sampler == 'zeus':
         flat_chain = reader['chain'][burnin::reduce, :, :]\
             .reshape((-1, len(PARAMETERS)))
+        chain_data.close()
 
     logger.info(
         "Chain flattened with %i burn-in and %i thinning.\n", burnin, reduce
