@@ -1,38 +1,45 @@
-lines.linewidth: 2
-lines.markersize: 6
-lines.antialiased: True
-
-font.family: serif
-font.size: 11.0
-
-text.usetex: True
-
+axes.labelsize: large
 axes.prop_cycle: cycler('color', ['000000', 'C40233', '0087BD', 'FFD300', '009F6B'])
+axes.titlesize: large
 
-xtick.top: True
-xtick.major.size: 5
-xtick.minor.size: 2.5
-xtick.major.width: 0.2
-xtick.minor.width: 0.2
-xtick.direction: out
-
-ytick.right: True
-ytick.major.size: 5
-ytick.minor.size: 2.5
-ytick.major.width: 0.2
-ytick.minor.width: 0.2
-ytick.direction: out
-
-legend.loc: best
-legend.frameon: False
-legend.fancybox: False
-legend.handlelength: 2.5
+errorbar.capsize: 2.5
 
 figure.figsize: 8, 5
 figure.titlesize: large
 
-errorbar.capsize: 2.5
+font.family: serif
+font.size: 12.0
 
-savefig.format: pdf
+image.cmap: inferno
+image.origin: lower
+
+legend.fancybox: False
+legend.frameon: False
+legend.fontsize: large
+legend.handlelength: 2.5
+legend.loc: best
+legend.scatterpoints: 2
+
+lines.antialiased: True
+lines.linewidth: 2
+lines.markersize: 6
+
 savefig.bbox: tight
+savefig.format: pdf
 savefig.transparent: True
+
+text.usetex: True
+
+xtick.direction: in
+xtick.major.size: 5
+xtick.major.width: 0.25
+xtick.minor.size: 2
+xtick.minor.width: 0.25
+xtick.top: True
+
+ytick.direction: in
+ytick.major.size: 5
+ytick.major.width: 0.25
+ytick.minor.size: 2
+ytick.minor.width: 0.25
+ytick.right: True

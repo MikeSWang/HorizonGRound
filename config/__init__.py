@@ -1,3 +1,3 @@
-"""Configuration for executable scripts and notebooks.
+"""Configuration module.
 
 """

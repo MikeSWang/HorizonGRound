@@ -3,13 +3,14 @@ r"""Luminosity function model fitting.
 Examples
 --------
 >>> from horizonground.lumfunc_modeller import quasar_PLE_model
->>> data_file = PATHEXT/"eBOSS_QSO_LF.txt"
->>> prior_file = PATHIN/"PLE_model_prior_varied.txt"
->>> fixed_file = PATHIN/"PLE_model_prior_fixed.txt"
+>>> measurements_file = PATHEXT/"eBOSS_QSO_LF_measurements.txt"
+>>> prior_file = PATHIN/"QSO_LF_PLE_model_prior.txt"
+>>> uncertainties_file = PATHEXT/"eBOSS_QSO_LF_uncertainties.txt"
 >>> likelihood = LumFuncLikelihood(
-...     quasar_PLE_model, data_file, prior_file, fixed_file=fixed_file
+...     quasar_PLE_model, measurements_file, prior_file,
+...     uncertainties_file=uncertainties_file
 ... )
->>> parameter_set_file = PATHEXT/"PLE_model_fits.txt"
+>>> parameter_set_file = PATHIN/"cabinet"/"QSO_LF_PLE_model_parameters.txt"
 >>> parameter_set = load_parameter_set(parameter_set_file)
 >>> print(likelihood(list(parameter_set.values()), use_prior=True))
 
@@ -29,6 +30,7 @@ from emcee.autocorr import AutocorrError
 
 from conf import PATHEXT, PATHIN, PATHOUT, logger, sci_notation
 from horizonground.lumfunc_likelihood import LumFuncLikelihood
+from horizonground.utils import process_header
 import horizonground.lumfunc_modeller as modeller
 
 
@@ -47,12 +49,7 @@ def load_parameter_set(parameter_set_file):
 
     """
     with open(parameter_set_file, 'r') as pfile:
-        parameters = tuple(
-            map(
-                lambda var_name: var_name.strip(" "),
-                pfile.readline().strip("#").strip("\n").split(",")
-            )
-        )
+        parameters = process_header(pfile.readline())
         estimates = tuple(map(float, pfile.readline().split(",")))
 
     parameter_set = dict(zip(parameters, estimates))
@@ -87,7 +84,7 @@ def parse_ext_args():
     parser.add_argument('--jump', action='store_true')
 
     parser.add_argument('--model-name', type=str, default=None)
-    parser.add_argument('--data-file', type=str, default=None)
+    parser.add_argument('--data-files', type=str, nargs=2, default=None)
     parser.add_argument('--prior-file', type=str, default=None)
     parser.add_argument('--fixed-file', type=str, default=None)
     parser.add_argument('--chain-file', type=str, default=None)
@@ -143,11 +140,14 @@ def initialise_sampler():
         if prog_params.fixed_file \
         else None
 
+    measurements_file, uncertainties_file = prog_params.data_files
+
     log_likelihood = LumFuncLikelihood(
         lumfunc_model,
-        PATHEXT/prog_params.data_file,
+        PATHEXT/measurements_file,
         PATHIN/prog_params.prior_file,
         fixed_file=fixed_file,
+        uncertainties_file=uncertainties_file,
         model_constraint=lumfunc_model_constraint
     )
 
@@ -366,19 +366,7 @@ def load_chains():
     )
     truth = None
     if TRUTH_FILE:
-        with open(TRUTH_FILE, 'r') as pfile:
-            parameters = tuple(
-                map(
-                    lambda var_name: var_name.strip(" "),
-                    pfile.readline().strip("#").strip("\n").split(",")
-                )
-            )
-            estimates = tuple(map(float, pfile.readline().split(",")))
-
-        external_fits = OrderedDict(zip(parameters, estimates))
-        for par_name in list(external_fits.keys()):
-            if "Delta" in par_name:
-                del external_fits[par_name]
+        external_fits = load_parameter_set(TRUTH_FILE)
         truth = list(external_fits.values())
 
     # Load the chain.
@@ -475,7 +463,7 @@ def load_chains():
 
 
 SAVEFIG = True
-TRUTH_FILE = "../data/external/PLE_model_fits.txt"
+TRUTH_FILE = "../data/external/eBOSS_QSO_LF_PLE_model_fits.txt"
 if __name__ == '__main__':
 
     prog_params = parse_ext_args()

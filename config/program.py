@@ -1,7 +1,7 @@
-"""Configuration for executable scripts and notebooks.
+"""Program configuration for executable scripts and notebooks.
 
-This configuration file provides custom logging facility and ``matplotlib``
-style sheet, and sets up I/O paths and Python search path.
+This modifies Python search path, provides custom logging facility and
+``matplotlib`` style sheet, and sets up I/O paths.
 
 """
 import logging
@@ -37,7 +37,7 @@ def setup_logger():
     Returns
     -------
     root_logger : :class:`logging.Logger`
-        Formatted root logger.
+        Root logger.
 
     """
     custom_formatter = CustomLoggingFormatter(
@@ -53,15 +53,6 @@ def setup_logger():
     root_logger.setLevel(logging.INFO)
 
     return root_logger
-
-
-def use_horizonground():
-    """Add horizonground package path to ``sys.path`` for Python module
-    search.
-
-    """
-    current_file_dir = os.path.dirname(os.path.abspath(__file__))
-    sys.path.append("".join([current_file_dir, "/../horizonground/"]))
 
 
 def sci_notation(num):
@@ -87,14 +78,15 @@ def sci_notation(num):
     return num_str
 
 
-# I/O paths.
+config_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Modifies Python search path.
+sys.path.append("".join([config_dir, "/../horizonground/"]))
+
+# Set I/O data paths.
 DATAPATH = pathlib.Path("../data/")
 
 # ``matplotlib`` style sheet.
 STYLESHEET = mpl.rc_params_from_file(
-    "".join([os.path.dirname(os.path.abspath(__file__)), "/horizon.mplstyle"]),
-    use_default_template=False
+    config_dir+"/horizon.mplstyle", use_default_template=False
 )
-
-# Modifies Python search path.
-use_horizonground()

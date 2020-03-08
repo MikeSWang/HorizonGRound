@@ -10,10 +10,10 @@ import seaborn as sns
 current_file_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, "".join([current_file_dir, "/../"]))
 
-from config import config
+from config import program
 
-STYLESHEET = getattr(config, 'STYLESHEET')
-DATAPATH = getattr(config, 'DATAPATH')
+STYLESHEET = getattr(program, 'STYLESHEET')
+DATAPATH = getattr(program, 'DATAPATH')
 PATHEXT = DATAPATH/"external"
 PATHIN = DATAPATH/"input"
 PATHOUT = DATAPATH/"output"
@@ -23,5 +23,5 @@ sns.set(style='ticks', font='serif')
 
 os.environ['OMP_NUM_THREADS'] = '1'
 
-sci_notation = getattr(config, 'sci_notation')
-logger = config.setup_logger()
+sci_notation = getattr(program, 'sci_notation')
+logger = program.setup_logger()

@@ -25,11 +25,28 @@ Likelihood evaluation
 """
 from __future__ import division
 
+import warnings
 from collections import OrderedDict
 from itertools import compress as iterfilter
 from itertools import product as iterproduct
 
 import numpy as np
+
+from .utils import process_header
+
+
+class DataSourceError(Exception):
+    """Data source error.
+
+    """
+    pass
+
+
+class DataSourceWarning(UserWarning):
+    """Data source warning.
+
+    """
+    pass
 
 
 class LumFuncMeasurements:
@@ -37,66 +54,77 @@ class LumFuncMeasurements:
 
     Parameters
     ----------
-    data_file : str or :class:`pathlib.Path`
-        Luminosity function data file path.
+    measurements_file : str or :class:`pathlib.Path`
+        Luminosity function measurements file path.
+    uncertainties_file : str or :class:`pathlib.Path`
+        Luminosity function uncertainties file path.
     base10_log : bool, optional
         If `True` (default), all values are converted to base-10
         logarithms.
 
     Attributes
     ----------
-    redshift_labels : list of str
-        Redshift bin labels.
-    redshift_bins : list of float
-        Redshift bin centres.
     brightness_bins : list of float
         Luminosity/magnitude bin centres.
+    redshift_bins : list of float
+        Redshift bin centres.
+    redshift_labels : list of str
+        Redshift bin labels.
 
     Notes
     -----
-    The data file is assumed to be an array where rows correspond to
+    Data files are assumed to be an array where rows correspond to
     increasing luminosity/magnitude bins (except the first line for
-    headings) and alternating columns are base-10 logarithmic luminosity
-    function values and uncertainties for increasing redshift bins (except
-    the first column for luminosity/magnitude bin centres).
+    headings) and columns correspond to increasing redshift bins
+    (except the first column for luminosity/magnitude bin centres).
+    Redshift bins are attached to column headings as suffices in the
+    format e.g. "z_0.5_1.5".
 
     """
 
-    def __init__(self, data_file, base10_log=True):
+    def __init__(self, measurements_file, uncertainties_file=None,
+                 base10_log=True):
 
         self._lg_conversion = base10_log
-        self._data_source_path = data_file
-        self._load_data_file()
+        self._measurements_source_path = measurements_file
+        self._uncertainties_source_path = uncertainties_file
+        self._load_source_files()
 
-        self._point_validity = ~np.isnan(self._measurements.flatten()) \
-            & ~np.isnan(self._uncertainties.flatten())
+        self._valid_data_points = ~np.isnan(self._measurements.flatten())
+        if self._uncertainties is not None:
+            self._valid_data_points &= ~np.isnan(self._uncertainties.flatten())
 
     def get_statistics(self):
-        """Return the empirical mean and covariance from luminosity
-        function data.
+        """Return the empirical mean, and covariance if available, from
+        luminosity function data.
 
         Returns
         -------
         data_mean : :class:`numpy.ndarray`
             Empirical mean.
-        data_var : :class:`numpy.ndarray`
-            Empirical variance as a diagonal matrix.
+        data_variance : :class:`numpy.ndarray` or None
+            Empirical variance, if available.
 
         Notes
         -----
         Data vectors are ordered by increasing redshift bins and
-        for the same redshift bin ordered by increasing
+        within the same redshift bin ordered by increasing
         luminosity/magnitude.
 
         """
-        data_mean = self._measurements.flatten()[self._point_validity]
-        data_var = np.diag(self._uncertainties.flatten()[self._point_validity])
+        data_mean = self._measurements.flatten()[self._valid_data_points]
 
-        return data_mean, data_var
+        if self._uncertainties is not None:
+            data_variance = \
+                self._uncertainties.flatten()[self._valid_data_points]
+        else:
+            data_variance = None
+
+        return data_mean, data_variance
 
     def __getitem__(self, z_key):
-        """Get luminosity function measurements and uncertainties
-        for a specific redshift bin.
+        """Get luminosity function measurements, and uncertainties if
+        available, for a specific redshift bin.
 
         Parameters
         ----------
@@ -106,7 +134,7 @@ class LumFuncMeasurements:
 
         Returns
         -------
-        :class:`numpy.ndarray`, :class:`numpy.ndarray`
+        :class:`numpy.ndarray`, :class:`numpy.ndarray` or None
             Measurements and uncertainties for the redshift bin.
 
         """
@@ -121,52 +149,88 @@ class LumFuncMeasurements:
                     "No measurements for redshift bin '{}'. ".format(z_key)
                 )
 
-        return self._measurements[z_idx], self._uncertainties[z_idx]
+        if self._uncertainties is not None:
+            return self._measurements[z_idx], self._uncertainties[z_idx]
+        return self._measurements[z_idx], None
 
-    def _load_data_file(self):
+    def _load_source_files(self):
 
-        raw_data = np.genfromtxt(self._data_source_path, unpack=True)
+        # Process measurements.
+        source_measurements = np.genfromtxt(
+            self._measurements_source_path, unpack=True
+        )
 
-        with open(self._data_source_path, 'r') as file:
-            headings = list(
-                map(
-                    lambda header: header.strip(" "),
-                    file.readline().strip("#").strip("\n").split(",")[1:]
-                )
+        self.brightness_bins = source_measurements[0]
+
+        measurements_array = source_measurements[1:]
+
+        with open(self._measurements_source_path, 'r') as mfile:
+            mheadings = process_header(mfile.readline())
+
+        if len(mheadings) != len(measurements_array):
+            raise DataSourceError(
+                "Number of headings does not match measurements. "
             )
 
-        measurement_array = raw_data[1::2]
-        uncertainty_array = raw_data[2::2]
+        self.redshift_labels, self.redshift_bins = \
+            self._extract_redshift_bins(mheadings)
 
         if not self._lg_conversion:
-            for z_idx, (var_name, d_var_name) \
-                    in enumerate(zip(headings[0::2], headings[1::2])):
-                if 'lg_' in var_name:
-                    measurement_array[z_idx] = 10**measurement_array[z_idx]
-                if 'lg_' in d_var_name:
-                    uncertainty_array[z_idx] = measurement_array[z_idx] \
-                        * (10**uncertainty_array[z_idx] - 1)
-            headings = [head.replace("lg_", "") for head in headings]
+            for z_idx, col_name in enumerate(mheadings):
+                if 'lg_' in col_name:
+                    measurements_array[z_idx] = 10 ** measurements_array[z_idx]
+                    mheadings[z_idx] = col_name.replace("lg_", "")
 
-        self._measurements = measurement_array
-        self._uncertainties = uncertainty_array
+        # Process uncertainties.
+        if not self._uncertainties_source_path:
+            self._uncertainties = None
+        else:
+            source_uncertainties = np.genfromtxt(
+                self._uncertainties_source_path, unpack=True
+            )
 
-        self.redshift_labels, self.redshift_bins = \
-            self._extract_redshift_bins(headings)
-        self.brightness_bins = raw_data[0]
+            brightness_bin_matching_msg = (
+                "Brightness bins in measurements and uncertainties files "
+                "do not match. "
+            )
+            if len(self.brightness_bins) != len(source_uncertainties[0]):
+                raise DataSourceError(brightness_bin_matching_msg)
+            if not np.allclose(self.brightness_bins, source_uncertainties[0]):
+                warnings.warn(brightness_bin_matching_msg, DataSourceWarning)
 
-    @staticmethod
-    def _extract_redshift_bins(data_names):
+            uncertainties_array = source_uncertainties[1:]
 
-        bin_labels = sorted(list(set(
+            if np.shape(measurements_array) != np.shape(uncertainties_array):
+                raise DataSourceError(
+                    "Uncertainties file data do not match "
+                    "measurements file data."
+                )
+
+            with open(self._uncertainties_source_path, 'r') as ufile:
+                uheadings = process_header(ufile.readline())
+
+            if not self._lg_conversion:
+                for z_idx, col_name in enumerate(uheadings):
+                    if 'lg_' in col_name:
+                        uncertainties_array[z_idx] = \
+                            measurements_array[z_idx] \
+                            * (10 ** uncertainties_array[z_idx] - 1)
+                        uheadings[z_idx] = col_name.replace("lg_", "")
+
+        self._measurements = measurements_array
+        self._uncertainties = uncertainties_array
+
+    def _extract_redshift_bins(self, data_headings):
+
+        bin_labels = self._sort_unique_elements(
             map(
                 r"${}$".format,
                 [
                     dname.split("z_")[-1].replace("_", "<z<")
-                    for dname in data_names if 'z_' in dname
+                    for dname in data_headings if 'z_' in dname
                 ]
             )
-        )))
+        )
 
         bin_centres = [
             np.mean(tuple(map(float, blabel.strip("$").split("<z<"))))
@@ -175,23 +239,31 @@ class LumFuncMeasurements:
 
         return bin_labels, bin_centres
 
+    @staticmethod
+    def _sort_unique_elements(sequence):
+        return sorted(list(set(sequence)))
+
     def __str__(self):
 
         return (
             "LuminosityFunctionMeasurements(data_source='{}')"
-            .format(self._data_source_path)
+            .format(self._measurements_source_path)
         )
 
 
 def _uniform_log_pdf(param_vals, param_ranges):
 
-    if isinstance(param_vals, np.ndarray):
-        param_vals = param_vals.tolist()
+    if len(param_ranges) != len(param_vals):
+        raise ValueError(
+            "Number of parameter ranges does not match number of parameters. "
+        )
+    if any(np.greater(param_ranges[:, 0], param_ranges[:, 1])):
+        param_ranges = np.sort(param_ranges, axis=-1)
+        warnings.warn("Uniform prior ranges reordered. ")
 
-    for p_val, p_range in zip(param_vals, list(param_ranges)):
-        if p_val < p_range[0] or p_val > p_range[-1]:
-            return - np.inf
-
+    if any(np.less(param_vals, param_ranges[:, 0])) \
+            or any(np.greater(param_vals, param_ranges[:, 1])):
+        return - np.inf
     return 0.
 
 
@@ -228,27 +300,34 @@ class LumFuncLikelihood(LumFuncMeasurements):
     ----------
     lumfunc_model : callable
         Luminosity function model.
-    data_file : str or :class:`pathlib.Path`
-        Luminosity function data file path.
+    measurements_file : str or :class:`pathlib.Path`
+        Luminosity function measurements file path.
     prior_file : str or :class:`pathlib.Path`
         Luminosity function model prior file path.  The prior parameter
         values (parameter ranges) may not matter, but the parameter names
         provided in the file do.
-    base10_log : bool, optional
-        If `True` (default), all values are converted to base-10
-        logarithms.
+    uncertainties_file : str or :class:`pathlib.Path` or None, optional
+        Luminosity function uncertainties file path (default is `None`).
+        Ignored if `data_covariance` is provided.
     fixed_file : str or :class:`pathlib.Path` or None, optional
         Luminosity function model fixed parameter file path.  This covers
         any model parameter(s) not included in the prior.
+    data_covariance : float array_like or None, optional
+        Covariance matrix for the data points.  Its dimensions must match
+        the length of the data vector for valid data points ordered by
+        brightness and redshift.
     model_constraint : callable or None, optional
         Additional model constraint(s) to be imposed on model parameters
         as a prior (default is `None`).
+    base10_log : bool, optional
+        If `True` (default), all values are converted to base-10
+        logarithms.
 
     Attributes
     ----------
     data_points : list of float
         A vector of (brightness, redshift) coordinates for each valid
-        luminosity function measurements.
+        luminosity function measurement.
     prior, fixed : :class:`collections.OrderedDict` or None
         Ordered dictionary of varied prior parameter names and values or
         fixed parameter names and values.  The parameters are ordered
@@ -257,19 +336,26 @@ class LumFuncLikelihood(LumFuncMeasurements):
 
     """
 
-    def __init__(self, lumfunc_model, data_file, prior_file, base10_log=True,
-                 fixed_file=None, model_constraint=None):
+    def __init__(self, lumfunc_model, measurements_file, prior_file,
+                 uncertainties_file=None, fixed_file=None,
+                 data_covariance=None, model_constraint=None, base10_log=True):
 
-        super().__init__(data_file, base10_log=base10_log)
+        super().__init__(
+            measurements_file,
+            uncertainties_file=uncertainties_file, base10_log=base10_log
+        )
 
         self._lumfunc_model = lumfunc_model
-        self._prior_source_path = prior_file
-        self._fixed_source_path = fixed_file
-        self._data_vector, self._data_covariance = self.get_statistics()
+        self._model_constraint = model_constraint
 
         self.data_points = self._setup_data_points()
+
+        self._prior_source_path = prior_file
+        self._fixed_source_path = fixed_file
         self.prior, self.fixed = self._setup_prior()
-        self._model_constraint = model_constraint
+
+        self._external_data_covariance = data_covariance
+        self._data_vector, self._data_covariance = self._get_moments()
 
     def __call__(self, param_point, use_prior=False):
         """Evaluate the logarithmic likelihood at the model parameter
@@ -301,7 +387,6 @@ class LumFuncLikelihood(LumFuncMeasurements):
             log_prior = _uniform_log_pdf(
                 np.reshape(param_point, -1), list(self.prior.values())
             )
-
             if not np.isfinite(log_prior):
                 return log_prior
         else:
@@ -328,48 +413,65 @@ class LumFuncLikelihood(LumFuncMeasurements):
 
         return log_prior + log_likelihood
 
+    def _setup_data_points(self):
+
+        # The primary axis is brightness, secondary redshift.
+        _data_points = list(
+            map(
+                lambda tup: tuple(reversed(tup)),
+                iterproduct(self.redshift_bins, self.brightness_bins)
+            )
+        )
+
+        return list(iterfilter(_data_points, self._valid_data_points))
+
     def _setup_prior(self):
 
-        with open(self._prior_source_path, 'r') as file:
-            parameter_names = list(
-                map(
-                    lambda header: header.strip(" "),
-                    file.readline().strip("#").strip("\n").split(",")
-                )
-            )
+        with open(self._prior_source_path, 'r') as pfile:
+            parameter_names = process_header(pfile.readline())
+
         prior_data = np.genfromtxt(self._prior_source_path, unpack=True)
         prior_ranges = list(map(tuple, prior_data))
         prior = OrderedDict(zip(parameter_names, prior_ranges))
 
-        if self._fixed_source_path is not None:
-            with open(self._fixed_source_path, 'r') as file:
-                fixed_names = list(
-                    map(
-                        lambda header: header.strip(" "),
-                        file.readline().strip("#").strip("\n").split(",")
-                    )
-                )
+        if self._fixed_source_path is None:
+            fixed = None
+        else:
+            with open(self._fixed_source_path, 'r') as ffile:
+                fixed_names = process_header(ffile.readline())
             fixed_values = np.genfromtxt(self._fixed_source_path, unpack=True)
             fixed = OrderedDict(zip(fixed_names, fixed_values))
-        else:
-            fixed = None
 
         return prior, fixed
 
-    def _setup_data_points(self):
+    def _get_moments(self):
 
-        # The primary axis is brightness, secondary redshift.
-        data_points_flat = list(map(
-            lambda tup: tuple(reversed(tup)),
-            iterproduct(self.redshift_bins, self.brightness_bins)
-        ))
+        _data_mean, _data_var = self.get_statistics()
 
-        return list(iterfilter(data_points_flat, self._point_validity))
+        if self._external_data_covariance:
+            _data_covar = np.squeeze(self._external_data_covariance)
+            if len(set(np.shape(_data_covar))) > 1 \
+                    or len(_data_covar) != len(self.data_points):
+                raise ValueError(
+                    "`data_covariance` dimensions do not match data points: "
+                    "({:d}, {:d}) versus {:d}."
+                    .format(len(_data_covar), len(self.data_points))
+                )
+            return _data_mean, _data_covar
+
+        if _data_var is None:
+            raise ValueError(
+                "Either `uncertainties_file` or `data_covariance` must be "
+                "provided for setting the covariance matrix "
+                "in the likelihood distribution."
+            )
+
+        return _data_mean, np.diag(_data_var)
 
     def __str__(self):
 
         return (
             "LuminosityFunctionLikelihood"
-            "(data_source='{}',lum_func_model='{}')"
-            .format(self._data_source_path, self._lumfunc_model.__name__)
+            "(measurements_source='{}',LF_model='{}')"
+            .format(self._measurements_source_path, self._lumfunc_model.__name__)
         )

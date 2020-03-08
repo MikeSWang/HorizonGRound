@@ -3,19 +3,18 @@ import sys
 
 sys.path.insert(0, os.path.abspath('../../'))
 
+
 # -- Project information -----------------------------------------------------
 
-project = 'HorizonGRound'
-copyright = '2019, Mike Shengbo Wang'
 author = 'Mike Shengbo Wang'
+copyright = '2019, Mike Shengbo Wang'
+project = 'HorizonGRound'
 release = '0.0'
 
 
 # -- General configuration ---------------------------------------------------
 
-source_suffix = ['.rst', '.txt', '.md']
-
-master_doc = 'horizonground'
+exclude_patterns = ['config', 'scripts', 'tests']
 
 extensions = [
     'sphinx.ext.autodoc',
@@ -29,28 +28,20 @@ extensions = [
     'sphinx.ext.viewcode',
 ]
 
-templates_path = ['_templates']
+language = None
+
+master_doc = 'horizonground'
 
 pygments_style = 'sphinx'
 
-language = None
+source_suffix = ['.rst', '.txt', '.md']
 
-exclude_patterns = ['tests', 'scripts']
+templates_path = ['_templates']
 
 
 # -- Options for HTML output -------------------------------------------------
 
-html_theme = 'alabaster'
-
-html_theme_options = {
-    'page_width': '1150px',
-    'sidebar_width': '250px',
-    'fixed_sidebar' : True,
-    'github_user': 'MikeSWang',
-    'github_repo': 'HorizonGRound',
-}
-
-html_static_path = ['_static']
+htmlhelp_basename = 'HorizonGRound_doc'
 
 html_logo = '_static/HorizonGRound.png'
 
@@ -59,18 +50,23 @@ html_sidebars = {
     'using/windows': ['windowssidebar.html', 'searchbox.html'],
 }
 
-htmlhelp_basename = 'HorizonGRound_doc'
+html_static_path = ['_static']
+
+html_theme = 'alabaster'
+
+html_theme_options = {
+    'fixed_sidebar' : True,
+    'github_repo': 'HorizonGRound',
+    'github_user': 'MikeSWang',
+    'page_width': '1150px',
+    'sidebar_width': '250px',
+}
 
 
 # -- Extension configuration -------------------------------------------------
 
 autodoc_member_order = 'bysource'
 autosummary_generate = True
-
-napoleon_include_special_with_doc = True
-napoleon_google_docstring = False
-napoleon_use_param = False
-napoleon_use_ivar = True
 
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),
@@ -79,5 +75,10 @@ intersphinx_mapping = {
     'matplotlib': ('https://matplotlib.org', None),
     'nbodykit': ('https://nbodykit.readthedocs.io/en/latest', None),
 }
+
+napoleon_include_special_with_doc = True
+napoleon_google_docstring = False
+napoleon_use_param = False
+napoleon_use_ivar = True
 
 todo_include_todos = True

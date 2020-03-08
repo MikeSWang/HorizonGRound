@@ -10,10 +10,10 @@ import seaborn as sns
 current_file_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, "".join([current_file_dir, "/../"]))
 
-from config import config
+from config import program
 
-STYLESHEET = getattr(config, 'STYLESHEET')
-PATH = getattr(config, 'DATAPATH')
+STYLESHEET = getattr(program, 'STYLESHEET')
+PATH = getattr(program, 'DATAPATH')
 
 mpl.pyplot.style.use(STYLESHEET)
 sns.set(style='ticks', font='serif')
