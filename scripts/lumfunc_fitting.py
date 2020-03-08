@@ -435,22 +435,6 @@ def load_chains():
         chains_fig.savefig(mcmc_file.with_suffix('.chains.pdf'), format='pdf')
     logger.info("Saved plot of chains.\n")
 
-    chain_flat_fig, axes = plt.subplots(ndim, figsize=(12, ndim), sharex=True)
-    for param_idx in range(ndim):
-        ax = axes[param_idx]
-        ax.plot(
-            chain_flat[:, param_idx], color=COLOUR, alpha=0.66, rasterized=True
-        )
-        ax.set_xlim(0, len(chain_flat))
-        ax.set_ylabel(labels[param_idx])
-    axes[-1].set_xlabel("steps")
-
-    if SAVEFIG:
-        chain_flat_fig.savefig(
-            mcmc_file.with_suffix('.flatchain.pdf'), format='pdf'
-        )
-    logger.info("Saved plot of flattened chains.\n")
-
     contour_fig = corner.corner(
         chain_flat, labels=labels, truths=truth, **corner_opt
     )
