@@ -5,7 +5,7 @@
 
 .. topic:: Licence
 
-    Copyright (C) 2019, M S Wang
+    Copyright (C) 2020, M S Wang
 
     This program is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by the

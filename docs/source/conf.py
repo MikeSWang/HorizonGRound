@@ -7,7 +7,7 @@ sys.path.insert(0, os.path.abspath('../../'))
 # -- Project information -----------------------------------------------------
 
 author = 'Mike Shengbo Wang'
-copyright = '2019, Mike Shengbo Wang'
+copyright = '2020, Mike Shengbo Wang'
 project = 'HorizonGRound'
 release = '0.0'
 
