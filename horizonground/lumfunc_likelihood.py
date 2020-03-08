@@ -35,7 +35,7 @@ import numpy as np
 from .utils import process_header
 
 
-class DataSourceError(Exception):
+class DataSourceError(IOError):
     """Data source error.
 
     """
@@ -203,7 +203,7 @@ class LumFuncMeasurements:
             if np.shape(measurements_array) != np.shape(uncertainties_array):
                 raise DataSourceError(
                     "Uncertainties file data do not match "
-                    "measurements file data."
+                    "measurements file data. "
                 )
 
             with open(self._uncertainties_source_path, 'r') as ufile:
@@ -454,7 +454,7 @@ class LumFuncLikelihood(LumFuncMeasurements):
                     or len(_data_covar) != len(self.data_points):
                 raise ValueError(
                     "`data_covariance` dimensions do not match data points: "
-                    "({:d}, {:d}) versus {:d}."
+                    "({:d}, {:d}) versus {:d}. "
                     .format(len(_data_covar), len(self.data_points))
                 )
             return _data_mean, _data_covar
