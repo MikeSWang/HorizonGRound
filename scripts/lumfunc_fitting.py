@@ -16,7 +16,6 @@ Examples
 
 """
 from argparse import ArgumentParser
-from collections import OrderedDict
 from multiprocessing import Pool
 from pprint import pformat
 
@@ -448,7 +447,7 @@ def load_chains():
 
 SAVEFIG = True
 TRUTH_FILE = "../data/external/eBOSS_QSO_LF_PLE_model_fits.txt"
-if __name__ == '__main__':
+if __name__ != '__main__':
 
     prog_params = parse_ext_args()
 

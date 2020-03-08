@@ -15,7 +15,7 @@ __all__ = [
 ]
 
 
-def process_header(header):
+def process_header(header, skipcols=0):
 
     header = header.strip("#").strip("\n")
 
@@ -23,12 +23,12 @@ def process_header(header):
         headings = list(
             map(
                 lambda heading: heading.strip(),
-                header.split(",")[1:]
+                header.split(",")[skipcols:]
             )
         )
     else:
         headings = [
-            heading.strip() for heading in header.split()[1:]
+            heading.strip() for heading in header.split()[skipcols:]
             if not heading.isspace()
         ]
 

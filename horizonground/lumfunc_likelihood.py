@@ -165,7 +165,7 @@ class LumFuncMeasurements:
         measurements_array = source_measurements[1:]
 
         with open(self._measurements_source_path, 'r') as mfile:
-            mheadings = process_header(mfile.readline())
+            mheadings = process_header(mfile.readline(), skipcols=1)
 
         if len(mheadings) != len(measurements_array):
             raise DataSourceError(
@@ -207,7 +207,7 @@ class LumFuncMeasurements:
                 )
 
             with open(self._uncertainties_source_path, 'r') as ufile:
-                uheadings = process_header(ufile.readline())
+                uheadings = process_header(ufile.readline(), skipcols=1)
 
             if not self._lg_conversion:
                 for z_idx, col_name in enumerate(uheadings):
