@@ -138,7 +138,9 @@ def save_distilled():
     else:
         prefix = "relcrct_"
 
-    outfile = (PATHOUT/(prefix + progrc.chain_file)).with_suffix('.h5')
+    outfile = (
+        PATHOUT/(prefix + progrc.chain_file).replace("relbias_", "")
+    ).with_suffix('.h5')
 
     with hp.File(infile, 'r') as indata, hp.File(outfile, 'w') as outdata:
         outdata.create_group('distill')
