@@ -18,7 +18,7 @@ from conf import PATHOUT, logger
 from horizonground.lumfunc_modeller import LumFuncModeller
 import horizonground.lumfunc_modeller as lumfunc_modeller
 
-LABELS = [r'$f_\textrm{e}(z={})$', r'$s(z={})$']
+LABELS = [r'$f_\textrm{{e}}(z={})$', r'$s(z={})$']
 NDIM = len(LABELS)
 
 burnin, reduce = 0, 1
