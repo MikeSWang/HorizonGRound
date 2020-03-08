@@ -147,7 +147,7 @@ def initialise_sampler():
         PATHEXT/measurements_file,
         PATHIN/prog_params.prior_file,
         fixed_file=fixed_file,
-        uncertainties_file=uncertainties_file,
+        uncertainties_file=PATHEXT/uncertainties_file,
         model_constraint=lumfunc_model_constraint
     )
 
