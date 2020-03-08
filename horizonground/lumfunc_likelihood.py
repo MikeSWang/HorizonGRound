@@ -4,12 +4,13 @@ Luminosity Function Likelihood (:mod:`~horizonground.lumfunc_likelihood`)
 
 Fit tracer luminosity functions and produce model constraints.
 
-
 Data processing
 ---------------
 
 .. autosummary::
 
+    DataSourceError
+    DataSourceWarning
     LumFuncMeasurements
 
 

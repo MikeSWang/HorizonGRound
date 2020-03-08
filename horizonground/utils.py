@@ -21,8 +21,8 @@ __all__ = [
 
 
 def process_header(header, skipcols=0):
-    r"""Process comment-line header (indicated by \"#\" character) of text
-    files.
+    r"""Process comment-line header (indicated by the \'#\' character) of
+    text files.
 
     Parameters
     ----------
