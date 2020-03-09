@@ -17,5 +17,6 @@ PATH = getattr(program, 'DATAPATH')
 
 sns.set(style='ticks', font='serif')
 mpl.pyplot.style.use(STYLESHEET)
+mpl.rcParams['font.size'] = 16
 
 os.environ['MPLBACKEND'] = 'AGG'
