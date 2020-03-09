@@ -11,9 +11,10 @@
 import corner
 import h5py as hp
 import matplotlib.pyplot as plt
+import seaborn as sns
 import numpy as np
 
-from conf import PATHOUT
+from conf import PATHOUT, STYLESHEET
 from horizonground.clustering_modification import (
     non_gaussianity_factor,
     relativistic_factor,
@@ -22,9 +23,11 @@ from horizonground.clustering_modification import (
 
 LEGEND_SETTINGS = dict(
     handlelength=1.2,
-    handletextpad=0.5,
-    fontsize=16,
+    handletextpad=0.5
 )
+
+plt.style.use(STYLESHEET)
+sns.set(style='ticks', font='serif')
 
 
 # Define fiducial parameters and parameter ranges.
@@ -52,7 +55,7 @@ wavenumbers = np.logspace(-3.5, -1.5, num=200+1)
 
 
 REL_CORRECTION_CHAIN_FILE = PATHOUT/(
-    "decabinet/relcrct_z2._QSO_LF_PLE_emcee_1512630_32_5E5_by1.h5"
+    "decabinet/relcrct_z2._eBOSS_QSO_LF_PLE_emcee_1512630_32_5E5_by1.h5"
 )
 
 with hp.File(REL_CORRECTION_CHAIN_FILE, 'r') as relcrct_data:
@@ -131,7 +134,7 @@ monopole.fill_between(
 
 monopole.legend(**LEGEND_SETTINGS)
 monopole.get_xaxis().set_visible(False)
-monopole.set_ylabel(r"$\Delta P_0(k) / P_\mathrm{m}(k)$", fontsize=16)
+monopole.set_ylabel(r"$\Delta P_0(k) / P_\mathrm{m}(k)$")
 
 quadrupole = plt.subplot2grid((2, 1), (1, 0), sharex=monopole)
 
@@ -159,8 +162,8 @@ quadrupole.fill_between(
     color=rel_line[0].get_color(), linewidth=0., alpha=.33
 )
 
-quadrupole.set_xlabel(r"$k$ [$h$/Mpc]", fontsize=16)
-quadrupole.set_ylabel(r"$\Delta P_2(k) / P_\mathrm{m}(k)$", fontsize=16)
+quadrupole.set_xlabel(r"$k$ [$h$/Mpc]")
+quadrupole.set_ylabel(r"$\Delta P_2(k) / P_\mathrm{m}(k)$")
 
 plt.subplots_adjust(wspace=0, hspace=0)
 
