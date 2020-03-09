@@ -90,3 +90,6 @@ DATAPATH = pathlib.Path("../data/")
 STYLESHEET = mpl.rc_params_from_file(
     config_dir+"/horizon.mplstyle", use_default_template=False
 )
+
+# Configure logging.
+logging.captureWarnings(True)
