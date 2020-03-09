@@ -11,11 +11,10 @@ import emcee as mc
 import h5py as hp
 import matplotlib.pyplot as plt
 import numpy as np
-import seaborn as sns
 from astropy import cosmology
 from tqdm import tqdm
 
-from conf import PATHOUT, STYLESHEET, logger
+from conf import PATHOUT, logger
 from horizonground.lumfunc_modeller import LumFuncModeller
 import horizonground.lumfunc_modeller as lumfunc_modeller
 
@@ -272,9 +271,6 @@ def view_extracts(chain):
         rasterized=True,
         show_titles=True,
     )
-
-    plt.style.use(STYLESHEET)
-    sns.set(style='ticks', font='serif')
 
     plt.close('all')
 

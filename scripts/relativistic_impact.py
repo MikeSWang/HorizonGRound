@@ -11,10 +11,9 @@
 import corner
 import h5py as hp
 import matplotlib.pyplot as plt
-import seaborn as sns
 import numpy as np
 
-from conf import PATHOUT, STYLESHEET
+from conf import PATHOUT
 from horizonground.clustering_modification import (
     non_gaussianity_factor,
     relativistic_factor,
@@ -25,10 +24,6 @@ LEGEND_SETTINGS = dict(
     handlelength=1.2,
     handletextpad=0.5
 )
-
-plt.style.use(STYLESHEET)
-sns.set(style='ticks', font='serif')
-
 
 # Define fiducial parameters and parameter ranges.
 

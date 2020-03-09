@@ -10,10 +10,9 @@ import corner
 import h5py as hp
 import matplotlib.pyplot as plt
 import numpy as np
-import seaborn as sns
 from tqdm import tqdm
 
-from conf import PATHOUT, STYLESHEET, logger
+from conf import PATHOUT, logger
 from horizonground.clustering_modification import relativistic_correction_eval
 
 ORDERS = [0, 2]
@@ -189,9 +188,6 @@ def view_distilled(chain):
         show_titles=True,
         title_fmt='.5f'
     )
-
-    plt.style.use(STYLESHEET)
-    sns.set(style='ticks', font='serif')
 
     plt.close('all')
 

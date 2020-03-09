@@ -18,8 +18,8 @@ PATHEXT = DATAPATH/"external"
 PATHIN = DATAPATH/"input"
 PATHOUT = DATAPATH/"output"
 
-mpl.pyplot.style.use(STYLESHEET)
 sns.set(style='ticks', font='serif')
+mpl.pyplot.style.use(STYLESHEET)
 
 os.environ['OMP_NUM_THREADS'] = '1'
 

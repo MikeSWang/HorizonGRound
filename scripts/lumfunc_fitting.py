@@ -24,11 +24,10 @@ import emcee as mc
 import h5py as hp
 import matplotlib.pyplot as plt
 import numpy as np
-import seaborn as sns
 import zeus
 from emcee.autocorr import AutocorrError
 
-from conf import PATHEXT, PATHIN, PATHOUT, STYLESHEET, logger, sci_notation
+from conf import PATHEXT, PATHIN, PATHOUT, logger, sci_notation
 from horizonground.lumfunc_likelihood import LumFuncLikelihood
 from horizonground.utils import process_header
 import horizonground.lumfunc_modeller as modeller
@@ -416,9 +415,6 @@ def load_chains():
         mcmc_results.close()
 
     # Visualise chain.
-    plt.style.use(STYLESHEET)
-    sns.set(style='ticks', font='serif')
-
     plt.close('all')
 
     chains_fig, axes = plt.subplots(ndim, figsize=(12, ndim), sharex=True)

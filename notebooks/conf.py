@@ -15,7 +15,7 @@ from config import program
 STYLESHEET = getattr(program, 'STYLESHEET')
 PATH = getattr(program, 'DATAPATH')
 
-mpl.pyplot.style.use(STYLESHEET)
 sns.set(style='ticks', font='serif')
+mpl.pyplot.style.use(STYLESHEET)
 
 os.environ['MPLBACKEND'] = 'AGG'
