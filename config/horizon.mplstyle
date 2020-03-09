@@ -8,6 +8,8 @@ axes.titlesize : large
 errorbar.capsize : 0.
 
 figure.figsize : 8., 5.
+figure.subplot.wspace: 0
+figure.subplot.hspace: 0
 figure.titlesize : large
 
 font.family : serif
@@ -27,6 +29,7 @@ legend.scatterpoints : 2
 
 lines.antialiased : True
 lines.linewidth : 1.5
+lines.markeredgewidth: 0.
 lines.markersize : 5
 
 savefig.bbox : tight
