@@ -252,6 +252,8 @@ class LumFuncMeasurements:
 
 def _uniform_log_pdf(param_vals, param_ranges):
 
+    param_ranges = np.atleast_2d(param_ranges)
+
     if len(param_ranges) != len(param_vals):
         raise ValueError(
             "Number of parameter ranges does not match number of parameters. "
