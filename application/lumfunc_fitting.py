@@ -138,6 +138,8 @@ def initialise_sampler():
         modeller, prog_params.model_name + '_constraint', None
     ) if prog_params.use_constraint else None
 
+    base10_log = True if prog_params.distribution == 'normal' else False
+
     fixed_file = PATHIN/prog_params.fixed_file \
         if prog_params.fixed_file \
         else None
@@ -151,7 +153,8 @@ def initialise_sampler():
         fixed_file=fixed_file,
         uncertainties_file=PATHEXT/uncertainties_file,
         model_constraint=lumfunc_model_constraint,
-        distribution=prog_params.distribution
+        distribution=prog_params.distribution,
+        base10_log=base10_log
     )
 
     logger.info(
