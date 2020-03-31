@@ -340,6 +340,8 @@ def run_sampler():
 
         return sampler.autocorr_time
 
+    return
+
 
 def load_chains():
     """Load and view a chain file.

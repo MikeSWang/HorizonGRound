@@ -14,7 +14,7 @@ release = '0.0'
 
 # -- General configuration ---------------------------------------------------
 
-exclude_patterns = ['config', 'application','scripts', 'tests']
+exclude_patterns = ['config', 'application', 'scripts', 'tests']
 
 extensions = [
     'sphinx.ext.autodoc',

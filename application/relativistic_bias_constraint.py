@@ -74,8 +74,6 @@ def read_chains():
     logger.info("Loaded chain file: %s.\n", chain_file)
 
     # Process chains by burn-in and thinning.
-    global burnin, reduce
-
     if progrc.burnin is None or progrc.reduce is None:
         try:
             autocorr_time = reader.get_autocorr_time()
@@ -113,7 +111,7 @@ def read_chains():
         "Chain flattened with %i burn-in and %i thinning.\n", burnin, reduce
     )
 
-    return flat_chain
+    return flat_chain, burnin, reduce
 
 
 def compute_biases_from_lumfunc(lumfunc_params):
@@ -324,7 +322,7 @@ if __name__ == '__main__':
 
     progrc = initialise()
 
-    input_chain = read_chains()  #
+    input_chain, burin, reduce = read_chains()  #
 
     with Pool() as pool:  #
         extracted_chain = extract_biases(input_chain, pool=pool)  #
