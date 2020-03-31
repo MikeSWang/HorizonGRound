@@ -1,9 +1,9 @@
 """
 ###########################################################################
-``HorizonGRound``
+``HorizonGRound`` | Relativistic Impacts on Large-Scale Galaxy Clustering
 ###########################################################################
 
-.. topic:: Licence
+.. topic:: Licence Statement
 
     Copyright (C) 2020, M S Wang
 
@@ -21,8 +21,12 @@
     with this program.  If not, see `<https://www.gnu.org/licenses/>`_.
 
 """
-__author__ = "Mike (Shengbo) Wang"
-__copyright__ = "Copyright 2020, HorizonGRound / M S Wang"
-__date__ = "2020"
-__license__ = "GPL 3.0"
-__version__ = "0.0.0"
+__author__ = "Mike S Wang"
+__contact__ = "M S Wang"
+__copyright__ = "Copyright 2020, HorizonGRound/M S Wang"
+__date__ = "2020/04/01"
+__description__ = "Relativistic effects in large-scale galaxy clustering."
+__email__ = "mike.wang@port.ac.uk"
+__license__ = "GPLv3"
+__url__ = "https://mikeswang.github.io/HorizonGRound/"
+__version__ = "0.1.0"

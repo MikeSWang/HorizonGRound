@@ -83,6 +83,9 @@ def parse_ext_args():
     parser.add_argument('--jump', action='store_true')
 
     parser.add_argument('--model-name', type=str, default=None)
+    parser.add_argument(
+        '--distribution', type=str.lower, choices=['normal', 'poisson']
+    )
     parser.add_argument('--data-files', type=str, nargs=2, default=None)
     parser.add_argument('--prior-file', type=str, default=None)
     parser.add_argument('--fixed-file', type=str, default=None)
@@ -147,7 +150,8 @@ def initialise_sampler():
         PATHIN/prog_params.prior_file,
         fixed_file=fixed_file,
         uncertainties_file=PATHEXT/uncertainties_file,
-        model_constraint=lumfunc_model_constraint
+        model_constraint=lumfunc_model_constraint,
+        distribution=prog_params.distribution
     )
 
     logger.info(

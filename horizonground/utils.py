@@ -4,6 +4,7 @@ Utilities (:mod:`~horizonground.utils`)
 
 Utilities tools.
 
+
 String formatting
 -----------------
 
@@ -37,7 +38,6 @@ def process_header(header, skipcols=0):
         Headings of the file.
 
     """
-
     header = header.strip("#").strip("\n")
 
     if "," in header:

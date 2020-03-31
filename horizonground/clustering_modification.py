@@ -144,8 +144,6 @@ corrections are
 |
 
 """
-from __future__ import division
-
 import numpy as np
 from nbodykit.lab import cosmology as nbk_cosmology
 
@@ -186,11 +184,11 @@ def standard_kaiser_factor(order, bias, redshift, cosmo=FIDUCIAL_COSMOLOGY):
     f = cosmo.scale_independent_growth_rate(redshift)
 
     if order == 0:
-        factor = b_1 ** 2 + 2/3 * f * b_1 + 1/5 * f**2
+        factor = b_1 ** 2 + 2./3. * f * b_1 + 1./5. * f**2
     elif order == 2:
-        factor = 4/3 * f * b_1 + 4/7 * f**2
+        factor = 4./3. * f * b_1 + 4./7. * f**2
     elif order == 4:
-        factor = 8/35 * f**2
+        factor = 8./35. * f**2
     else:
         factor = 0.
 
@@ -218,7 +216,7 @@ def scale_dependence_kernel(redshift, cosmo=FIDUCIAL_COSMOLOGY):
     """
     numerical_constants = 3 * _SPHERICAL_COLLAPSE_CRITICAL_OVERDENSITY \
         * cosmo.Om0 * _TRANSFER_FUNCTION_NORMALISATION \
-        * (100*FIDUCIAL_COSMOLOGY.h / _SPEED_OF_LIGHT_IN_KM_PER_S)**2 \
+        * (100 * FIDUCIAL_COSMOLOGY.h / _SPEED_OF_LIGHT_IN_KM_PER_S)**2 \
 
     transfer_function = nbk_cosmology.power.transfers.CLASS(cosmo, redshift)
 
@@ -263,9 +261,9 @@ def non_gaussianity_factor(wavenumber, order, local_NG, bias, redshift,
         / wavenumber**2
 
     if order == 0:
-        factor = b_1**2 + (2*b_1 + 2/3*f) * delta_b + delta_b**2
+        factor = b_1 ** 2 + (2 * b_1 + 2./3. * f) * delta_b + delta_b ** 2
     elif order == 2:
-        factor = 4/3 * f * delta_b
+        factor = 4./3. * f * delta_b
     else:
         factor = 0.
 
@@ -303,7 +301,7 @@ def relativistic_correction_func(cosmo=FIDUCIAL_COSMOLOGY, geometric=True,
 
     if geometric:
         geometric_term = lambda z: \
-            2 / chi(z) + aH(z) * (1 - 3/2 * astropy_cosmo.Om0 / a(z)**3)
+            2 / chi(z) + aH(z) * (1 - 3./2. * astropy_cosmo.Om0 / a(z) ** 3)
     else:
         geometric_term = lambda z: 0.
 
@@ -316,7 +314,7 @@ def relativistic_correction_func(cosmo=FIDUCIAL_COSMOLOGY, geometric=True,
         lensing_term = lambda z: 0.
     else:
         lensing_term = lambda z: \
-            5 * magnification_bias(z) * (aH(z) - 1/chi(z))
+            5 * magnification_bias(z) * (aH(z) - 1 / chi(z))
 
     return np.vectorize(
         lambda z: (geometric_term(z) + evolution_term(z) + lensing_term(z))
@@ -355,7 +353,8 @@ def relativistic_correction_eval(redshift, cosmo=FIDUCIAL_COSMOLOGY,
 
     correction_value = 0.
     if geometric:
-        correction_value += 2 / chi + aH * (1 - 3/2 * astropy_cosmo.Om0 / a**3)
+        correction_value += \
+            2 / chi + aH * (1 - 3./2. * astropy_cosmo.Om0 / a ** 3)
     if evolution_bias:
         correction_value += - aH * evolution_bias
     if magnification_bias:
@@ -401,9 +400,9 @@ def relativistic_factor(wavenumber, order, redshift, correction_value=None,
 
     """
     if correction_value is not None:
-        modification = correction_value**2 \
-            * cosmo.scale_independent_growth_rate(redshift)**2 \
-            / wavenumber**2
+        modification = correction_value ** 2 \
+            * cosmo.scale_independent_growth_rate(redshift) ** 2 \
+            / wavenumber ** 2
     elif callable(evolution_bias) and callable(magnification_bias):
         correction_function = relativistic_correction_func(
             cosmo=cosmo,
@@ -411,8 +410,8 @@ def relativistic_factor(wavenumber, order, redshift, correction_value=None,
             evolution_bias=evolution_bias,
             magnification_bias=magnification_bias
         )
-        modification = correction_function(redshift)**2 \
-            * cosmo.scale_independent_growth_rate(redshift)**2 \
+        modification = correction_function(redshift) ** 2 \
+            * cosmo.scale_independent_growth_rate(redshift) ** 2 \
             / wavenumber**2
     elif isinstance(evolution_bias, float) \
             and isinstance(magnification_bias, float):
@@ -423,19 +422,19 @@ def relativistic_factor(wavenumber, order, redshift, correction_value=None,
             evolution_bias=evolution_bias,
             magnification_bias=magnification_bias
         )
-        modification = correction_value**2 \
-            * cosmo.scale_independent_growth_rate(redshift)**2 \
-            / wavenumber**2
+        modification = correction_value ** 2 \
+            * cosmo.scale_independent_growth_rate(redshift) ** 2 \
+            / wavenumber ** 2
     else:
         raise TypeError(
             "`evolution_bias` and `magnification_bias` must be "
-            "both callable or float or None. "
+            "both callable or float or None."
         )
 
     if order == 0:
-        factor = 1/3 * modification
+        factor = 1./3. * modification
     elif order == 2:
-        factor = 2/3 * modification
+        factor = 2./3. * modification
     else:
         factor = 0.
 

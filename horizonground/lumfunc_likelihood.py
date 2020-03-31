@@ -24,26 +24,27 @@ Likelihood evaluation
 |
 
 """
-from __future__ import division
-
 import warnings
 from collections import OrderedDict
 from itertools import compress as iterfilter
 from itertools import product as iterproduct
 
 import numpy as np
+from scipy.special import loggamma
 
 from .utils import process_header
 
 
 class DataSourceError(IOError):
-    """Data source error.
+    """Raise an exception when the data source is not available or not in
+    the correct format.
 
     """
 
 
 class DataSourceWarning(UserWarning):
-    """Data source warning.
+    """Raise an exception when the data source does not appear to be
+    self-consistent.
 
     """
 
@@ -115,7 +116,7 @@ class LumFuncMeasurements:
 
         if self._uncertainties is not None:
             data_variance = \
-                self._uncertainties.flatten()[self._valid_data_points]
+                self._uncertainties.flatten()[self._valid_data_points] ** 2
         else:
             data_variance = None
 
@@ -145,7 +146,7 @@ class LumFuncMeasurements:
                 z_idx = self.redshift_bins.index(z)
             except (TypeError, ValueError):
                 raise KeyError(
-                    "No measurements for redshift bin '{}'. ".format(z_key)
+                    "No measurements for redshift bin '{}'.".format(z_key)
                 )
 
         if self._uncertainties is not None:
@@ -168,7 +169,7 @@ class LumFuncMeasurements:
 
         if len(mheadings) != len(measurements_array):
             raise DataSourceError(
-                "Number of headings does not match measurements. "
+                "Number of headings does not match measurements."
             )
 
         self.redshift_labels, self.redshift_bins = \
@@ -190,7 +191,7 @@ class LumFuncMeasurements:
 
             brightness_bin_matching_msg = (
                 "Brightness bins in measurements and uncertainties files "
-                "do not match. "
+                "do not match."
             )
             if len(self.brightness_bins) != len(source_uncertainties[0]):
                 raise DataSourceError(brightness_bin_matching_msg)
@@ -202,7 +203,7 @@ class LumFuncMeasurements:
             if np.shape(measurements_array) != np.shape(uncertainties_array):
                 raise DataSourceError(
                     "Uncertainties file data do not match "
-                    "measurements file data. "
+                    "measurements file data."
                 )
 
             with open(self._uncertainties_source_path, 'r') as ufile:
@@ -256,11 +257,11 @@ def _uniform_log_pdf(param_vals, param_ranges):
 
     if len(param_ranges) != len(param_vals):
         raise ValueError(
-            "Number of parameter ranges does not match number of parameters. "
+            "Number of parameter ranges does not match number of parameters."
         )
     if any(np.greater(param_ranges[:, 0], param_ranges[:, 1])):
         param_ranges = np.sort(param_ranges, axis=-1)
-        warnings.warn("Uniform prior ranges reordered. ")
+        warnings.warn("Uniform prior ranges reordered.")
 
     if any(np.less(param_vals, param_ranges[:, 0])) \
             or any(np.greater(param_vals, param_ranges[:, 1])):
@@ -282,6 +283,22 @@ def _normal_log_pdf(data_vector, model_vector, covariance_matrix):
             np.linalg.inv(covariance_matrix),
             data_vector - model_vector
         ]
+    )
+
+    return log_p
+
+
+def _poisson_log_pdf(data_vector, model_vector):
+
+    data_vector = np.asarray(data_vector)
+    model_vector = np.asarray(model_vector)
+
+    if not all(np.isfinite(model_vector)):
+        return - np.inf
+
+    log_p = - np.sum(
+        data_vector * np.log(model_vector)
+        - model_vector - loggamma(data_vector + 1.)
     )
 
     return log_p
@@ -313,13 +330,15 @@ class LumFuncLikelihood(LumFuncMeasurements):
     fixed_file : str or :class:`pathlib.Path` or None, optional
         Luminosity function model fixed parameter file path.  This covers
         any model parameter(s) not included in the prior.
+    model_constraint : callable or None, optional
+        Additional model constraint(s) to be imposed on model parameters
+        as a prior (default is `None`).
+    distribution : {'normal', 'poisson'}, optional
+        Likelihood distribution for the data vector (default is 'normal').
     data_covariance : float array_like or None, optional
         Covariance matrix for the data points.  Its dimensions must match
         the length of the data vector for valid data points ordered by
         brightness and redshift.
-    model_constraint : callable or None, optional
-        Additional model constraint(s) to be imposed on model parameters
-        as a prior (default is `None`).
     base10_log : bool, optional
         If `True` (default), all values are converted to base-10
         logarithms.
@@ -339,7 +358,8 @@ class LumFuncLikelihood(LumFuncMeasurements):
 
     def __init__(self, lumfunc_model, measurements_file, prior_file,
                  uncertainties_file=None, fixed_file=None,
-                 data_covariance=None, model_constraint=None, base10_log=True):
+                 model_constraint=None, distribution='normal',
+                 data_covariance=None, base10_log=True):
 
         super().__init__(
             measurements_file,
@@ -355,6 +375,7 @@ class LumFuncLikelihood(LumFuncMeasurements):
         self._fixed_source_path = fixed_file
         self.prior, self.fixed = self._setup_prior()
 
+        self._distribution = distribution
         self._external_data_covariance = data_covariance
         self._data_vector, self._data_covariance = self._get_moments()
 
@@ -408,9 +429,16 @@ class LumFuncLikelihood(LumFuncMeasurements):
             for data_point in self.data_points
         ]
 
-        log_likelihood = _normal_log_pdf(
-            self._data_vector, model_vector, self._data_covariance
-        )
+        if self._distribution == 'normal':
+            log_likelihood = _normal_log_pdf(
+                self._data_vector, model_vector, self._data_covariance
+            )
+        elif self._distribution == 'poisson':
+            log_likelihood = _poisson_log_pdf(self._data_vector, model_vector)
+        else:
+            raise ValueError(
+                f"Unsupported distribution: {self._distribution}."
+            )
 
         return log_prior + log_likelihood
 
@@ -455,7 +483,7 @@ class LumFuncLikelihood(LumFuncMeasurements):
                     or len(_data_covar) != len(self.data_points):
                 raise ValueError(
                     "`data_covariance` dimensions do not match data points: "
-                    "({:d}, {:d}) versus {:d}. "
+                    "({:d}, {:d}) versus {:d}."
                     .format(*np.shape(_data_covar), len(self.data_points))
                 )
             return _data_mean, _data_covar
@@ -474,5 +502,7 @@ class LumFuncLikelihood(LumFuncMeasurements):
         return (
             "LuminosityFunctionLikelihood"
             "(measurements_source='{}',LF_model='{}')"
-            .format(self._measurements_source_path, self._lumfunc_model.__name__)
+            .format(
+                self._measurements_source_path, self._lumfunc_model.__name__
+            )
         )
