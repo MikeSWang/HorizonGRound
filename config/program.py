@@ -1,4 +1,4 @@
-"""Program configuration for executable scripts and notebooks.
+"""Program configuration for applications and notebooks.
 
 This modifies Python search path, provides custom logging facility and
 ``matplotlib`` style sheet, and sets up I/O paths.
@@ -78,18 +78,16 @@ def sci_notation(num):
     return num_str
 
 
+# Configure logging.
+logging.captureWarnings(True)
+
+# Set I/O paths.
 config_dir = os.path.dirname(os.path.abspath(__file__))
 
-# Modifies Python search path.
-sys.path.append("".join([config_dir, "/../horizonground/"]))
-
-# Set I/O data paths.
-DATAPATH = pathlib.Path("../data/")
-
-# ``matplotlib`` style sheet.
+DATAPATH = pathlib.Path(config_dir).parent/"data"
 STYLESHEET = mpl.rc_params_from_file(
     config_dir+"/horizon.mplstyle", use_default_template=False
 )
 
-# Configure logging.
-logging.captureWarnings(True)
+# Modifies Python search path.
+sys.path.append("".join([config_dir, "/../horizonground/"]))

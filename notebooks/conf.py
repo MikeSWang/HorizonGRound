@@ -19,3 +19,4 @@ sns.set(style='ticks', font='serif')
 mpl.pyplot.style.use(STYLESHEET)
 
 os.environ['MPLBACKEND'] = 'AGG'
+mpl.rcParams['text.latex.preamble'] = r'\newcommand{\mathdefault}[1][]{}'

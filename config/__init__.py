@@ -1,3 +1,3 @@
-"""Configuration module.
+"""Program configuration.
 
 """

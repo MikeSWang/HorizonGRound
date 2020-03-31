@@ -22,6 +22,7 @@ sns.set(style='ticks', font='serif')
 mpl.pyplot.style.use(STYLESHEET)
 
 os.environ['OMP_NUM_THREADS'] = '1'
+mpl.rcParams['text.latex.preamble'] = r'\newcommand{\mathdefault}[1][]{}'
 
 sci_notation = getattr(program, 'sci_notation')
 logger = program.setup_logger()
