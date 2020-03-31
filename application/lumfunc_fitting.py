@@ -101,7 +101,8 @@ def parse_ext_args():
 
     parsed_args = parser.parse_args()
 
-    parsed_args.chain_file += "_{}_{}_by{}".format(
+    parsed_args.chain_file += "_{}_{}_{}_by{}".format(
+        parsed_args.distribution,
         parsed_args.nwalkers,
         sci_notation(parsed_args.nsteps),
         parsed_args.thinby
