@@ -590,7 +590,7 @@ class LumFuncModeller:
                 return 'magnitude'
         except AttributeError:
             raise TypeError("Brightness variable must be a string. ")
-            
+
         raise ValueError(
             f"Unrecognised brightness variable: '{brightness_variable}'. "
         )

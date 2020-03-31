@@ -40,14 +40,12 @@ class DataSourceError(IOError):
     """Data source error.
 
     """
-    pass
 
 
 class DataSourceWarning(UserWarning):
     """Data source warning.
 
     """
-    pass
 
 
 class LumFuncMeasurements:
@@ -139,7 +137,7 @@ class LumFuncMeasurements:
             Measurements and uncertainties for the redshift bin.
 
         """
-        if isinstance(z_key, int) or isinstance(z_key, slice):
+        if isinstance(z_key, (int, slice)):
             z_idx = z_key
         else:
             try:
@@ -456,7 +454,7 @@ class LumFuncLikelihood(LumFuncMeasurements):
                 raise ValueError(
                     "`data_covariance` dimensions do not match data points: "
                     "({:d}, {:d}) versus {:d}. "
-                    .format(len(_data_covar), len(self.data_points))
+                    .format(*np.shape(_data_covar), len(self.data_points))
                 )
             return _data_mean, _data_covar
 
