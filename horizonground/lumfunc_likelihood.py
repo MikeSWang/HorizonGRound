@@ -297,8 +297,8 @@ def _poisson_log_pdf(data_vector, model_vector):
         return - np.inf
 
     log_p = - np.sum(
-        data_vector * np.log(model_vector)
-        - model_vector - loggamma(data_vector + 1.)
+        data_vector / model_vector * np.log(model_vector)
+        - model_vector - loggamma(data_vector / model_vector + 1.)
     )
 
     return log_p
