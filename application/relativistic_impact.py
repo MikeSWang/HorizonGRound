@@ -50,7 +50,7 @@ wavenumbers = np.logspace(-3.5, -1.5, num=200+1)
 
 
 REL_CORRECTION_CHAIN_FILE = PATHOUT/(
-    "decabinet/relcrct_z2._eBOSS_QSO_LF_PLE_emcee_1512630_32_5E5_by1.h5"
+    "decabinet/relcrct_z2._eBOSS_QSO_LF_PLE_zeus_1512631_32_5E5_by1.h5"
 )
 
 with hp.File(REL_CORRECTION_CHAIN_FILE, 'r') as relcrct_data:

@@ -253,21 +253,21 @@ def view_extracts(chain):
         Chain and contour figures.
 
     """
-    QUANTILES = [0.1587, 0.5, 0.8413]
     LEVELS = [0.39346934, 0.86466472]
+    QUANTILES = [0.1587, 0.5, 0.8413]
     COLOUR = "#A3C1AD"
     CORNER_OPTIONS = dict(
         color=COLOUR,
-        fill_contours=True,
+        quantiles=QUANTILES,
+        levels=LEVELS,
         labels=[lab.format(progrc.redshift) for lab in LABELS],
         label_kwargs={'visible': False},
-        levels=LEVELS,
         plot_datapoints=False,
         plot_contours=True,
-        quantiles=QUANTILES,
+        fill_contours=True,
+        show_titles=True,
         quiet=True,
         rasterized=True,
-        show_titles=True,
     )
 
     plt.close('all')

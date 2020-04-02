@@ -8,7 +8,7 @@ Examples
 >>> uncertainties_file = PATHEXT/"eBOSS_QSO_LF_uncertainties.txt"
 >>> likelihood = LumFuncLikelihood(
 ...     quasar_PLE_model, measurements_file, prior_file,
-...     uncertainties_file=uncertainties_file
+...     uncertainties_file=uncertainties_file, distribution='normal'
 ... )
 >>> parameter_set_file = PATHIN/"cabinet"/"QSO_LF_PLE_model_parameters.txt"
 >>> parameter_set = load_parameter_set(parameter_set_file)
@@ -75,17 +75,17 @@ def parse_ext_args():
         choices=['make', 'get', 'resume'], default='make'
     )
     parser.add_argument('--sampler', type=str.lower, choices=['emcee', 'zeus'])
-
-    parser.add_argument('--nonautostop', action='store_true')
-    parser.add_argument('--quiet', action='store_false')
-    parser.add_argument('--use-prior', action='store_true')
-    parser.add_argument('--use-constraint', action='store_true')
-    parser.add_argument('--jump', action='store_true')
-
-    parser.add_argument('--model-name', type=str, default=None)
     parser.add_argument(
         '--distribution', type=str.lower, choices=['normal', 'poisson']
     )
+
+    parser.add_argument('--jump', action='store_true')
+    parser.add_argument('--use-prior', action='store_true')
+    parser.add_argument('--use-constraint', action='store_true')
+    parser.add_argument('--nonautostop', action='store_true')
+    parser.add_argument('--quiet', action='store_false')
+
+    parser.add_argument('--model-name', type=str, default=None)
     parser.add_argument('--data-files', type=str, nargs=2, default=None)
     parser.add_argument('--prior-file', type=str, default=None)
     parser.add_argument('--fixed-file', type=str, default=None)
@@ -135,24 +135,23 @@ def initialise_sampler():
     # Set up likelihood and prior.
     lumfunc_model = getattr(modeller, prog_params.model_name)
 
+    measurements_file, uncertainties_file = prog_params.data_files
+
+    fixed_file = PATHIN/prog_params.fixed_file \
+        if prog_params.fixed_file else None
+
     lumfunc_model_constraint = getattr(
         modeller, prog_params.model_name + '_constraint', None
     ) if prog_params.use_constraint else None
 
     base10_log = True if prog_params.distribution == 'normal' else False
 
-    fixed_file = PATHIN/prog_params.fixed_file \
-        if prog_params.fixed_file \
-        else None
-
-    measurements_file, uncertainties_file = prog_params.data_files
-
     log_likelihood = LumFuncLikelihood(
         lumfunc_model,
         PATHEXT/measurements_file,
         PATHIN/prog_params.prior_file,
-        fixed_file=fixed_file,
         uncertainties_file=PATHEXT/uncertainties_file,
+        fixed_file=fixed_file,
         model_constraint=lumfunc_model_constraint,
         distribution=prog_params.distribution,
         base10_log=base10_log
@@ -265,7 +264,7 @@ def run_sampler():
     KNOT_LENGTH = 100
     CONVERGENCE_TOL = 0.01
 
-    # Use ``emcee`` sampler.`
+    # Use ``emcee`` sampler.
     if prog_params.sampler == 'emcee':
 
         if prog_params.task == 'make':
@@ -323,7 +322,7 @@ def run_sampler():
 
             return autocorr_estimate[-1]
 
-    # Use ``zeus`` sampler.`
+    # Use ``zeus`` sampler.
     if prog_params.sampler == 'zeus':
 
         sampler.run(ini_pos, prog_params.nsteps, progress=True)
@@ -358,14 +357,14 @@ def load_chains():
         Auto-correlation time estimate.
 
     """
-    COLOUR = "#A3C1AD"
-    QUANTILES = [0.1587, 0.5, 0.8413]
+    quantiles = [0.1587, 0.5, 0.8413]
     levels = 1.0 - np.exp(- np.square([1, 2]) / 2)
     corner_opt = dict(
-        quiet=True, rasterized=True, show_titles=True,
+        quiet=True, rasterized=True, 
+        show_titles=True, label_kwargs={'visible': False},
         plot_datapoints=False, plot_contours=True, fill_contours=True,
-        quantiles=QUANTILES, levels=levels, color=COLOUR,
-        truth_color='#7851a9', label_kwargs={'visible': False},
+        quantiles=quantiles, levels=levels,
+        color='#a3c1ad', truth_color='#7851a9', 
         bins=160, smooth=0.45,
     )
 

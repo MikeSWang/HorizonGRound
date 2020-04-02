@@ -171,22 +171,22 @@ def view_distilled(chain):
     """
     _labels = [lab.format(progrc.redshift) for lab in LABELS]
 
-    QUANTILES = [0.1587, 0.5, 0.8413]
     LEVELS = [0.39346934, 0.86466472]
+    QUANTILES = [0.1587, 0.5, 0.8413]
     COLOUR = "#A3C1AD"
     CORNER_OPTIONS = dict(
         color=COLOUR,
-        fill_contours=True,
+        quantiles=QUANTILES,
+        levels=LEVELS,
         labels=_labels,
         label_kwargs={'visible': False},
-        levels=LEVELS,
+        title_fmt='.5f'
         plot_datapoints=False,
         plot_contours=True,
-        quantiles=QUANTILES,
+        fill_contours=True,
         quiet=True,
         rasterized=True,
         show_titles=True,
-        title_fmt='.5f'
     )
 
     plt.close('all')
