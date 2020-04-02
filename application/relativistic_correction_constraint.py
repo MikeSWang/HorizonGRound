@@ -180,7 +180,7 @@ def view_distilled(chain):
         levels=LEVELS,
         labels=_labels,
         label_kwargs={'visible': False},
-        title_fmt='.5f'
+        title_fmt='.5f',
         plot_datapoints=False,
         plot_contours=True,
         fill_contours=True,
