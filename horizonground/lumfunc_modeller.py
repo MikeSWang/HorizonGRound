@@ -414,7 +414,7 @@ class LumFuncModeller:
 
     """
 
-    redshift_stepsize = 0.01
+    redshift_stepsize = 0.001
     r"""float: Redshift step size for numerical computations.
 
     """
@@ -548,7 +548,8 @@ class LumFuncModeller:
 
         """
         _evolution_bias = - (1 + redshift) * derivative(
-            self.comoving_number_density, redshift, dx=self.redshift_stepsize
+            self.comoving_number_density, redshift,
+            dx=self.redshift_stepsize
         ) / self.comoving_number_density(redshift)
 
         return _evolution_bias

@@ -123,8 +123,8 @@ class LumFuncMeasurements:
         return data_mean, data_variance
 
     def __getitem__(self, z_key):
-        """Get luminosity function measurements, and uncertainties if
-        available, for a specific redshift bin.
+        """Get luminosity function measurements and uncertainties (if
+        available) for a specific redshift bin.
 
         Parameters
         ----------
@@ -296,7 +296,7 @@ def _poisson_log_pdf(data_vector, model_vector):
     if not all(np.isfinite(model_vector)):
         return - np.inf
 
-    log_p = - np.sum(
+    log_p = np.sum(
         data_vector / model_vector * np.log(model_vector)
         - model_vector - loggamma(data_vector / model_vector + 1.)
     )
@@ -362,8 +362,8 @@ class LumFuncLikelihood(LumFuncMeasurements):
                  data_covariance=None, base10_log=True):
 
         super().__init__(
-            measurements_file,
-            uncertainties_file=uncertainties_file, base10_log=base10_log
+            measurements_file, uncertainties_file=uncertainties_file,
+            base10_log=base10_log
         )
 
         self._lumfunc_model = lumfunc_model
@@ -460,6 +460,7 @@ class LumFuncLikelihood(LumFuncMeasurements):
             parameter_names = process_header(pfile.readline())
 
         prior_data = np.genfromtxt(self._prior_source_path, unpack=True)
+
         prior_ranges = list(map(tuple, prior_data))
         prior = OrderedDict(zip(parameter_names, prior_ranges))
 
@@ -475,34 +476,36 @@ class LumFuncLikelihood(LumFuncMeasurements):
 
     def _get_moments(self):
 
-        _data_mean, _data_var = self.get_statistics()
+        data_mean, data_var = self.get_statistics()
 
-        if self._external_data_covariance:
-            _data_covar = np.squeeze(self._external_data_covariance)
-            if len(set(np.shape(_data_covar))) > 1 \
-                    or len(_data_covar) != len(self.data_points):
+        if self._external_data_covariance is not None:
+            data_covar = np.squeeze(self._external_data_covariance)
+            if len(set(np.shape(data_covar))) > 1 \
+                    or len(data_covar) != len(self.data_points):
                 raise ValueError(
                     "`data_covariance` dimensions do not match data points: "
                     "({:d}, {:d}) versus {:d}."
-                    .format(*np.shape(_data_covar), len(self.data_points))
+                    .format(*np.shape(data_covar), len(self.data_points))
                 )
-            return _data_mean, _data_covar
+            return data_mean, data_covar
 
-        if _data_var is None:
+        if data_var is None:
             raise ValueError(
                 "Either `uncertainties_file` or `data_covariance` must be "
                 "provided for setting the covariance matrix "
                 "in the likelihood distribution."
             )
 
-        return _data_mean, np.diag(_data_var)
+        return data_mean, np.diag(data_var)
 
     def __str__(self):
 
         return (
             "LuminosityFunctionLikelihood"
-            "(measurements_source='{}',LF_model='{}')"
+            "(measurements_source='{}',LF_model='{}',distribution='{}')"
             .format(
-                self._measurements_source_path, self._lumfunc_model.__name__
+                self._measurements_source_path,
+                self._lumfunc_model.__name__,
+                self._distribution
             )
         )
