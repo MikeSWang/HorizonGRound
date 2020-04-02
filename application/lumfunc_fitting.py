@@ -144,7 +144,7 @@ def initialise_sampler():
         modeller, prog_params.model_name + '_constraint', None
     ) if prog_params.use_constraint else None
 
-    base10_log = True if prog_params.distribution == 'normal' else False
+    base10_log = (prog_params.distribution == 'normal')
 
     log_likelihood = LumFuncLikelihood(
         lumfunc_model,
@@ -343,7 +343,7 @@ def run_sampler():
 
         return sampler.autocorr_time
 
-    return
+    raise ValueError(f"Unknown MCMC sampler {prog_params.sampler}.")
 
 
 def load_chains():
@@ -360,11 +360,11 @@ def load_chains():
     quantiles = [0.1587, 0.5, 0.8413]
     levels = 1.0 - np.exp(- np.square([1, 2]) / 2)
     corner_opt = dict(
-        quiet=True, rasterized=True, 
+        quiet=True, rasterized=True,
         show_titles=True, label_kwargs={'visible': False},
         plot_datapoints=False, plot_contours=True, fill_contours=True,
         quantiles=quantiles, levels=levels,
-        color='#a3c1ad', truth_color='#7851a9', 
+        color='#a3c1ad', truth_color='#7851a9',
         bins=160, smooth=0.45,
     )
 
