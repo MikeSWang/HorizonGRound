@@ -279,26 +279,10 @@ def _normal_log_pdf(data_vector, model_vector, covariance_matrix):
 
     log_p = - 1/2 * np.linalg.multi_dot(
         [
-            data_vector - model_vector,
+            data_vector / model_vector,
             np.linalg.inv(covariance_matrix),
-            data_vector - model_vector
+            data_vector / model_vector
         ]
-    )
-
-    return log_p
-
-
-def _poisson_log_pdf(data_vector, model_vector):
-
-    data_vector = np.asarray(data_vector)
-    model_vector = np.asarray(model_vector)
-
-    if not all(np.isfinite(model_vector)):
-        return - np.inf
-
-    log_p = np.sum(
-        data_vector / model_vector * np.log(model_vector)
-        - model_vector - loggamma(data_vector / model_vector + 1.)
     )
 
     return log_p
@@ -333,7 +317,7 @@ class LumFuncLikelihood(LumFuncMeasurements):
     model_constraint : callable or None, optional
         Additional model constraint(s) to be imposed on model parameters
         as a prior (default is `None`).
-    distribution : {'normal', 'poisson'}, optional
+    distribution : {'normal'}, optional
         Likelihood distribution for the data vector (default is 'normal').
     data_covariance : float array_like or None, optional
         Covariance matrix for the data points.  Its dimensions must match
@@ -433,8 +417,6 @@ class LumFuncLikelihood(LumFuncMeasurements):
             log_likelihood = _normal_log_pdf(
                 self._data_vector, model_vector, self._data_covariance
             )
-        elif self._distribution == 'poisson':
-            log_likelihood = _poisson_log_pdf(self._data_vector, model_vector)
         else:
             raise ValueError(
                 f"Unsupported distribution: {self._distribution}."
