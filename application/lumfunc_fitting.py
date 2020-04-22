@@ -144,16 +144,13 @@ def initialise_sampler():
         modeller, prog_params.model_name + '_constraint', None
     ) if prog_params.use_constraint else None
 
-    base10_log = (prog_params.distribution == 'normal')
-
     log_likelihood = LumFuncLikelihood(
         lumfunc_model,
         PATHEXT/measurements_file,
         PATHIN/prog_params.prior_file,
         uncertainty_file=PATHEXT/uncertainties_file,
         fixed_file=fixed_file,
-        model_constraint=lumfunc_model_constraint,
-        base10_log=base10_log
+        model_constraint=lumfunc_model_constraint
     )
 
     logger.info(
