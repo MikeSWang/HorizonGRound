@@ -2,15 +2,14 @@ r"""
 Clustering modification (:mod:`~horizonground.clustering_modification`)
 ===========================================================================
 
-Modifications to the isotropic tracer clustering statistics (power
-spectrum) in Newtonian prescription in the distant-observer limit and
-plane-parallel approximation.
+Compute modifications to the Newtonian isotropic tracer power spectrum in
+the distant-observer and plane-parallel limits.
 
 
 Standard Kaiser RSD model
 ---------------------------------------------------------------------------
 
-Redshift-space distortions induces anisotropy in the power spectrum
+Redshift-space distortions induce anisotropy in the power spectrum
 multipoles
 
 .. math::
@@ -44,7 +43,7 @@ dependence in the linear bias,
 .. math::
 
     b_1(z) \mapsto b_1(z) + \Delta b_k(z) \,, \quad
-        \Delta b_k(z) = f_\mathrm{NL} [b_1(z) - p] \frac{A(k, z)}{k^2} \,,
+    \Delta b(k, z) = f_\mathrm{NL} [b_1(z) - p] \frac{A(k, z)}{k^2} \,,
 
 where the scale-dependence kernel is
 
@@ -57,7 +56,7 @@ Here :math:`H_0` is the Hubble parameter at the current epoch
 (in km/s/Mpc), :math:`\mathrm{c}` the speed of light,
 :math:`\Omega_\mathrm{m,0}` the matter density parameter at the current
 epoch, and :math:`\delta_\mathrm{c}` the critical over-density in
-gravitational spherical collapse.  The growth factor :math:`D(z)` is
+spherical gravitational collapse.  The growth factor :math:`D(z)` is
 normalised to unity at the current epoch (thus the numerical factor 1.27),
 the transfer function :math:`T(k)` is normalised to unity as
 :math:`k \to 0`, and :math:`p` is a tracer-dependent parameter.
@@ -69,12 +68,12 @@ non-Gaussianty are
 
     \begin{align*}
         \Delta P_0(k, z) &= \left[
-            2 b_1 \Delta b(k, z)
-            + \frac{2}{3} f \Delta b(k, z)
-            + f^2 \Delta b(k, z)^2
+            2 \Delta b(k, z) b_1
+            + \frac{2}{3} \Delta b(k, z) f
+            + \Delta b(k, z)^2 f^2
         \right] P_\mathrm{m}(k, z) \,, \\
         \Delta P_2(k, z) &=
-            \frac{4}{3} f \Delta b(k, z) P_\mathrm{m}(k, z) \,.
+            \frac{4}{3} \Delta b(k, z) f P_\mathrm{m}(k, z) \,.
     \end{align*}
 
 .. autosummary::
@@ -93,7 +92,7 @@ The relativistic corrections to the Newtonian tracer clustering mode
     \delta(\mathbf{k}, z) \mapsto \delta(\mathbf{k}, z)
             + \frac{g(z)}{\mathcal{H}(z)} v_{\parallel}(\mathbf{k}, z)
         = \delta(\mathbf{k}, z)
-            + \mathrm{i} g(z) \frac{f(z)}{b_1(z)} \frac{\mu}{k}
+            + \mathrm{i} \frac{g(z)}{k} \frac{f(z)}{b_1(z)} \mu
                 \delta(\mathbf{k}, z)
 
 have the redshift dependence
@@ -105,20 +104,21 @@ have the redshift dependence
         + 5s + \frac{2 - 5s}{\mathcal{H} \chi}
         - f_\mathrm{ev}
 
-with evolution bias :math:`f_\mathrm{ev}(z)` and magnification bias
-:math:`s(z)`, where :math:`v_{\parallel}` is the line-of-sight velocity,
-:math:`\chi(z)` is the comoving distance and :math:`'` denotes derivatives
-with respect to the conformal time. This can be treated as the sum of three
-terms
+with evolution bias :math:`f_\mathrm{e}(z)` and magnification bias
+:math:`s(z)`, where :math:`v_{\parallel}` is the line-of-sight peculiar
+velocity, :math:`\chi(z)` is the comoving distance and :math:`'` denotes
+derivatives with respect to the conformal time. This can be treated as the
+sum of three terms
 
 .. math::
 
     \frac{g(z)}{\mathcal{H}(z)} = \underbrace{
-        \frac{2}{\mathcal{H}\chi} + \left[
+        \left[
             1 - \frac{3}{2} \Omega_\mathrm{m,0} (1 + z)^3
+            + \frac{2}{\mathcal{H}\chi}
         \right]
     }_{\text{geometric}}
-    \: \underbrace{- f_\mathrm{ev}(z)}_{\text{evolution}}
+    \: \underbrace{- f_\mathrm{e}(z)}_{\text{evolution}}
     + \underbrace{
         5s(z) \left( 1 - \frac{1}{\mathcal{H}\chi} \right)
     }_{\text{magnification}} \,.
@@ -130,15 +130,15 @@ corrections are
 
     \begin{align*}
         \Delta P_0(k, z) &= \frac{1}{3}
-            \frac{g(z)^2 f(z)^2}{k^2} P_\mathrm{m}(k,z) \,,\\
+            \frac{g(z)^2}{k^2} f(z)^2 P_\mathrm{m}(k,z) \,,\\
         \Delta P_2(k, z) &= \frac{2}{3}
-            \frac{g(z)^2 f(z)^2}{k^2} P_\mathrm{m}(k,z) \,,
+            \frac{g(z)^2}{k^2} f(z)^2 P_\mathrm{m}(k,z) \,,
     \end{align*}
 
 .. autosummary::
 
     relativistic_correction_func
-    relativistic_correction_eval
+    relativistic_correction_value
     relativistic_factor
 
 |
@@ -170,7 +170,7 @@ def standard_kaiser_factor(order, bias, redshift, cosmo=FIDUCIAL_COSMOLOGY):
     redshift : float
         Redshift.
     cosmo : :class:`nbodykit.cosmology.Cosmology`, optional
-        Base cosmological model (default is ``FIDUCIAL_COSMOLOGY``).
+        Cosmological model (default is ``FIDUCIAL_COSMOLOGY``).
 
     Returns
     -------
@@ -197,15 +197,14 @@ def standard_kaiser_factor(order, bias, redshift, cosmo=FIDUCIAL_COSMOLOGY):
 
 def scale_dependence_kernel(redshift, cosmo=FIDUCIAL_COSMOLOGY):
     r"""Return the scale-dependence kernel :math:`A(k, z)` in the presence
-    of local primordial non-Gaussianity as a function of wavenumber at a
-    given redshift.
+    of local primordial non-Gaussianity.
 
     Parameters
     ----------
     redshift : float
         Redshift.
     cosmo : :class:`nbodykit.cosmology.Cosmology`, optional
-        Base cosmological model (default is ``FIDUCIAL_COSMOLOGY``).
+        Cosmological model (default is ``FIDUCIAL_COSMOLOGY``).
 
     Returns
     -------
@@ -223,7 +222,7 @@ def scale_dependence_kernel(redshift, cosmo=FIDUCIAL_COSMOLOGY):
     return lambda k: numerical_constants / transfer_function(k)
 
 
-def non_gaussianity_factor(wavenumber, order, local_NG, bias, redshift,
+def non_gaussianity_factor(wavenumber, order, local_png, bias, redshift,
                            cosmo=FIDUCIAL_COSMOLOGY, tracer_param=1.):
     r"""Compute the power spectrum multipoles modified by local primordial
     non-Gaussianity as multiples of the matter power spectrum.
@@ -234,7 +233,7 @@ def non_gaussianity_factor(wavenumber, order, local_NG, bias, redshift,
         Wavenumber (in :math:`h/\textrm{Mpc}`).
     order : int
         Order of the multipole, ``order >= 0``.
-    local_NG : float
+    local_png : float
         Local primordial non-Gaussianity.
     bias : float
         Scale-independent linear bias at `redshift`.
@@ -252,7 +251,7 @@ def non_gaussianity_factor(wavenumber, order, local_NG, bias, redshift,
         spectrum.
 
     """
-    f_nl, b_1, p = local_NG, bias, tracer_param
+    f_nl, b_1, p = local_png, bias, tracer_param
 
     f = cosmo.scale_independent_growth_rate(redshift)
 
@@ -272,13 +271,12 @@ def non_gaussianity_factor(wavenumber, order, local_NG, bias, redshift,
 
 def relativistic_correction_func(cosmo=FIDUCIAL_COSMOLOGY, geometric=True,
                                  evolution_bias=None, magnification_bias=None):
-    r"""Return the relativistic correction redshift-dependence function
-    :math:`g(z)` as a function of redshift.
+    r"""Return the relativistic correction function :math:`g(z)`.
 
     Parameters
     ----------
     cosmo : :class:`nbodykit.cosmology.Cosmology`, optional
-        Base cosmological model (default is ``FIDUCIAL_COSMOLOGY``).
+        Cosmological model (default is ``FIDUCIAL_COSMOLOGY``).
     geometric : bool, optional
         If `True` (default), include geometric perturbations.
     evolution_bias, magnification_bias : callable or None, optional
@@ -321,9 +319,9 @@ def relativistic_correction_func(cosmo=FIDUCIAL_COSMOLOGY, geometric=True,
     )
 
 
-def relativistic_correction_eval(redshift, cosmo=FIDUCIAL_COSMOLOGY,
-                                 geometric=True, evolution_bias=None,
-                                 magnification_bias=None):
+def relativistic_correction_value(redshift, cosmo=FIDUCIAL_COSMOLOGY,
+                                  geometric=True, evolution_bias=None,
+                                  magnification_bias=None):
     r"""Evaluate the relativistic correction function :math:`g(z)` at a
     redshift.
 
@@ -342,7 +340,7 @@ def relativistic_correction_eval(redshift, cosmo=FIDUCIAL_COSMOLOGY,
     Returns
     -------
     correction_value : float
-        Relativistic correction function value at the same redshift.
+        Relativistic correction function value at `redshift`.
 
     """
     astropy_cosmo = cosmo.to_astropy()
@@ -378,19 +376,21 @@ def relativistic_factor(wavenumber, order, redshift, correction_value=None,
     redshift : float
         Redshift.
     correction_value : float or None, optional
-        If provided and evaluated at input `redshift`, this is directly
-        used as :math:`g(z)` in calculations, and `cosmo`, `geometric`,
+        If not `None` (default), this is directly used as :math:`g(z)`
+        at `redshift` in calculations, and `cosmo`, `geometric`,
         `evolution_bias` and `magnification_bias` are ignored.
     cosmo : :class:`nbodykit.cosmology.Cosmology`, optional
-        Base cosmological model (default is ``FIDUCIAL_COSMOLOGY``).
+        Cosmological model (default is ``FIDUCIAL_COSMOLOGY``).
     geometric : bool, optional
         If `True` (default), include geometric perturbations.
     evolution_bias : float or callable or None, optional
         Evolution bias as a function of redshift, or evaluated at input
-        `redshift` (default is `None`).
+        `redshift` (default is `None`).  If callable, `magnification_bias`
+        must also be callable or `None`.
     magnification_bias : float or callable or None, optional
         Magnification bias as a function of redshift, or evaluated at input
-        `redshift` (default is `None`).
+        `redshift` (default is `None`).  If callable, `evolution_bias`
+        must also be callable or `None`.
 
     Returns
     -------
@@ -399,37 +399,33 @@ def relativistic_factor(wavenumber, order, redshift, correction_value=None,
         spectrum.
 
     """
-    if correction_value is not None:
-        modification = correction_value ** 2 \
-            * cosmo.scale_independent_growth_rate(redshift) ** 2 \
-            / wavenumber ** 2
-    elif callable(evolution_bias) and callable(magnification_bias):
-        correction_function = relativistic_correction_func(
-            cosmo=cosmo,
-            geometric=geometric,
-            evolution_bias=evolution_bias,
-            magnification_bias=magnification_bias
-        )
-        modification = correction_function(redshift) ** 2 \
-            * cosmo.scale_independent_growth_rate(redshift) ** 2 \
-            / wavenumber**2
-    elif isinstance(evolution_bias, float) \
+    if correction_value is None:
+        if callable(evolution_bias) and callable(magnification_bias):
+            correction_function = relativistic_correction_func(
+                cosmo=cosmo,
+                geometric=geometric,
+                evolution_bias=evolution_bias,
+                magnification_bias=magnification_bias
+            )
+            correction_value = correction_function(redshift)
+        elif isinstance(evolution_bias, float) \
             and isinstance(magnification_bias, float):
-        correction_value = relativistic_correction_eval(
-            redshift,
-            cosmo=cosmo,
-            geometric=geometric,
-            evolution_bias=evolution_bias,
-            magnification_bias=magnification_bias
-        )
-        modification = correction_value ** 2 \
-            * cosmo.scale_independent_growth_rate(redshift) ** 2 \
-            / wavenumber ** 2
-    else:
-        raise TypeError(
-            "`evolution_bias` and `magnification_bias` must be "
-            "both callable or float or None."
-        )
+            correction_value = relativistic_correction_value(
+                redshift,
+                cosmo=cosmo,
+                geometric=geometric,
+                evolution_bias=evolution_bias,
+                magnification_bias=magnification_bias
+            )
+        else:
+            raise TypeError(
+                "`evolution_bias` and `magnification_bias` must be "
+                "both callable or float or None."
+            )
+
+    modification = correction_value ** 2 \
+        * cosmo.scale_independent_growth_rate(redshift) ** 2 \
+        / wavenumber ** 2
 
     if order == 0:
         factor = 1./3. * modification
