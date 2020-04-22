@@ -1,5 +1,6 @@
 #!/usr/bin/env python3.6
 # coding: utf-8
+# pylint: disable=missing-module-docstring
 
 # # Relativistic Corrections to Power Spectrum Multipoles
 

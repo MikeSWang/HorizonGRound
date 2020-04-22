@@ -7,10 +7,12 @@ import sys
 import matplotlib as mpl
 import seaborn as sns
 
-current_file_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, "".join([current_file_dir, "/../"]))
-
-from config import program
+try:
+    from config import program
+except ImportError:
+    current_file_dir = os.path.dirname(os.path.abspath(__file__))
+    sys.path.insert(0, "".join([current_file_dir, "/../"]))
+    from config import program
 
 STYLESHEET = getattr(program, 'STYLESHEET')
 DATAPATH = getattr(program, 'DATAPATH')

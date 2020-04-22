@@ -234,7 +234,8 @@ class LumFuncMeasurements:
 
         self._uncertainties = uncertainty_array
 
-    def _extract_redshift_bins(self, headings):
+    @staticmethod
+    def _extract_redshift_bins(headings):
 
         bin_labels = sorted(set(map(
             r"${}$".format,

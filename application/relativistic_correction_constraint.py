@@ -13,7 +13,7 @@ import numpy as np
 from tqdm import tqdm
 
 from conf import PATHOUT, logger
-from horizonground.clustering_modification import relativistic_correction_eval
+from horizonground.clustering_modification import relativistic_correction_value
 
 ORDERS = [0, 2]
 LABELS = [r'$g(z={:.1f})$']
@@ -76,7 +76,7 @@ def compute_correction_from_biases(biases):
         Relativistic correction value.
 
     """
-    correction = relativistic_correction_eval(
+    correction = relativistic_correction_value(
         progrc.redshift, evolution_bias=biases[0], magnification_bias=biases[1]
     )
 

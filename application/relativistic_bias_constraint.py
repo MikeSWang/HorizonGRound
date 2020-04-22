@@ -298,6 +298,7 @@ def view_extracts(chain):
 
 
 # Model-independent settings.
+# pylint: disable=no-member
 BASE10_LOG = True
 COSMOLOGY = cosmology.Planck15
 
