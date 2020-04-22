@@ -34,23 +34,20 @@ def process_header(header, skipcols=0):
 
     Returns
     -------
-    headings : list of str
-        Headings of the file.
+    columns : list of str
+        Column headings of the file.
 
     """
     header = header.strip("#").strip("\n")
 
     if "," in header:
-        headings = list(
-            map(
-                lambda heading: heading.strip(),
-                header.split(",")[skipcols:]
-            )
-        )
+        columns = list(map(
+            lambda heading: heading.strip(), header.split(",")[skipcols:]
+        ))
     else:
-        headings = [
-            heading.strip() for heading in header.split()[skipcols:]
-            if not heading.isspace()
+        columns = [
+            heading.strip()
+            for heading in header.split()[skipcols:] if not heading.isspace()
         ]
 
-    return headings
+    return columns
