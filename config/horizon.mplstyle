@@ -36,7 +36,7 @@ savefig.bbox : tight
 savefig.format : pdf
 savefig.transparent : True
 
-text.usetex : True
+text.usetex : False
 
 xtick.direction : in
 xtick.labelsize : large

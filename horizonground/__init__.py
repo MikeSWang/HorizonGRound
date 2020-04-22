@@ -1,6 +1,6 @@
 """
 ###########################################################################
-``HorizonGRound`` | Relativistic Impacts on Large-Scale Galaxy Clustering
+``HorizonGRound`` | Relativistic Impact on Large-Scale Clustering
 ###########################################################################
 
 .. topic:: Licence Statement
@@ -25,7 +25,9 @@ __author__ = "Mike S Wang"
 __contact__ = "M S Wang"
 __copyright__ = "Copyright 2020, HorizonGRound/M S Wang"
 __date__ = "2020/04/01"
-__description__ = "Relativistic effects in large-scale galaxy clustering."
+__description__ = (
+    "Investigative tools for relativistic impact on large-scale clustering."
+)
 __email__ = "mike.wang@port.ac.uk"
 __license__ = "GPLv3"
 __url__ = "https://mikeswang.github.io/HorizonGRound/"

@@ -12,11 +12,11 @@ sys.path.insert(0, "".join([current_file_dir, "/../"]))
 
 from config import program
 
-STYLESHEET = getattr(program, 'STYLESHEET')
-PATH = getattr(program, 'DATAPATH')
+stylesheet = getattr(program, 'stylesheet')
+data_dir = getattr(program, 'data_dir')
 
 sns.set(style='ticks', font='serif')
-mpl.pyplot.style.use(STYLESHEET)
+mpl.pyplot.style.use(stylesheet)
 
 os.environ['MPLBACKEND'] = 'AGG'
 mpl.rcParams['text.latex.preamble'] = r'\newcommand{\mathdefault}[1][]{}'

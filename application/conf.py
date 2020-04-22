@@ -14,17 +14,18 @@ except ImportError:
     sys.path.insert(0, "".join([current_file_dir, "/../"]))
     from config import program
 
-STYLESHEET = getattr(program, 'STYLESHEET')
-DATAPATH = getattr(program, 'DATAPATH')
-PATHEXT = DATAPATH/"external"
-PATHIN = DATAPATH/"input"
-PATHOUT = DATAPATH/"output"
+stylesheet = getattr(program, 'stylesheet')
+data_dir = getattr(program, 'data_dir')
+sci_notation = getattr(program, 'sci_notation')
 
 sns.set(style='ticks', font='serif')
-mpl.pyplot.style.use(STYLESHEET)
+mpl.pyplot.style.use(stylesheet)
 
 os.environ['OMP_NUM_THREADS'] = '1'
 mpl.rcParams['text.latex.preamble'] = r'\newcommand{\mathdefault}[1][]{}'
 
-sci_notation = getattr(program, 'sci_notation')
 logger = program.setup_logger()
+
+PATHEXT = data_dir/"external"
+PATHIN = data_dir/"input"
+PATHOUT = data_dir/"output"

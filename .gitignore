@@ -104,7 +104,10 @@ venv.bak/
 # mypy
 .mypy_cache/
 
+# VS Code
+.vscode/
+
 # User customised
+storage/input/
+storage/output/
 jobs/
-data/input/
-data/output/

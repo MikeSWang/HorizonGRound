@@ -165,7 +165,7 @@ This is a parametric model with 6 parameters: :math:`\alpha, \epsilon,
 
 .. autosummary::
 
-    alpha_emitter_schechter_model
+    alpha_emitter_schechter_lumfunc
 
 |
 
@@ -377,8 +377,8 @@ def quasar_hybrid_model_constraint(model_parameters):
     return model_parameters[r'\alpha'] < model_parameters[r'\beta']
 
 
-def alpha_emitter_schechter_model(flux, redshift, base10_log=True,
-                                  model_parameters=None):
+def alpha_emitter_schechter_lumfunc(flux, redshift, base10_log=True,
+                                    model_parameters=None):
     r"""Evaluate the Schechter model for the H |alpha| -emitter
     luminosity function at the given flux and redshift.
 

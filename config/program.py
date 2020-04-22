@@ -1,7 +1,7 @@
-"""Program configuration for applications and notebooks.
+"""Configuration file for ``horizonground`` applications.
 
-This modifies Python search path, provides custom logging facility and
-``matplotlib`` style sheet, and sets up I/O paths.
+This provides custom logging facilities and `matplotlib` style sheet, and
+sets up I/O paths.
 
 """
 import logging
@@ -13,7 +13,7 @@ import time
 import matplotlib as mpl
 
 
-class CustomLoggingFormatter(logging.Formatter):
+class LoggingFormatter(logging.Formatter):
     """Custom logging formatter.
 
     """
@@ -21,7 +21,20 @@ class CustomLoggingFormatter(logging.Formatter):
     start_time = time.time()
 
     def format(self, record):
+        """Modify the default logging record by adding elapsed time in
+        hours, minutes and seconds.
 
+        Parameters
+        ----------
+        record : :class:`Logging.LogRecord`
+            Default logging record object.
+
+        Returns
+        -------
+        str
+            Modified record message with elapsed time.
+
+        """
         elapsed_time = record.created - self.start_time
         h, remainder_time = divmod(elapsed_time, 3600)
         m, s = divmod(remainder_time, 60)
@@ -40,7 +53,7 @@ def setup_logger():
         Root logger.
 
     """
-    custom_formatter = CustomLoggingFormatter(
+    custom_formatter = LoggingFormatter(
         fmt='[%(asctime)s %(elapsed)s %(levelname)s] %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S'
     )
@@ -53,6 +66,30 @@ def setup_logger():
     root_logger.setLevel(logging.INFO)
 
     return root_logger
+
+
+# pylint: disable=unused-argument
+def clean_warning_format(message, category, filename, lineno, line=None):
+    """Clean warning message format.
+
+    Parameters
+    ----------
+    message, category, filename, lineno : str
+        Warning message, warning catagory, origin filename, line number.
+    line : str or None, optional
+        Source code line to be included in the warning message (default is
+        `None`).
+
+    Returns
+    -------
+    str
+        Warning message format.
+
+    """
+    filename = filename if "harmonia" not in filename \
+        else "".join(filename.partition("harmonia")[1:])
+
+    return '%s:%s: %s: %s\n' % (filename, lineno, category.__name__, message)
 
 
 def sci_notation(num):
@@ -84,8 +121,10 @@ logging.captureWarnings(True)
 # Set I/O paths.
 config_dir = os.path.dirname(os.path.abspath(__file__))
 
-DATAPATH = pathlib.Path(config_dir).parent/"data"
-STYLESHEET = mpl.rc_params_from_file(
+data_dir = pathlib.Path(config_dir).parent/"storage"
+
+# Set style sheet.
+stylesheet = mpl.rc_params_from_file(
     config_dir+"/horizon.mplstyle", use_default_template=False
 )
 
