@@ -2,8 +2,7 @@
 
 [![version](https://img.shields.io/badge/version-0.0-green)](
 https://github.com/mikeswang/HorizonGRound/blob/master/README.md)
-/blob/master/LICENCE)
-[![licence](https://img.shields.io/badge/licence-GPL%20v3-lightgrey)][(
+[![licence](https://img.shields.io/badge/licence-GPL%20v3-lightgrey)](
 https://github.com/mikeswang/HorizonGRound/blob/master/LICENCE)
 
 
