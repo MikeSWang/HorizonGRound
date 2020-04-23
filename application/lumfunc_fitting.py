@@ -29,7 +29,7 @@ from emcee.autocorr import AutocorrError
 
 from conf import PATHEXT, PATHIN, PATHOUT, logger, sci_notation
 from horizonground.lumfunc_likelihood import LumFuncLikelihood
-from horizonground.utils import load_parameter_set, process_header
+from horizonground.utils import load_parameter_set
 import horizonground.lumfunc_modeller as modeller
 
 
@@ -85,7 +85,8 @@ def parse_ext_args():
 
     parsed_args = parser.parse_args()
 
-    parsed_args.chain_file += "_{}_{}_{}_by{}".format(
+    parsed_args.chain_file = parsed_args.chain_file.rstrip('.h5')
+    parsed_args.chain_file += "_{}_{}_{}_by{}.h5".format(
         parsed_args.prescription,
         parsed_args.nwalkers,
         sci_notation(parsed_args.nsteps),
