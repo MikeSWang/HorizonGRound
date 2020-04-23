@@ -280,9 +280,9 @@ def _normal_log_pdf(deviation_vector, covariance_matrix):
     if not all(np.isfinite(deviation_vector)):
         return - np.inf
 
-    return - 1/2 * np.linalg.multi_dot([
-        deviation_vector, np.linalg.inv(covariance_matrix), deviation_vector
-    ])
+    return - 1/2 * np.linalg.dot(
+        deviation_vector, np.linalg.solve(covariance_matrix, deviation_vector)
+    )
 
 
 class LumFuncLikelihood(LumFuncMeasurements):
@@ -460,11 +460,8 @@ class LumFuncLikelihood(LumFuncMeasurements):
         ]
 
         # Form Gaussian approximant likelihood deviation vector.
-        if self._presciption in ['native']:
-            deviation_vector = np.subtract(self.data_vector, model_vector)
-        elif self._presciption in ['poisson', 'symlg', 'symlin']:
-            deviation_vector = \
-                np.subtract(model_vector, self.data_vector) / np.log10(np.e)
+        deviation_vector = np.subtract(model_vector, self.data_vector)
+        covariance_matrix = self._covariance
 
         if self._presciption == 'poisson':
             deviation_vector = np.sqrt(
@@ -473,7 +470,7 @@ class LumFuncLikelihood(LumFuncMeasurements):
         elif self._presciption == 'symlin':
             deviation_vector = np.exp(deviation_vector) - 1
 
-        log_likelihood = _normal_log_pdf(deviation_vector, self._covariance)
+        log_likelihood = _normal_log_pdf(deviation_vector, covariance_matrix)
 
         return log_prior + log_likelihood
 
