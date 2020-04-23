@@ -112,7 +112,7 @@ def parse_ext_args():
     parsed_args = parser.parse_args()
 
     parsed_args.chain_file += "_{}_{}_{}_by{}".format(
-        parsed_args.distribution,
+        parsed_args.prescription,
         parsed_args.nwalkers,
         sci_notation(parsed_args.nsteps),
         parsed_args.thinby
@@ -161,6 +161,7 @@ def initialise_sampler():
         PATHIN/prog_params.prior_file,
         uncertainty_file=PATHEXT/uncertainty_file,
         fixed_file=fixed_file,
+        prescription=prog_params.prescription,
         model_constraint=model_constraint
     )
 
