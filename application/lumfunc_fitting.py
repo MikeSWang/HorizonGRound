@@ -131,7 +131,7 @@ def initialise_sampler():
 
     Returns
     -------
-    log_likelihood : :class:`lumfunc_likelihood.LumFuncLikelihood`
+    likelihood : :class:`lumfunc_likelihood.LumFuncLikelihood`
         Logarithmic likelihood.
     prior_ranges : :class:`numpy.ndarray`
         Parameter-space boundaries.
@@ -169,7 +169,7 @@ def initialise_sampler():
         "\n---Prior parameters---\n%s\n",
         pformat(dict(likelihood.prior.items()))
     )
-    if log_likelihood.fixed:
+    if likelihood.fixed:
         logger.info(
             "\n---Fixed parameters---\n%s\n",
             pformat(dict(likelihood.fixed.items()))
@@ -227,7 +227,7 @@ def initialise_sampler():
                         _prior_ranges[:, 0], _prior_ranges[:, -1]
                     )
                     criterion = model_constraint(
-                        dict(zip(log_likelihood.prior.keys(), pos))
+                        dict(zip(likelihood.prior.keys(), pos))
                     )
                 _ini_pos.append(pos)
         else:
