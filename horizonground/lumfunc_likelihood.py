@@ -464,7 +464,7 @@ class LumFuncLikelihood(LumFuncMeasurements):
             deviation_vector = np.subtract(self.data_vector, model_vector)
         elif self._presciption in ['poisson', 'symlg', 'symlin']:
             deviation_vector = \
-                np.subtract(self.data_vector, model_vector) / np.log10(np.e)
+                np.subtract(model_vector, self.data_vector) / np.log10(np.e)
 
         if self._presciption == 'poisson':
             deviation_vector = np.sqrt(
