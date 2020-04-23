@@ -48,5 +48,5 @@ def pytest_collection_modifyitems(config, items):
         reason="Use --runslow option to run slow tests."
     )
     for item in items:
-        if "slow" in item.keywords:
+        if 'slow' in item.keywords:
             item.add_marker(skip_slow)

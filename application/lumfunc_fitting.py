@@ -71,9 +71,8 @@ def parse_ext_args():
     parser = ArgumentParser("luminosity-function-fitting")
 
     parser.add_argument(
-        '--task', type=str.lower,
-        choices=['make', 'get', 'resume'], default='make',
-        help="task to perform: make samples; get samples; or resume samples"
+        '--task', type=str.lower, choices=['sample', 'retrieve', 'resume'],
+        help="task to perform: sample; retrieve samples; or resume sampling"
     )
     parser.add_argument('--sampler', type=str.lower, choices=['emcee', 'zeus'])
     parser.add_argument(
@@ -178,7 +177,7 @@ def initialise_sampler():
     dimension = len(likelihood.prior)
     _prior_ranges = np.array(list(likelihood.prior.values()))
 
-    if prog_params.task == "get":
+    if prog_params.task == 'retrieve':
         return likelihood, _prior_ranges, dimension
 
     # Set up the sampler.
@@ -186,7 +185,7 @@ def initialise_sampler():
         output_file = (PATHOUT/prog_params.chain_file).with_suffix('.h5')
 
         backend = mc.backends.HDFBackend(output_file)
-        if prog_params.task == "make":
+        if prog_params.task == 'sample':
             backend.reset(prog_params.nwalkers, dimension)
 
         mcmc_sampler = mc.EnsembleSampler(
@@ -274,7 +273,7 @@ def run_sampler():
     # Use ``emcee`` sampler.
     if prog_params.sampler == 'emcee':
 
-        if prog_params.task == 'make':
+        if prog_params.task == 'sample':
 
             autocorr_estimate = []
             step = 0
@@ -470,11 +469,11 @@ if __name__ == '__main__':
 
     prog_params = parse_ext_args()
 
-    if prog_params.task in ['make', 'resume']:
+    if prog_params.task in ['sample', 'resume']:
         with Pool() as pool:
             sampler, ini_pos, ndim = initialise_sampler()
             autocorr_est = run_sampler()
-    elif prog_params.task == 'get':
+    elif prog_params.task == 'retrieve':
         log_likelihood, prior_ranges, ndim = initialise_sampler()
         autocorr_est = load_chains()
 

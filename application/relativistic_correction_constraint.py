@@ -171,7 +171,7 @@ def view_distilled(chain):
 
     LEVELS = [0.39346934, 0.86466472]
     QUANTILES = [0.1587, 0.5, 0.8413]
-    COLOUR = "#A3C1AD"
+    COLOUR = '#A3C1AD'
     CORNER_OPTIONS = dict(
         color=COLOUR,
         quantiles=QUANTILES,
