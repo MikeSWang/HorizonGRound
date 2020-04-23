@@ -95,7 +95,7 @@ bright-end power law index have different redshift evolutions
             + c_{1\textrm{a}} (z - z_\textrm{p})
             + c_{1\textrm{b}} (z - z_\textrm{p})^2 \,, \\
         m_\ast(z) &= m_\ast(z_\textrm{p}) + c_2 (z - z_\textrm{p}) \,, \\
-        \alpha(z) = \alpha(z_\textrm{p}) + c_3 (z - z_\textrm{p}) \,,
+        \alpha(z) &= \alpha(z_\textrm{p}) + c_3 (z - z_\textrm{p}) \,,
     \end{align*}
 
 and continuity across redshift is imposed by requiring the same

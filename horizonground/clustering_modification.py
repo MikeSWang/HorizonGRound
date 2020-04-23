@@ -102,12 +102,12 @@ have the redshift dependence
     \frac{g(z)}{\mathcal{H}(z)} =
         \frac{\mathcal{H}'}{\mathcal{H}^2}
         + 5s + \frac{2 - 5s}{\mathcal{H} \chi}
-        - f_\mathrm{ev}
+        - f_\mathrm{e}
 
 with evolution bias :math:`f_\mathrm{e}(z)` and magnification bias
 :math:`s(z)`, where :math:`v_{\parallel}` is the line-of-sight peculiar
 velocity, :math:`\chi(z)` is the comoving distance and :math:`'` denotes
-derivatives with respect to the conformal time. This can be treated as the
+derivatives with respect to the conformal time. This can be written as the
 sum of three terms
 
 .. math::
@@ -223,7 +223,7 @@ def scale_dependence_kernel(redshift, cosmo=FIDUCIAL_COSMOLOGY):
 
 
 def non_gaussianity_factor(wavenumber, order, local_png, bias, redshift,
-                           cosmo=FIDUCIAL_COSMOLOGY, tracer_param=1.):
+                           cosmo=FIDUCIAL_COSMOLOGY, tracer_p=1.):
     r"""Compute the power spectrum multipoles modified by local primordial
     non-Gaussianity as multiples of the matter power spectrum.
 
@@ -241,7 +241,7 @@ def non_gaussianity_factor(wavenumber, order, local_png, bias, redshift,
         Redshift.
     cosmo : :class:`nbodykit.cosmology.Cosmology`, optional
         Base cosmological model (default is ``FIDUCIAL_COSMOLOGY``).
-    tracer_param : float, optional
+    tracer_p : float, optional
         Tracer parameter (default is 1.).
 
     Returns
@@ -251,7 +251,7 @@ def non_gaussianity_factor(wavenumber, order, local_png, bias, redshift,
         spectrum.
 
     """
-    f_nl, b_1, p = local_png, bias, tracer_param
+    f_nl, b_1, p = local_png, bias, tracer_p
 
     f = cosmo.scale_independent_growth_rate(redshift)
 
