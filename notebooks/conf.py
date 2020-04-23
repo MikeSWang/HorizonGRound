@@ -7,8 +7,12 @@ import sys
 import matplotlib as mpl
 import seaborn as sns
 
-current_file_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, "".join([current_file_dir, "/../"]))
+try:
+    from config import program
+except ImportError:
+    current_file_dir = os.path.dirname(os.path.abspath(__file__))
+    sys.path.insert(0, "".join([current_file_dir, "/../"]))
+    from config import program
 
 from config import program
 
@@ -20,3 +24,7 @@ mpl.pyplot.style.use(stylesheet)
 
 os.environ['MPLBACKEND'] = 'AGG'
 mpl.rcParams['text.latex.preamble'] = r'\newcommand{\mathdefault}[1][]{}'
+
+PATHEXT = data_dir/"external"
+PATHIN = data_dir/"input"
+PATHOUT = data_dir/"output"

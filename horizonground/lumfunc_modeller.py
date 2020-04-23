@@ -182,7 +182,7 @@ from scipy.misc import derivative
 
 
 def quasar_PLE_lumfunc(magnitude, redshift, *, base10_log=True,
-                       redshift_pivot=2.2, model_parameters=None):
+                       redshift_pivot=2.2, **model_parameters):
     r"""Evaluate the pure luminosity evolution (PLE) model for the quasar
     luminosity function at the given magnitude and redshift.
 
@@ -196,9 +196,9 @@ def quasar_PLE_lumfunc(magnitude, redshift, *, base10_log=True,
         If `True` (default), return the base-10 logarithmic value.
     redshift_pivot : float, optional
         Pivot redshift.
-    model_parameters : dict or None, optional
-        PLE model parameters as a dictionary (default is `None`).
-        Must be passed with the following keys for PLE model parameters:
+    **model_parameters
+        PLE model parameters.  Must be passed with the following
+        parameter names:
         ``r'\lg\Phi_\ast'``, ``r'm_\ast(z_\textrm{p})'``,
         ``r'\alpha_\textrm{{l}}'``, ``r'\beta_\textrm{{l}}'``,
         ``r'k_{{1\textrm{{l}}}}'``, ``r'k_{{2\textrm{{l}}}}'``,
@@ -252,15 +252,15 @@ def quasar_PLE_lumfunc(magnitude, redshift, *, base10_log=True,
     return lumfunc_value
 
 
-def quasar_PLE_model_constraint(model_parameters):
+def quasar_PLE_model_constraint(**model_parameters):
     """Check whether the pure luminosity evolution (PLE) model constraint
     is satisfied.
 
     Parameters
     ----------
-    model_parameters : dict
-        PLE model parameters as a dictionary. See
-        :func:`quasar_PLE_lumfunc` for required keys.
+    **model_parameters
+        PLE model parameters.  See :func:`quasar_PLE_lumfunc` for required
+        parameters.
 
     Returns
     -------
@@ -278,7 +278,7 @@ def quasar_PLE_model_constraint(model_parameters):
 
 
 def quasar_hybrid_lumfunc(magnitude, redshift, *, base10_log=True,
-                          redshift_pivot=2.2, model_parameters=None):
+                          redshift_pivot=2.2, **model_parameters):
     r"""Evaluate the hybrid model (pure luminosity evolution and luminosity
     evolution--density evolution, 'PLE+LEDE') for the quasar luminosity
     function at the given magnitude and redshift.
@@ -293,10 +293,9 @@ def quasar_hybrid_lumfunc(magnitude, redshift, *, base10_log=True,
         If `True` (default), return the base-10 logarithmic value.
     redshift_pivot : float, optional
         Pivot redshift.
-    model_parameters : dict or None, optional
-        Hybrid model parameters as a dictionary (default is `None`).
-        Must be passed with the following keys for hybrid model parameters:
-        ``r'\lg\Phi_\ast(0)'``, ``r'm_\ast(0)'``,
+    **model_parameters
+        Hybrid model parameters.  Must be passed with the following
+        parameter names: ``r'\lg\Phi_\ast(0)'``, ``r'm_\ast(0)'``,
         ``r'\alpha'``, ``r'\beta'``, ``r'k_1'``, ``r'k_2'``,
         ``r'c_{{1\textrm{{a}}}}'``, ``r'c_{{1\textrm{{b}}}}'``,
         ``r'c_2'``, ``r'k_3'``.
@@ -360,13 +359,14 @@ def quasar_hybrid_lumfunc(magnitude, redshift, *, base10_log=True,
     return lumfunc_value
 
 
-def quasar_hybrid_model_constraint(model_parameters):
+def quasar_hybrid_model_constraint(**model_parameters):
     r"""Check whether the hybrid model constraint is satisfied.
 
     Parameters
     ----------
-    model_parameters : dict
-        Hybrid model parameters.
+    **model_parameters
+        Hybrid model parameters.  See :func:`quasar_hybrid_lumfunc` for
+        required parameters.
 
     Returns
     -------
@@ -378,7 +378,7 @@ def quasar_hybrid_model_constraint(model_parameters):
 
 
 def alpha_emitter_schechter_lumfunc(flux, redshift, base10_log=True,
-                                    model_parameters=None):
+                                    **model_parameters):
     r"""Evaluate the Schechter model for the H |alpha| -emitter
     luminosity function at the given flux and redshift.
 
@@ -390,12 +390,10 @@ def alpha_emitter_schechter_lumfunc(flux, redshift, base10_log=True,
         H |alpha| -emitter redshift.
     base10_log : bool, optional
         If `True` (default), return the base-10 logarithmic value.
-    model_parameters : dict or None, optional
-        Schechter model parameters as a dictionary (default is `None`).
-        Must be passed with the following keys for Schechter model
-        parameters: ``r'\lg\Phi_{\ast0}'``, ``r'\lg{L_{\ast0}}'``,
-        ``r'z_\textrm{b}'``, ``r'\alpha'``, ``r'\delta'``,
-        ``r'\epsilon'``.
+    **model_parameters
+        Schechter model parameters.  Must be passed with the following
+        parameter names: ``r'\lg\Phi_{\ast0}'``, ``r'\lg{L_{\ast0}}'``,
+        ``r'z_\textrm{b}'``, ``r'\alpha'``, ``r'\delta'``, ``r'\epsilon'``.
 
     Returns
     -------
@@ -529,7 +527,7 @@ class LumFuncModeller:
         self.cosmology = cosmology
 
     @classmethod
-    def from_parameters_file(cls, parameter_file, **kwargs):
+    def from_parameter_file(cls, parameter_file, **kwargs):
         """Instantiate the modeller class with model parameter values
         loaded from a file.
 
