@@ -29,34 +29,8 @@ from emcee.autocorr import AutocorrError
 
 from conf import PATHEXT, PATHIN, PATHOUT, logger, sci_notation
 from horizonground.lumfunc_likelihood import LumFuncLikelihood
-from horizonground.utils import process_header
+from horizonground.utils import load_parameter_set, process_header
 import horizonground.lumfunc_modeller as modeller
-
-
-def load_parameter_set(parameter_set_file):
-    """Load a parameter set from a file into a dictionary.
-
-    Parameters
-    ----------
-    parameter_set_file : *str or* :class:`pathlib.Path`
-        Parameter set file.
-
-    Returns
-    -------
-    parameter_set : dict
-        Parameter set.
-
-    """
-    with open(parameter_set_file, 'r') as pfile:
-        parameters = process_header(pfile.readline())
-        estimates = tuple(map(float, pfile.readline().split(",")))
-
-    parameter_set = dict(zip(parameters, estimates))
-    for parameter in parameters:
-        if parameter.startswith(r"\Delta"):
-            del parameter_set[parameter]
-
-    return parameter_set
 
 
 def parse_ext_args():

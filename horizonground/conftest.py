@@ -1,7 +1,16 @@
 """Test configuration for :mod:`horizonground`.
 
 """
+import os
+import sys
+from pathlib import Path
+
 import pytest
+
+from .utils import load_parameter_set
+
+current_file_dir = Path(os.path.dirname(os.path.abspath(__file__)))
+test_data_dir = param_file_path = current_file_dir/"tests"/"test_data"
 
 
 def pytest_addoption(parser):
@@ -50,3 +59,27 @@ def pytest_collection_modifyitems(config, items):
     for item in items:
         if 'slow' in item.keywords:
             item.add_marker(skip_slow)
+
+
+@pytest.fixture(scope="session", autouse=True)
+def quasar_PLE_model_params(request):
+
+    return load_parameter_set(
+        test_data_dir/"eBOSS_QSO_LF_PLE_model_fits.txt"
+    )
+
+
+@pytest.fixture(scope="session", autouse=True)
+def quasar_PLE_LEDE_model_params(request):
+
+    return load_parameter_set(
+        test_data_dir/"eBOSS_QSO_LF_PLE+LEDE_model_fits.txt"
+    )
+
+
+@pytest.fixture(scope="session", autouse=True)
+def alpha_emitter_Schechter_model_params(request):
+
+    return load_parameter_set(
+        test_data_dir/"H-alpha_LF_Schechter_model_fits.txt"
+    )

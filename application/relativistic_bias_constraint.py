@@ -18,7 +18,7 @@ from conf import PATHOUT, logger
 from horizonground.lumfunc_modeller import LumFuncModeller
 import horizonground.lumfunc_modeller as lumfunc_modeller
 
-LABELS = [r'$f_\textrm{{e}}(z={})$', r'$s(z={})$']
+LABELS = [r'$f_\mathrm{{e}}(z={})$', r'$s(z={})$']
 NDIM = len(LABELS)
 
 burnin, reduce = 0, 1
@@ -295,11 +295,11 @@ COSMOLOGY = cosmology.Planck15
 
 # Model-specific settings.
 PARAMETERS = [
-    'm_\\ast(z_\\textrm{p})', '\\lg\\Phi_\\ast',
-    '\\alpha_\\textrm{l}', '\\alpha_\\textrm{h}',
-    '\\beta_\\textrm{l}', '\\beta_\\textrm{h}',
-    'k_{1\\textrm{l}}', 'k_{1\\textrm{h}}',
-    'k_{2\\textrm{l}}', 'k_{2\\textrm{h}}',
+    'm_\\ast(z_\\mathrm{p})', '\\lg\\Phi_\\ast',
+    '\\alpha_\\mathrm{l}', '\\alpha_\\mathrm{h}',
+    '\\beta_\\mathrm{l}', '\\beta_\\mathrm{h}',
+    'k_{1\\mathrm{l}}', 'k_{1\\mathrm{h}}',
+    'k_{2\\mathrm{l}}', 'k_{2\\mathrm{h}}',
 ]
 
 LUMINOSITY_VARIABLE = 'magnitude'

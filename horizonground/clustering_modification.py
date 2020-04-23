@@ -210,7 +210,7 @@ def scale_dependence_kernel(redshift, cosmo=FIDUCIAL_COSMOLOGY):
     -------
     callable
         Scale-dependence kernel as a function of wavenumber (in
-        :math:`h/\textrm{Mpc}`).
+        :math:`h/\mathrm{Mpc}`).
 
     """
     numerical_constants = 3 * _SPHERICAL_COLLAPSE_CRITICAL_OVERDENSITY \
@@ -230,7 +230,7 @@ def non_gaussianity_factor(wavenumber, order, local_png, bias, redshift,
     Parameters
     ----------
     wavenumber : float, array_like
-        Wavenumber (in :math:`h/\textrm{Mpc}`).
+        Wavenumber (in :math:`h/\mathrm{Mpc}`).
     order : int
         Order of the multipole, ``order >= 0``.
     local_png : float
@@ -370,7 +370,7 @@ def relativistic_factor(wavenumber, order, redshift, correction_value=None,
     Parameters
     ----------
     wavenumber : float, array_like
-        Wavenumber (in :math:`h/\textrm{Mpc}`).
+        Wavenumber (in :math:`h/\mathrm{Mpc}`).
     order : int
         Order of the multipole, ``order >= 0``.
     redshift : float

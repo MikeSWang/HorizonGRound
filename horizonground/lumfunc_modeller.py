@@ -12,7 +12,7 @@ luminosity threshold :math:`\bar{m}` or :math:`\bar{L}`
 
     \bar{n}(z; <\!\bar{m}) = \int_{-\infty}^{\bar{m}}
         \operatorname{d}\!m\, \Phi(m, z)
-    \quad \textrm{or} \quad
+    \quad \mathrm{or} \quad
     \bar{n}(z; >\!\lg\bar{L}) = \int^{\infty}_{\lg\bar{L}}
         \operatorname{d}\!\lg{L}\, \Phi(\lg{L}, z) \,.
 
@@ -20,7 +20,7 @@ can be predicted, and the corresponding evolution bias
 
 .. math::
 
-    f_\textrm{e}(z) = - (1 + z)
+    f_\mathrm{e}(z) = - (1 + z)
         \frac{\partial \ln\bar{n}(z)}{\partial z}
 
 and magnification bias
@@ -29,7 +29,7 @@ and magnification bias
 
     s(z) = \frac{1}{\ln10}
         \frac{\Phi(\bar{m},z)}{\bar{n}(z; <\!\bar{m})}
-    \quad \textrm{or} \quad
+    \quad \mathrm{or} \quad
     s(z) = \frac{2}{5\ln10}
         \frac{\Phi(\lg\bar{L},z)}{\bar{n}(z; >\!\lg\bar{L})}
     \,
@@ -59,23 +59,23 @@ model is a double power law
 where :math:`m` is the absolute magnitude suitably normalised, :math:`z`
 is the redshift, and the slope parameters :math:`\alpha, \beta` describe
 the power law on the bright and faint ends respectively, but their values
-differ below and above the pivot redshift :math:`z_\textrm{p}`.
+differ below and above the pivot redshift :math:`z_\mathrm{p}`.
 :math:`m_\ast` is the break magnitude at which the luminosity function
 evaluates to :math:`\Phi_\ast`,
 
 .. math::
 
-    m_\ast(z) = m_\ast(z_\textrm{p}) - \frac{5}{2} \left[
-        k_1 (z - z_\textrm{p}) + k_2 (z - z_\textrm{p})^2
+    m_\ast(z) = m_\ast(z_\mathrm{p}) - \frac{5}{2} \left[
+        k_1 (z - z_\mathrm{p}) + k_2 (z - z_\mathrm{p})^2
     \right] \,,
 
 where :math:`k_1, k_2` are the redshift-evolution parameters whose values
 also differ below and above the pivot redshift [1]_.
 
 This is a parametric model with 10 parameters: :math:`\lg\Phi_\ast`,
-:math:`m_\ast(z_\textrm{p})`, :math:`(\alpha, \beta, k_1, k_2)_\textrm{l}`
-for :math:`z < z_\textrm{p}` and :math:`(\alpha, \beta, k_1,
-k_2)_\textrm{h}` for :math:`z > z_\textrm{p}`.   Due to the exchange
+:math:`m_\ast(z_\mathrm{p})`, :math:`(\alpha, \beta, k_1, k_2)_\mathrm{l}`
+for :math:`z < z_\mathrm{p}` and :math:`(\alpha, \beta, k_1,
+k_2)_\mathrm{h}` for :math:`z > z_\mathrm{p}`.   Due to the exchange
 symmetry between :math:`\alpha` and :math:`\beta` in the double power law,
 the model constraint :math:`\alpha < \beta` is imposed for both above
 and below the pivot redshift.
@@ -91,23 +91,23 @@ bright-end power law index have different redshift evolutions
 .. math::
 
     \begin{align*}
-        \lg\Phi_\ast &= \lg\Phi_\ast(z_\textrm{p}) \
-            + c_{1\textrm{a}} (z - z_\textrm{p})
-            + c_{1\textrm{b}} (z - z_\textrm{p})^2 \,, \\
-        m_\ast(z) &= m_\ast(z_\textrm{p}) + c_2 (z - z_\textrm{p}) \,, \\
-        \alpha(z) &= \alpha(z_\textrm{p}) + c_3 (z - z_\textrm{p}) \,,
+        \lg\Phi_\ast &= \lg\Phi_\ast(z_\mathrm{p}) \
+            + c_{1\mathrm{a}} (z - z_\mathrm{p})
+            + c_{1\mathrm{b}} (z - z_\mathrm{p})^2 \,, \\
+        m_\ast(z) &= m_\ast(z_\mathrm{p}) + c_2 (z - z_\mathrm{p}) \,, \\
+        \alpha(z) &= \alpha(z_\mathrm{p}) + c_3 (z - z_\mathrm{p}) \,,
     \end{align*}
 
 and continuity across redshift is imposed by requiring the same
-:math:`\lg\Phi_\ast(z_\textrm{p})` and :math:`m_\ast(z_\textrm{p})` for
+:math:`\lg\Phi_\ast(z_\mathrm{p})` and :math:`m_\ast(z_\mathrm{p})` for
 two models.
 
 The hybrid model still has 10 overall parameters: the PLE model retains 6
 low-redshift parameters and the high-redshift LEDE model has 8 parameters,
 with the substitutions of :math:`\lg\Phi_\ast(0)` for :math:`\lg\Phi_\ast`,
-:math:`m_\ast(0)` for :math:`m_\ast(z_\textrm{p})`, :math:`c_2` for
+:math:`m_\ast(0)` for :math:`m_\ast(z_\mathrm{p})`, :math:`c_2` for
 :math:`k_1, k_2` and the addition of
-:math:`c_{1\textrm{a}}, c_{1\textrm{b}}` and :math:`c_3`.  As before, due
+:math:`c_{1\mathrm{a}}, c_{1\mathrm{b}}` and :math:`c_3`.  As before, due
 to the exchange symmetry between :math:`\alpha` and :math:`\beta`, the
 low-redshift PLE model constraint :math:`\alpha < \beta` is imposed.
 
@@ -144,20 +144,20 @@ where :math:`\alpha` is the faint-end slope parameter,
         \Phi_\ast(z) &=
             \begin{cases}
                 \Phi_{\ast0} (1 + z)^\epsilon \,,
-                    \quad z \leqslant z_\textrm{b} \,; \\
-                \Phi_{\ast0} (1 + z_\textrm{b})^{2\epsilon}
-                    (1 + z)^{-\epsilon} \,, \quad z > z_\textrm{b} \,,
+                    \quad z \leqslant z_\mathrm{b} \,; \\
+                \Phi_{\ast0} (1 + z_\mathrm{b})^{2\epsilon}
+                    (1 + z)^{-\epsilon} \,, \quad z > z_\mathrm{b} \,,
             \end{cases} \\
         y(z) &= \frac{L}{L_{\ast0}} (1 + z)^{-\delta} \,,
     \end{align*}
 
 are the redshift-dependent characteristic comoving number density and
 relative luminosity of the H |alpha| -emitters, :math:`\epsilon, \delta`
-are the redshift-evolution indices, and :math:`z_\textrm{b}` is the break
+are the redshift-evolution indices, and :math:`z_\mathrm{b}` is the break
 magnitude [2]_.
 
 This is a parametric model with 6 parameters: :math:`\alpha, \epsilon,
-\delta`, :math:`z_\textrm{b}`, :math:`m_{\ast0}` and :math:`\Phi_{\ast0}`.
+\delta`, :math:`z_\mathrm{b}`, :math:`m_{\ast0}` and :math:`\Phi_{\ast0}`.
 
 .. [2] Pozzetti L. et al., 2016. A&A 590, A3.
    [arXiv: `1603.01453 <https://arxiv.org/abs/1603.01453>`_]
@@ -199,11 +199,11 @@ def quasar_PLE_lumfunc(magnitude, redshift, *, base10_log=True,
     **model_parameters
         PLE model parameters.  Must be passed with the following
         parameter names:
-        ``r'\lg\Phi_\ast'``, ``r'm_\ast(z_\textrm{p})'``,
-        ``r'\alpha_\textrm{{l}}'``, ``r'\beta_\textrm{{l}}'``,
-        ``r'k_{{1\textrm{{l}}}}'``, ``r'k_{{2\textrm{{l}}}}'``,
-        ``r'\alpha_\textrm{{h}}'``, ``r'\beta_\textrm{{h}}'``,
-        ``r'k_{{1\textrm{{h}}}}'``, ``r'k_{{2\textrm{{h}}}}'``.
+        ``r'\lg\Phi_\ast'``, ``r'm_\ast(z_\mathrm{p})'``,
+        ``r'\alpha_\mathrm{{l}}'``, ``r'\beta_\mathrm{{l}}'``,
+        ``r'k_{{1\mathrm{{l}}}}'``, ``r'k_{{2\mathrm{{l}}}}'``,
+        ``r'\alpha_\mathrm{{h}}'``, ``r'\beta_\mathrm{{h}}'``,
+        ``r'k_{{1\mathrm{{h}}}}'``, ``r'k_{{2\mathrm{{h}}}}'``.
 
     Returns
     -------
@@ -221,17 +221,18 @@ def quasar_PLE_lumfunc(magnitude, redshift, *, base10_log=True,
     m, z, z_p = magnitude, redshift, redshift_pivot
 
     # Determine the redshift end for setting parameters.
-    subscript = r'\textrm{{{}}}'.format('l') if z <= z_p \
-        else r'\textrm{{{}}}'.format('h')
+    subscript = r'\mathrm{{{}}}'.format('l') if z <= z_p \
+        else r'\mathrm{{{}}}'.format('h')
 
     alpha = model_parameters[r'\alpha_{}'.format(subscript)]
     beta = model_parameters[r'\beta_{}'.format(subscript)]
     k_1 = model_parameters[r'k_{{1{}}}'.format(subscript)]
     k_2 = model_parameters[r'k_{{2{}}}'.format(subscript)]
 
-    # Evaluate the model prediction.
-    m_star_at_z_p = model_parameters[r'm_\ast(z_\textrm{p})']
+    lg_Phi_star = model_parameters[r'\lg\Phi_\ast']
+    m_star_at_z_p = model_parameters[r'm_\ast(z_\mathrm{p})']
 
+    # Evaluate the model prediction.
     magnitude_deviation_exponent = \
         (m - m_star_at_z_p) + 2.5 * (k_1 * (z - z_p) + k_2 * (z - z_p) ** 2)
 
@@ -243,10 +244,9 @@ def quasar_PLE_lumfunc(magnitude, redshift, *, base10_log=True,
     ln_denominator = np.logaddexp(ln_faint_power_law, ln_bright_power_law)
 
     if base10_log:
-        lg_Phi_star = model_parameters[r'\lg\Phi_\ast']
         lumfunc_value = lg_Phi_star - ln_denominator / np.log(10)
     else:
-        Phi_star = 10 ** model_parameters[r'\lg\Phi_\ast']
+        Phi_star = 10 ** lg_Phi_star
         lumfunc_value = Phi_star / np.exp(ln_denominator)
 
     return lumfunc_value
@@ -269,11 +269,11 @@ def quasar_PLE_model_constraint(**model_parameters):
 
     """
     return (
-        model_parameters[r'\alpha_\textrm{l}']
-        < model_parameters[r'\beta_\textrm{l}']
+        model_parameters[r'\alpha_\mathrm{l}']
+        < model_parameters[r'\beta_\mathrm{l}']
     ) and (
-        model_parameters[r'\alpha_\textrm{h}']
-        < model_parameters[r'\beta_\textrm{h}']
+        model_parameters[r'\alpha_\mathrm{h}']
+        < model_parameters[r'\beta_\mathrm{h}']
     )
 
 
@@ -297,7 +297,7 @@ def quasar_hybrid_lumfunc(magnitude, redshift, *, base10_log=True,
         Hybrid model parameters.  Must be passed with the following
         parameter names: ``r'\lg\Phi_\ast(0)'``, ``r'm_\ast(0)'``,
         ``r'\alpha'``, ``r'\beta'``, ``r'k_1'``, ``r'k_2'``,
-        ``r'c_{{1\textrm{{a}}}}'``, ``r'c_{{1\textrm{{b}}}}'``,
+        ``r'c_{{1\mathrm{{a}}}}'``, ``r'c_{{1\mathrm{{b}}}}'``,
         ``r'c_2'``, ``r'k_3'``.
 
     Returns
@@ -315,34 +315,46 @@ def quasar_hybrid_lumfunc(magnitude, redshift, *, base10_log=True,
 
     m, z, z_p = magnitude, redshift, redshift_pivot
 
-    # Shift zero redshift normalisation constants to pivot redshift
-    # normalisation constants.
-    m_star_at_z_p = model_parameters[r'm_\ast(0)'] + 2.5 * (
-        - model_parameters[r'k_1'] * z_p + model_parameters[r'k_2'] * z_p ** 2
-    )
-
-    model_parameters.update({r'm_\ast(z_\textrm{p})': m_star_at_z_p})
+    # Low redshift PLE model.
+    lg_Phi_star_0 = model_parameters[r'\lg\Phi_\ast(0)']
+    m_star_0 = model_parameters[r'm_\ast(0)']
+    alpha = model_parameters[r'\alpha']
+    beta = model_parameters[r'\beta']
+    k_1 = model_parameters[r'k_1']
+    k_2 = model_parameters[r'k_2']
 
     if z <= z_p:
-        return quasar_PLE_lumfunc(
-            m, z,
-            base10_log=base10_log, redshift_pivot=z_p,
-            model_parameters=model_parameters
-        )
 
-    lg_Phi_star_at_z_p = model_parameters[r'\lg\Phi_\ast(0)']
-    alpha_at_z_p = model_parameters[r'\alpha']
-    beta = model_parameters[r'\beta']
-    c_1a = model_parameters[r'c_{{1\textrm{{a}}}}']
-    c_1b = model_parameters[r'c_{{1\textrm{{b}}}}']
+        magnitude_deviation_exponent = \
+            (m - m_star_0) + 2.5 * (k_1 * z + k_2 * z ** 2)
+
+        ln_faint_power_law = \
+            np.log(10) * (0.4 * (alpha + 1) * magnitude_deviation_exponent)
+        ln_bright_power_law = \
+            np.log(10) * (0.4 * (beta + 1) * magnitude_deviation_exponent)
+
+        ln_denominator = np.logaddexp(ln_faint_power_law, ln_bright_power_law)
+
+        if base10_log:
+            lumfunc_value = lg_Phi_star_0 - ln_denominator / np.log(10)
+        else:
+            Phi_star = 10 ** lg_Phi_star_0
+            lumfunc_value = Phi_star / np.exp(ln_denominator)
+
+        return lumfunc_value
+
+    # High redshift LEDE model.
+    c_1a = model_parameters[r'c_{1\mathrm{a}}']
+    c_1b = model_parameters[r'c_{1\mathrm{b}}']
     c_2 = model_parameters[r'c_2']
     c_3 = model_parameters[r'c_3']
 
+    lg_Phi_star_at_z_p = lg_Phi_star_0
+    m_star_at_z_p = m_star_0 - 2.5 * (k_1 * z_p + k_2 * z_p ** 2)
+
     lg_Phi_star = lg_Phi_star_at_z_p + c_1a * (z - z_p) + c_1b * (z - z_p) ** 2
-
-    magnitude_deviation_exponent = c_2 * (z - z_p)
-
-    alpha = alpha_at_z_p + c_3 * (z - z_p)
+    magnitude_deviation_exponent = (m - m_star_at_z_p) + c_2 * (z - z_p)
+    alpha = alpha + c_3 * (z - z_p)
 
     ln_faint_power_law = \
         np.log(10) * (0.4 * (alpha + 1) * magnitude_deviation_exponent)
@@ -354,7 +366,8 @@ def quasar_hybrid_lumfunc(magnitude, redshift, *, base10_log=True,
     if base10_log:
         lumfunc_value = lg_Phi_star - ln_denominator / np.log(10)
     else:
-        lumfunc_value = 10 ** lg_Phi_star / np.exp(ln_denominator)
+        Phi_star = 10 ** lg_Phi_star
+        lumfunc_value = Phi_star / np.exp(ln_denominator)
 
     return lumfunc_value
 
@@ -393,7 +406,7 @@ def alpha_emitter_schechter_lumfunc(flux, redshift, base10_log=True,
     **model_parameters
         Schechter model parameters.  Must be passed with the following
         parameter names: ``r'\lg\Phi_{\ast0}'``, ``r'\lg{L_{\ast0}}'``,
-        ``r'z_\textrm{b}'``, ``r'\alpha'``, ``r'\delta'``, ``r'\epsilon'``.
+        ``r'z_\mathrm{b}'``, ``r'\alpha'``, ``r'\delta'``, ``r'\epsilon'``.
 
     Returns
     -------
@@ -407,7 +420,7 @@ def alpha_emitter_schechter_lumfunc(flux, redshift, base10_log=True,
 
     lg_Phi_star0 = model_parameters[r'\lg\Phi_{\ast0}']
     lg_L_star0 = model_parameters[r'\lg{L_{\ast0}}']
-    z_b = model_parameters[r'z_\textrm{b}']
+    z_b = model_parameters[r'z_\mathrm{b}']
     alpha = model_parameters[r'\alpha']
     delta = model_parameters[r'\delta']
     epsilon = model_parameters[r'\epsilon']
@@ -466,7 +479,7 @@ class LumFuncModeller:
     ----------
     luminosity_function : callable
         Luminosity function of luminosity and redshift variables only
-        (in that order) (in inverse cubic :math:`\textrm{Mpc}/h` per unit
+        (in that order) (in inverse cubic :math:`\mathrm{Mpc}/h` per unit
         luminosity).
     luminosity_threshold : callable
         Luminosity threshold value in :attr:`luminosity_variable` as a
@@ -565,7 +578,7 @@ class LumFuncModeller:
         -------
         float
             Comoving number density (in inverse cubic
-            :math:`\textrm{Mpc}/h`).
+            :math:`\mathrm{Mpc}/h`).
 
         """
         _comoving_number_density = np.abs(
