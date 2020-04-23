@@ -316,22 +316,28 @@ class LumFuncLikelihood(LumFuncMeasurements):
     model_constraint : callable or None, optional
         Additional model constraint(s) to be imposed on model parameters
         as a prior (default is `None`).
-    uncertainty_file : str or :class:`pathlib.Path` or None, optional
+    uncertainty_file : str or :class:`pathlib.Path` *or None, optional*
         Luminosity function uncertainty file path (default is `None`).
         Ignored if `data_covariance` is provided.
-    fixed_file : str or :class:`pathlib.Path` or None, optional
-        Luminosity function model fixed parameter file path.  This covers
-        any model parameter(s) not included in the prior.
-    covariance_matrix : float array_like or None, optional
-        Covariance matrix for the multivariate normal likelihood
-        approximation.  Its dimensions must match the length of the data
-        vector flattened by redshift and luminosity bins.
+    fixed_file : str or :class:`pathlib.Path`*or None, optional*
+        Luminosity function model fixed parameter file path (default is
+        `None`).  This covers any model parameter(s) not included in
+        the prior.
+    prescription : {'native', 'poisson', 'symlg', 'symlin'}, str, optional
+        Gaussian likelihood approximation prescription (default is
+        'native').
     model_options : dict or None, optional
         Additional parameters passed to the `model_lumfunc` for model
-        evaluation.  This should not contain parametric luminosity
-        function model parameters but only Python function implementation
-        optional parameters (e.g. ``redshift_pivot=2.2`` for
+        evaluation (default is `None`).  This should not contain
+        parametric luminosity function model parameters but only Python
+        function implementation optional parameters (e.g.
+        ``redshift_pivot=2.2`` for
         :func:`~horizonground.lumfunc_modeller.quasar_PLE_lumfunc`).
+    covariance_matrix : float array_like or None, optional
+        Covariance matrix for the multivariate normal likelihood
+        approximation (default is `None`).  Its dimensions must match the
+        length of the data vector flattened by redshift and
+        luminosity bins.
 
     Attributes
     ----------
@@ -347,30 +353,43 @@ class LumFuncLikelihood(LumFuncMeasurements):
         arguments is consistent.
 
     """
-    _BASE10_LOG = True
 
     def __init__(self, model_lumfunc, measurement_file, prior_file,
-                 model_constraint=None, uncertainty_file=None, fixed_file=None,
-                 covariance_matrix=None, model_options=None):
+                 uncertainty_file=None, fixed_file=None,
+                 prescription='poisson', model_constraint=None,
+                 model_options=None, covariance_matrix=None):
 
+        # Set up likelihood treatment.
+        self._prior_source_path = prior_file
+        self._fixed_source_path = fixed_file
+        self.prior, self.fixed = self._setup_prior()
+
+        self._presciption = prescription
+        if self._presciption in ['native']:
+            self._lg_conversion = False
+        elif self._presciption in ['poisson', 'symlg', 'symlin']:
+            self._lg_conversion = True
+        else:
+            raise ValueError(
+                f"Invalid Gaussian likelihood prescription: {prescription}."
+            )
+
+        # Set up model evaluation.
         self._model_lumfunc = model_lumfunc
         self._model_constraint = model_constraint
         self._model_options = model_options or {}
 
         if 'base10_log' in signature(self._model_lumfunc).parameters:
-            self._model_options.update({'base10_log': self._BASE10_LOG})
+            self._model_options.update({'base10_log': self._lg_conversion})
 
+        # Set up data processing.
         super().__init__(
             measurement_file, uncertainty_file=uncertainty_file,
-            base10_log=self._BASE10_LOG
+            base10_log=self._lg_conversion
         )
         self.data_points = self._setup_data_points()
         self.data_vector, self._covariance = \
             self._get_moments(external_covariance=covariance_matrix)
-
-        self._prior_source_path = prior_file
-        self._fixed_source_path = fixed_file
-        self.prior, self.fixed = self._setup_prior()
 
     def __str__(self):
 
@@ -380,25 +399,22 @@ class LumFuncLikelihood(LumFuncMeasurements):
                 "measurement_source={}".format(self._measurement_source_path),
                 "uncertainty_source={}".format(self._uncertainty_source_path),
                 "prior_source={}".format(self._prior_source_path),
-                "fixed_source={}".format(self._fixed_source_path)
+                "fixed_source={}".format(self._fixed_source_path),
+                "likelihood_approximant={}".format(self._presciption),
             ]
         ))
 
-    def __call__(self, param_point, use_prior=False, prescription='poisson'):
+    def __call__(self, param_point, use_prior=False):
         """Evaluate the logarithmic likelihood at the model parameter
         point.
 
         Parameters
         ----------
         param_point : float array_like
-            :attr:`model_lumfunc` model parameters (other than luminosity
-            and redshift) ordered in the same way as the prior parameters.
+            :attr:`model_lumfunc` parametric model parameters ordered in
+            the same way as the prior parameters.
         use_prior : bool, optional
             If `True` (default is `False`), use the user-input prior range.
-        prescription : {'poisson', 'symlg', 'symlin'}, str, optional
-            Gaussian likelihood approximation prescription (default is
-            'poisson').
-        **kwargs
 
         Returns
         -------
@@ -422,7 +438,7 @@ class LumFuncLikelihood(LumFuncMeasurements):
         if not np.isfinite(log_prior):
             return - np.inf
 
-        # Check for model constraints.
+        # Check for model constraint.
         model_params = OrderedDict(zip(list(self.prior.keys()), param_point))
         if self.fixed is not None:
             model_params.update(self.fixed)
@@ -444,26 +460,20 @@ class LumFuncLikelihood(LumFuncMeasurements):
         ]
 
         # Form Gaussian approximant likelihood deviation vector.
-        if self._BASE10_LOG:
-            ln_deviation = \
-                np.subtract(model_vector, self.data_vector) / np.log10(np.e)
-        else:
-            ln_deviation = np.log(model_vector) - np.log(self.data_vector)
+        if self._presciption in ['native']:
+            deviation_vector = np.subtract(self.data_vector, model_vector)
+        elif self._presciption in ['poisson', 'symlg', 'symlin']:
+            deviation_vector = \
+                np.subtract(self.data_vector, model_vector) / np.log10(np.e)
 
-        if prescription == 'poisson':
-            deviation_approximant = np.sqrt(
-                2 * (np.exp(ln_deviation) - 1 - ln_deviation)
+        if self._presciption == 'poisson':
+            deviation_vector = np.sqrt(
+                2 * (np.exp(deviation_vector) - 1 - deviation_vector)
             )
-        elif prescription == 'symlg':
-            deviation_approximant = ln_deviation
-        elif prescription == 'symlin':
-            deviation_approximant = np.exp(ln_deviation) - 1
-        else:
-            raise ValueError(f"Invalid presciption: {prescription}.")
+        elif self._presciption == 'symlin':
+            deviation_vector = np.exp(deviation_vector) - 1
 
-        log_likelihood = _normal_log_pdf(
-            deviation_approximant, self._covariance
-        )
+        log_likelihood = _normal_log_pdf(deviation_vector, self._covariance)
 
         return log_prior + log_likelihood
 
