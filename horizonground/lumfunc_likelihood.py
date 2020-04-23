@@ -280,7 +280,7 @@ def _normal_log_pdf(deviation_vector, covariance_matrix):
     if not all(np.isfinite(deviation_vector)):
         return - np.inf
 
-    return - 1/2 * np.linalg.dot(
+    return - 1/2 * np.dot(
         deviation_vector, np.linalg.solve(covariance_matrix, deviation_vector)
     )
 
