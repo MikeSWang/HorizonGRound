@@ -244,7 +244,8 @@ def initialise_sampler():
 
         logger.info(
             "\n---Starting positions (walkers, parameters)---\n%s\n%s...\n",
-            pformat(list(likelihood.prior.keys()), width=79, compact=True),
+            pformat(list(likelihood.prior.keys()), width=79, compact=True)
+            .lstrip("{").rstrip("}"),
             pformat(
                 np.array2string(
                     initial_state[::(prog_params.nwalkers // 10), :],
