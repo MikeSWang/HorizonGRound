@@ -2,13 +2,13 @@ r"""Luminosity function model fitting.
 
 Examples
 --------
->>> from horizonground.lumfunc_modeller import quasar_PLE_model
->>> measurements_file = PATHEXT/"eBOSS_QSO_LF_measurements.txt"
+>>> from horizonground.lumfunc_modeller import quasar_PLE_lumfunc
+>>> measurement_file = PATHEXT/"eBOSS_QSO_LF_measurements.txt"
+>>> uncertainty_file = PATHEXT/"eBOSS_QSO_LF_uncertainties.txt"
 >>> prior_file = PATHIN/"QSO_LF_PLE_model_prior.txt"
->>> uncertainties_file = PATHEXT/"eBOSS_QSO_LF_uncertainties.txt"
 >>> likelihood = LumFuncLikelihood(
-...     quasar_PLE_model, measurements_file, prior_file,
-...     uncertainties_file=uncertainties_file, distribution='normal'
+...     quasar_PLE_lumfunc, measurement_file, prior_file,
+...     uncertainty_file=uncertainty_file, prescription='native'
 ... )
 >>> parameter_set_file = PATHIN/"cabinet"/"QSO_LF_PLE_model_parameters.txt"
 >>> parameter_set = load_parameter_set(parameter_set_file)
@@ -38,7 +38,7 @@ def load_parameter_set(parameter_set_file):
 
     Parameters
     ----------
-    parameter_set_file : str or :class:`pathlib.Path`
+    parameter_set_file : *str or* :class:`pathlib.Path`
         Parameter set file.
 
     Returns
@@ -72,20 +72,28 @@ def parse_ext_args():
 
     parser.add_argument(
         '--task', type=str.lower,
-        choices=['make', 'get', 'resume'], default='make'
+        choices=['make', 'get', 'resume'], default='make',
+        help="task to perform: make samples; get samples; or resume samples"
     )
     parser.add_argument('--sampler', type=str.lower, choices=['emcee', 'zeus'])
     parser.add_argument(
-        '--distribution', type=str.lower, choices=['normal', 'poisson']
+        '--prescription', type=str.lower,
+        choices=['native', 'poisson', 'symlg']
+    )
+    parser.add_argument(
+        '--jump', action='store_true',
+        help="change zeus sampler jump condition; used for multimodal cases"
     )
 
-    parser.add_argument('--jump', action='store_true')
     parser.add_argument('--use-prior', action='store_true')
     parser.add_argument('--use-constraint', action='store_true')
-    parser.add_argument('--nonautostop', action='store_true')
+    parser.add_argument(
+        '--nonautostop', action='store_true',
+        help="do not stop sampling after convergence detected"
+    )
     parser.add_argument('--quiet', action='store_false')
 
-    parser.add_argument('--model-name', type=str, default=None)
+    parser.add_argument('--model-name', type=str, default='quasar_PLE')
     parser.add_argument('--data-files', type=str, nargs=2, default=None)
     parser.add_argument('--prior-file', type=str, default=None)
     parser.add_argument('--fixed-file', type=str, default=None)
@@ -95,7 +103,10 @@ def parse_ext_args():
     parser.add_argument('--nsteps', type=int, default=10000)
     parser.add_argument('--thinby', type=int, default=1)
 
-    parser.add_argument('--skip-chains', type=int, default=None)
+    parser.add_argument(
+        '--skip-chains', type=int, default=None,
+        help="only plot chain traces every interval"
+    )
     parser.add_argument('--burnin', type=int, default=None)
     parser.add_argument('--reduce', type=int, default=None)
 
@@ -109,7 +120,8 @@ def parse_ext_args():
     )
 
     logger.info(
-        "\n---Program configuration---\n%s\n", pformat(vars(parsed_args))
+        "\n---Program configuration---\n%s\n",
+        pformat(vars(parsed_args)).lstrip("{").rstrip("}")
     )
 
     return parsed_args
@@ -133,44 +145,43 @@ def initialise_sampler():
 
     """
     # Set up likelihood and prior.
-    lumfunc_model = getattr(modeller, prog_params.model_name)
+    lumfunc_model = getattr(modeller, prog_params.model_name + '_lumfunc')
 
-    measurements_file, uncertainties_file = prog_params.data_files
+    measurement_file, uncertainty_file = prog_params.data_files
 
     fixed_file = PATHIN/prog_params.fixed_file \
         if prog_params.fixed_file else None
 
-    lumfunc_model_constraint = getattr(
+    model_constraint = getattr(
         modeller, prog_params.model_name + '_constraint', None
     ) if prog_params.use_constraint else None
 
-    log_likelihood = LumFuncLikelihood(
+    likelihood = LumFuncLikelihood(
         lumfunc_model,
-        PATHEXT/measurements_file,
+        PATHEXT/measurement_file,
         PATHIN/prog_params.prior_file,
-        uncertainty_file=PATHEXT/uncertainties_file,
+        uncertainty_file=PATHEXT/uncertainty_file,
         fixed_file=fixed_file,
-        model_constraint=lumfunc_model_constraint
+        model_constraint=model_constraint
     )
 
     logger.info(
         "\n---Prior parameters---\n%s\n",
-        pformat(dict(log_likelihood.prior.items()))
+        pformat(dict(likelihood.prior.items()))
     )
     if log_likelihood.fixed:
         logger.info(
             "\n---Fixed parameters---\n%s\n",
-            pformat(dict(log_likelihood.fixed.items()))
+            pformat(dict(likelihood.fixed.items()))
         )
 
-    # Set up numerics.
-    dimension = len(log_likelihood.prior)
-    prior_ranges = np.array(list(log_likelihood.prior.values()))
+    dimension = len(likelihood.prior)
+    _prior_ranges = np.array(list(likelihood.prior.values()))
 
     if prog_params.task == "get":
-        return log_likelihood, prior_ranges, dimension
+        return likelihood, _prior_ranges, dimension
 
-    # Set up sampler and initial state.
+    # Set up the sampler.
     if prog_params.sampler == 'emcee':
         output_file = (PATHOUT/prog_params.chain_file).with_suffix('.h5')
 
@@ -179,12 +190,11 @@ def initialise_sampler():
             backend.reset(prog_params.nwalkers, dimension)
 
         mcmc_sampler = mc.EnsembleSampler(
-            prog_params.nwalkers, dimension, log_likelihood,
+            prog_params.nwalkers, dimension, likelihood,
             kwargs={'use_prior': prog_params.use_prior},
             backend=backend, pool=pool
         )
     elif prog_params.sampler == 'zeus':
-
         if prog_params.jump:
             proposal = {
                 'differential': 0.85,
@@ -201,27 +211,28 @@ def initialise_sampler():
             }
 
         mcmc_sampler = zeus.sampler(
-            log_likelihood, prog_params.nwalkers, dimension,
+            likelihood, prog_params.nwalkers, dimension,
             proposal=proposal, pool=pool,
             kwargs={'use_prior': prog_params.use_prior}
         )
 
+    # Set up the initial state.
     def _initialise_state():
-        if lumfunc_model_constraint:
+        if model_constraint:
             _ini_pos = []
             while len(_ini_pos) < prog_params.nwalkers:
                 criterion = False
                 while not criterion:
                     pos = np.random.uniform(
-                        prior_ranges[:, 0], prior_ranges[:, -1]
+                        _prior_ranges[:, 0], _prior_ranges[:, -1]
                     )
-                    criterion = lumfunc_model_constraint(
+                    criterion = model_constraint(
                         dict(zip(log_likelihood.prior.keys(), pos))
                     )
                 _ini_pos.append(pos)
         else:
             _ini_pos = np.random.uniform(
-                prior_ranges[:, 0], prior_ranges[:, -1],
+                _prior_ranges[:, 0], _prior_ranges[:, -1],
                 size=(prog_params.nwalkers, dimension)
             )
         return np.asarray(_ini_pos)
@@ -233,7 +244,7 @@ def initialise_sampler():
 
         logger.info(
             "\n---Starting positions (walkers, parameters)---\n%s\n%s...\n",
-            pformat(list(log_likelihood.prior.keys()), width=79, compact=True),
+            pformat(list(likelihood.prior.keys()), width=79, compact=True),
             pformat(
                 np.array2string(
                     initial_state[::(prog_params.nwalkers // 10), :],
@@ -323,7 +334,7 @@ def run_sampler():
 
         sampler.run(ini_pos, prog_params.nsteps, progress=True)
 
-        output_file = (PATHOUT/prog_params.chain_file).with_suffix('.h5')
+        output_file = PATHOUT/prog_params.chain_file
         with hp.File(output_file, 'w') as outdata:
             outdata.create_group('mcmc')
             outdata.create_dataset(
@@ -374,7 +385,7 @@ def load_chains():
         truth = list(external_fits.values())
 
     # Load the chain.
-    mcmc_file = (PATHOUT/prog_params.chain_file).with_suffix('.h5')
+    mcmc_file = PATHOUT/prog_params.chain_file
 
     if prog_params.sampler == 'emcee':
         reader = mc.backends.HDFBackend(mcmc_file, read_only=True)
@@ -435,23 +446,26 @@ def load_chains():
         ax.set_ylabel(labels[param_idx])
     axes[-1].set_xlabel("steps")
 
+    fig_file = str(mcmc_file).replace('.h5', '.chains.pdf')
     if SAVEFIG:
-        chains_fig.savefig(mcmc_file.with_suffix('.chains.pdf'), format='pdf')
+        chains_fig.savefig(fig_file)
     logger.info("Saved plot of chains.\n")
 
     contour_fig = corner.corner(
         chain_flat, labels=labels, truths=truth, **corner_opt
     )
 
+    fig_file = str(mcmc_file).replace('.h5', '.contours.pdf')
     if SAVEFIG:
-        contour_fig.savefig(mcmc_file.with_suffix('.pdf'), format='pdf')
+        contour_fig.savefig(fig_file)
     logger.info("Saved contour plot.\n")
 
     return tau
 
 
 SAVEFIG = True
-TRUTH_FILE = "../data/external/eBOSS_QSO_LF_PLE_model_fits.txt"
+TRUTH_FILE = PATHEXT/"eBOSS_QSO_LF_PLE_model_fits.txt"
+
 if __name__ == '__main__':
 
     prog_params = parse_ext_args()

@@ -35,7 +35,7 @@ def initialise():
     """
     parser = ArgumentParser("relativistic-bias-constraint")
 
-    parser.add_argument('--model-name', type=str, default='quasar_PLE_model')
+    parser.add_argument('--model-name', type=str, default='quasar_PLE')
     parser.add_argument('--redshift', type=float, default=2.)
 
     parser.add_argument('--sampler', type=str.lower, choices=['emcee', 'zeus'])
@@ -47,7 +47,7 @@ def initialise():
 
     logger.info(
         "\n---Program configuration---\n%s\n",
-        pformat(vars(program_configuration))
+        pformat(vars(program_configuration)).lstrip("{").rstrip("}")
     )
 
     return program_configuration
@@ -63,7 +63,7 @@ def read_chains():
 
     """
     # Read chains into memory.
-    chain_file = (PATHOUT/progrc.chain_file).with_suffix('.h5')
+    chain_file = PATHOUT/progrc.chain_file
 
     if progrc.sampler == 'emcee':
         reader = mc.backends.HDFBackend(chain_file, read_only=True)
@@ -79,39 +79,39 @@ def read_chains():
             autocorr_time = reader.get_autocorr_time()
         except AttributeError:
             autocorr_time = reader['autocorr_time'][()]
-        except mc.autocorr.AutocorrError as act_warning:
-            logger.warning(act_warning)
+        except mc.autocorr.AutocorrError as warning:
+            logger.warning(warning)
             autocorr_time = None
 
     if progrc.burnin is None:
         try:
-            burnin = 4 * int(np.max(autocorr_time))  # can change 4 to 2
+            _burnin = 4 * int(np.max(autocorr_time))  # can change 4 to 2
         except (TypeError, ValueError):
-            burnin = 0
+            _burnin = 0
     else:
-        burnin = progrc.burnin
+        _burnin = progrc.burnin
 
     if progrc.reduce is None:
         try:
-            reduce = int(np.min(autocorr_time)) // 5  # can change 5 to 2
+            _reduce = int(np.min(autocorr_time)) // 5  # can change 5 to 2
         except (TypeError, ValueError):
-            reduce = 1
+            _reduce = 1
     else:
-        reduce = progrc.reduce
+        _reduce = progrc.reduce
 
     # Flatten chains.
     if progrc.sampler == 'emcee':
-        flat_chain = reader.get_chain(flat=True, discard=burnin, thin=reduce)
+        flat_chain = reader.get_chain(flat=True, discard=_burnin, thin=_reduce)
     elif progrc.sampler == 'zeus':
-        flat_chain = reader['chain'][burnin::reduce, :, :]\
+        flat_chain = reader['chain'][_burnin::_reduce, :, :]\
             .reshape((-1, len(PARAMETERS)))
         chain_data.close()
 
     logger.info(
-        "Chain flattened with %i burn-in and %i thinning.\n", burnin, reduce
+        "Chain flattened with %i burn-in and %i thinning.\n", _burnin, _reduce
     )
 
-    return flat_chain, burnin, reduce
+    return flat_chain, _burnin, _reduce
 
 
 def compute_biases_from_lumfunc(lumfunc_params):
@@ -128,17 +128,13 @@ def compute_biases_from_lumfunc(lumfunc_params):
         Relativistic evolution or magnification bias.
 
     """
-    lumfunc_model = getattr(lumfunc_modeller, progrc.model_name)
-
-    modeller_args = (
-        BRIGHTNESS_VARIABLE, THRESHOLD_VALUE, THRESHOLD_VARIABLE, COSMOLOGY
-    )
+    lumfunc_model = getattr(lumfunc_modeller, progrc.model_name + '_lumfunc')
 
     model_parameters = dict(zip(PARAMETERS, lumfunc_params))
 
     modeller = LumFuncModeller(
-        lumfunc_model, *modeller_args,
-        base10_log=BASE10_LOG, **model_parameters
+        lumfunc_model, model_parameters,
+        LUMINOSITY_VARIABLE, THRESHOLD_VALUE, COSMOLOGY
     )
 
     bias_evo = modeller.evolution_bias(progrc.redshift)
@@ -155,7 +151,7 @@ def extract_biases(lumfunc_param_chain, pool=None):
     ----------
     lumfunc_model_chain : :class:`numpy.ndarray`
         Luminosity function parameter chain.
-    pool : :class:`multiprocessing.Pool` or None, optional
+    pool : :class:`multiprocessing.Pool` *or None, optional*
         Multiprocessing pool (default is `None`).
 
     Returns
@@ -168,12 +164,10 @@ def extract_biases(lumfunc_param_chain, pool=None):
     num_cpus = cpu_count() if pool else 1
 
     logger.info("Resampling relativistic biases with %i CPUs...\n", num_cpus)
-    bias_samples = list(
-        tqdm(
-            mapping(compute_biases_from_lumfunc, lumfunc_param_chain),
-            total=len(lumfunc_param_chain), mininterval=1, file=sys.stdout
-        )
-    )
+    bias_samples = list(tqdm(
+        mapping(compute_biases_from_lumfunc, lumfunc_param_chain),
+        total=len(lumfunc_param_chain), mininterval=15, file=sys.stdout
+    ))
     logger.info("... finished.\n")
 
     bias_samples = np.asarray(bias_samples)
@@ -186,16 +180,11 @@ def save_extracts():
 
     Returns
     -------
-    outpath : :class:`pathlib.Path`
+    :class:`pathlib.Path`
         Chain output file path.
 
-    Raises
-    ------
-    FileExtensionError
-        If the chain file extension is neither ``.h5`` nor ``.npy``.
-
     """
-    infile = (PATHOUT/progrc.chain_file).with_suffix('.h5')
+    infile = PATHOUT/progrc.chain_file
 
     redshift_tag = "z{}".format(progrc.redshift)
     redshift_tag = redshift_tag if "." not in redshift_tag \
@@ -203,7 +192,7 @@ def save_extracts():
 
     prefix = "relbias_" + redshift_tag + "_"
 
-    outfile = (PATHOUT/(prefix + progrc.chain_file)).with_suffix('.h5')
+    outfile = PATHOUT/(prefix + progrc.chain_file)
 
     with hp.File(infile, 'r') as indata, hp.File(outfile, 'w') as outdata:
         outdata.create_group('extract')
@@ -224,8 +213,8 @@ def load_extracts(chain_file):
 
     Parameters
     ----------
-    chain_file : :class:`pathlib.Path` or str
-        Extracted relativistic bias chain file path inside ``PATHOUT/``.
+    chain_file : :class:`pathlib.Path` *or str*
+        Extracted relativistic bias chain file.
 
     Returns
     -------
@@ -282,16 +271,18 @@ def view_extracts(chain):
         ax.set_ylabel(LABELS[param_idx])
     axes[-1].set_xlabel("steps")
 
+    fig_file = str(output_path).replace('.h5', '.chains.pdf')
     if SAVEFIG:
-        chain_fig.savefig(output_path.with_suffix('.chain.pdf'), format='pdf')
+        chain_fig.savefig(fig_file)
     logger.info("Saved chain plot of relativistic bias samples.\n")
 
     contour_fig = corner.corner(
         chain, bins=160, smooth=.75, smooth1d=.95, **CORNER_OPTIONS
     )
 
+    fig_file = str(output_path).replace('.h5', '.contours.pdf')
     if SAVEFIG:
-        contour_fig.savefig(output_path.with_suffix('.pdf'), format='pdf')
+        contour_fig.savefig(fig_file)
     logger.info("Saved contour plot of relativistic bias samples.\n")
 
     return contour_fig
@@ -304,14 +295,14 @@ COSMOLOGY = cosmology.Planck15
 
 # Model-specific settings.
 PARAMETERS = [
-    'M_{g\\ast}(z_\\textrm{p})', '\\lg\\Phi_\\ast',
+    'm_\\ast(z_\\textrm{p})', '\\lg\\Phi_\\ast',
     '\\alpha_\\textrm{l}', '\\alpha_\\textrm{h}',
     '\\beta_\\textrm{l}', '\\beta_\\textrm{h}',
     'k_{1\\textrm{l}}', 'k_{1\\textrm{h}}',
     'k_{2\\textrm{l}}', 'k_{2\\textrm{h}}',
 ]
 
-BRIGHTNESS_VARIABLE = 'magnitude'
+LUMINOSITY_VARIABLE = 'magnitude'
 THRESHOLD_VARIABLE = 'magnitude'
 THRESHOLD_VALUE = -21.80
 
@@ -325,8 +316,8 @@ if __name__ == '__main__':
 
     input_chain, burin, reduce = read_chains()  #
 
-    with Pool() as pool:  #
-        extracted_chain = extract_biases(input_chain, pool=pool)  #
+    with Pool() as mpool:  #
+        extracted_chain = extract_biases(input_chain, pool=mpool)  #
 
     output_path = save_extracts()  #
     # extracted_chain = load_extracts(progrc.chain_file)  #

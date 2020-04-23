@@ -107,7 +107,7 @@ def sci_notation(num):
 
     """
     base, index = "{:.1e}".format(num).split("e")
-    base = base.rstrip(".0").replace(".", ",")
+    base = base.rstrip(".0")
     index = index.lstrip("+").lstrip("-").lstrip("0")
 
     num_str = "E".join([base, index])

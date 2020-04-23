@@ -52,7 +52,7 @@ def load_samples():
         Relativistic bias samples.
 
     """
-    chain_file = (PATHOUT/progrc.chain_file).with_suffix('.h5')
+    chain_file = PATHOUT/progrc.chain_file
     with hp.File(chain_file, 'r') as chain_data:
         bias_samples = chain_data['extract/chain'][()]
 
@@ -123,11 +123,11 @@ def save_distilled():
 
     Returns
     -------
-    outpath : :class:`pathlib.Path`
+    :class:`pathlib.Path`
         Chain output file path.
 
     """
-    infile = (PATHOUT/progrc.chain_file).with_suffix('.h5')
+    infile = PATHOUT/progrc.chain_file
 
     redshift_tag = "z{}".format(progrc.redshift)
     redshift_tag = redshift_tag if "." not in redshift_tag \
@@ -138,9 +138,7 @@ def save_distilled():
     else:
         prefix = "relcrct_"
 
-    outfile = (
-        PATHOUT/(prefix + progrc.chain_file).replace("relbias_", "")
-    ).with_suffix('.h5')
+    outfile = PATHOUT/(prefix + progrc.chain_file).replace("relbias_", "")
 
     with hp.File(infile, 'r') as indata, hp.File(outfile, 'w') as outdata:
         outdata.create_group('distill')
@@ -195,8 +193,9 @@ def view_distilled(chain):
         chain, bins=160, smooth=.75, smooth1d=.95, **CORNER_OPTIONS
     )
 
+    fig_file = str(output_path).replace('.h5', '.pdf')
     if SAVEFIG:
-        distribution_fig.savefig(output_path.with_suffix('.pdf'), format='pdf')
+        distribution_fig.savefig(fig_file)
     logger.info(
         "Saved distribution plot of relativistic correction samples.\n"
     )
@@ -212,8 +211,8 @@ if __name__ == '__main__':
 
     input_chain = load_samples()
 
-    with Pool() as pool:
-        distilled_chain = distill_corrections(input_chain, pool=pool)
+    with Pool() as mpool:
+        distilled_chain = distill_corrections(input_chain, pool=mpool)
 
     output_path = save_distilled()
 
