@@ -468,7 +468,7 @@ class LumFuncLikelihood(LumFuncMeasurements):
 
         if self._presciption == 'poisson':
             deviation_vector = np.sqrt(
-                2 * (np.exp(deviation_vector) - 1 - deviation_vector)
+                2 * np.abs(np.exp(deviation_vector) - 1 - deviation_vector)
             )
         elif self._presciption == 'symlin':
             deviation_vector = np.exp(deviation_vector) - 1
