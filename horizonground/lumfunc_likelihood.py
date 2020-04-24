@@ -98,6 +98,11 @@ class LumFuncMeasurements:
         self._valid_data_points = ~np.isnan(self._measurements.flatten())
         if self._uncertainties is not None:
             self._valid_data_points &= ~np.isnan(self._uncertainties.flatten())
+            if not self._lg_conversion:
+                self._valid_data_points &= np.greater_equal(
+                    np.abs(self._measurements.flatten()),
+                    np.abs(self._uncertainties.flatten())
+                )
 
     def __str__(self):
 
