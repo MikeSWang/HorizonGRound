@@ -183,6 +183,7 @@ def view_distilled(chain):
         plot_contours=True,
         fill_contours=True,
         quiet=True,
+        range=(0.999,)*len(_labels),
         rasterized=True,
         show_titles=True,
     )

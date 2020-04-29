@@ -348,7 +348,7 @@ def load_chains():
         plot_datapoints=False, plot_contours=True, fill_contours=True,
         quantiles=quantiles, levels=levels,
         color='#a3c1ad', truth_color='#7851a9',
-        bins=160, smooth=0.45,
+        bins=160, smooth=0.45, range=(0.999,)*ndim
     )
 
     # Parameter labels.

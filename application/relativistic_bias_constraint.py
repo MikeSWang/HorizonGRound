@@ -254,6 +254,7 @@ def view_extracts(chain):
         plot_datapoints=False,
         plot_contours=True,
         fill_contours=True,
+        range=(0.999,)*NDIM,
         show_titles=True,
         quiet=True,
         rasterized=True,
