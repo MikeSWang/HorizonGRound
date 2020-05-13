@@ -15,7 +15,10 @@ from astropy import cosmology
 from tqdm import tqdm
 
 from conf import PATHOUT, logger
-from horizonground.lumfunc_modeller import LumFuncModeller
+from horizonground.lumfunc_modeller import (
+    LumFuncModeller,
+    konstante_correction
+)
 import horizonground.lumfunc_modeller as lumfunc_modeller
 
 LABELS = [r'$f_\mathrm{{e}}(z={})$', r'$s(z={})$']
@@ -134,7 +137,7 @@ def compute_biases_from_lumfunc(lumfunc_params):
 
     modeller = LumFuncModeller(
         lumfunc_model, model_parameters,
-        LUMINOSITY_VARIABLE, THRESHOLD_VALUE, COSMOLOGY
+        LUMINOSITY_VARIABLE, threshold_value, COSMOLOGY
     )
 
     bias_evo = modeller.evolution_bias(progrc.redshift)
@@ -256,6 +259,7 @@ def view_extracts(chain):
         fill_contours=True,
         range=(0.999,)*NDIM,
         show_titles=True,
+        title_fmt='.3f',
         quiet=True,
         rasterized=True,
     )
@@ -305,7 +309,6 @@ PARAMETERS = [
 
 LUMINOSITY_VARIABLE = 'magnitude'
 THRESHOLD_VARIABLE = 'magnitude'
-THRESHOLD_VALUE = -21.80
 
 # Program-specific settings.
 SAVE = True
@@ -316,6 +319,8 @@ if __name__ == '__main__':
     progrc = initialise()
 
     input_chain, burin, reduce = read_chains()  #
+
+    threshold_value = 22.5 - konstante_correction(progrc.redshift)
 
     with Pool() as mpool:  #
         extracted_chain = extract_biases(input_chain, pool=mpool)  #

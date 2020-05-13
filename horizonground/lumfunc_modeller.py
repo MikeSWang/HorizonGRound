@@ -39,6 +39,7 @@ derived.
 .. autosummary::
 
     LumFuncModeller
+    konstante_correction
 
 
 Quasar (QSO) luminosity function
@@ -179,6 +180,41 @@ import numpy as np
 from astropy import units
 from scipy.integrate import quad
 from scipy.misc import derivative
+
+
+def konstante_correction(redshift, normalisation_redshift=2., index=-0.5):
+    r"""Konstante correction (*K*-correction) to magnitude for bandpass
+    redshifting.
+
+    Notes
+    -----
+    This implements the *K*-correction :math:`K(z) - K(z_\ast)` normaslied
+    to redshift :math:`z_\ast`, where
+
+    .. math::
+
+        K(z) = - \frac{5}{2} (1 + \alpha_\nu) \lg(1 + z)
+
+    and :math:`\alpha_\nu` is the power-law index.
+
+    Parameters
+    ----------
+    redshift : float
+        Redshift.
+    normalisation_redshift : float, optional
+        Normalisation redshift (default is 2.).
+    index : float, optional
+        Correction power-law index (default is -0.5).
+
+    Returns
+    -------
+    correction_magnitude : float
+        The magnitude correction that needs to be subtracted from the
+        observed magnitude.
+
+    """
+    return - 5./2. * (1 + index) \
+        * np.log10((1 + redshift) / (1 + normalisation_redshift))
 
 
 def quasar_PLE_lumfunc(magnitude, redshift, *, base10_log=True,
@@ -535,7 +571,8 @@ class LumFuncModeller:
                 * self.cosmology.luminosity_distance(z).to(units.cm).value ** 2
             )
         elif luminosity_variable == 'magnitude':
-            self.luminosity_threshold = lambda z: threshold_value
+            self.luminosity_threshold = lambda z: \
+                threshold_value - self.cosmology.distmod(z).value
 
         self.cosmology = cosmology
 

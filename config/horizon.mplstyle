@@ -28,7 +28,7 @@ legend.markerscale : 0.8
 legend.scatterpoints : 1
 
 lines.antialiased : True
-lines.linewidth : 1.5
+lines.linewidth : 1.2
 lines.markeredgewidth: 0.
 lines.markersize : 5
 
@@ -39,17 +39,17 @@ savefig.transparent : True
 text.usetex : False
 
 xtick.direction : in
-xtick.labelsize : large
-xtick.major.size : 6
-xtick.major.width : 0.5
-xtick.minor.size : 3
-xtick.minor.width : 0.5
+xtick.labelsize : medium
+xtick.major.size : 5
+xtick.major.width : 0.75
+xtick.minor.size : 2.5
+xtick.minor.width : 0.75
 xtick.top : True
 
 ytick.direction : in
-ytick.labelsize : large
-ytick.major.size : 6
-ytick.major.width : 0.5
-ytick.minor.size : 3
-ytick.minor.width : 0.5
+ytick.labelsize : medium
+ytick.major.size : 5
+ytick.major.width : 0.75
+ytick.minor.size : 2.5
+ytick.minor.width : 0.75
 ytick.right : True
