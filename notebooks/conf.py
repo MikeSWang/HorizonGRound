@@ -14,8 +14,6 @@ except ImportError:
     sys.path.insert(0, "".join([current_file_dir, "/../"]))
     from config import program
 
-from config import program
-
 stylesheet = getattr(program, 'stylesheet')
 data_dir = getattr(program, 'data_dir')
 
