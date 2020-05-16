@@ -231,12 +231,17 @@ class LumFuncMeasurements:
                 )
 
             if not self._lg_conversion:
+                # Optimistic wing of assymetric uncertainties.
+                error_array = uncertainty_source[1:]
                 for z_idx, col_name in enumerate(uheadings):
                     if 'lg_' in col_name:
+                        error_array[z_idx] = measurement_array[z_idx] \
+                            * (1 - 10 ** (- error_array[z_idx]))
                         # Larger asymetric uncertainty is taken.
                         uncertainty_array[z_idx] = measurement_array[z_idx] \
                             * (10 ** uncertainty_array[z_idx] - 1)
                         uheadings[z_idx] = col_name.replace("lg_", "")
+                self._errors = error_array
 
         self._uncertainties = uncertainty_array
 
