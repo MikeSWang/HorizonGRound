@@ -1,6 +1,8 @@
 """Plot 2-d parameter constraints from parameter chains.
 
 """
+import warnings
+
 import numpy as np
 import seaborn as sns
 from matplotlib import pyplot as plt
@@ -103,7 +105,7 @@ def convert_chains_to_grid(chains, bins=None, smooth=None,
 
 def plot_2d_contours(posterior, x, y, x_range=None, y_range=None,
                      estimate=None, x_precision=None, y_precision=None,
-                     x_label=None, y_label=None, cmap=None, alpha=None,
+                     cmap=None, alpha=None,
                      fig=None):
     """Plot 2-d contours from the joint parameter posterior on a grid.
 
@@ -118,10 +120,8 @@ def plot_2d_contours(posterior, x, y, x_range=None, y_range=None,
     estimate : {'median', 'maximum', None}, optional
         Parameter estimate type, if any (default is `None`).
     x_precision, y_precision : int or None, optional
-        Parameter precision as a number of decimal places (default is
-        `None`).
-    x_label, y_label : str or None
-        Parameter label (default is `None`).
+        (Deprecated) Parameter precision as a number of decimal places
+        (default is `None`).
     cmap : str or None, optional
         Principal colour map (default is `None`).
     alpha : str or None, optional
@@ -140,6 +140,13 @@ def plot_2d_contours(posterior, x, y, x_range=None, y_range=None,
         A colour patch to be used in the legend.
 
     """
+    if x_precision is not None or y_precision is not None:
+        warnings.warn(
+            "`x_precision` and `y_precision` are deprecated "
+            "and have no effect.",
+            DeprecationWarning
+        )
+
     # Set up the plottable grid.
     if x_range:
         x_selector = slice(
@@ -246,9 +253,6 @@ def plot_2d_contours(posterior, x, y, x_range=None, y_range=None,
         x_estimate = x_fit, x_lower, x_upper
         y_estimate = y_fit, y_lower, y_upper
 
-        dx_lower, dx_upper = x_fit - x_lower, x_upper - x_fit
-        dy_lower, dy_upper = y_fit - y_lower, y_upper - y_fit
-
         # Plot estimates.
         x_panel.fill_between(
             x[x_lower_idx:(x_upper_idx + 1)],
@@ -293,8 +297,8 @@ def plot_2d_constraints(chains, bins=None, smooth=None,
     estimate : {'maximum', 'median', None}, optional
         Parameter estimate type (default is 'median').
     precision_x, precision_y : int or None, optional
-        Precision for the parameter estimate as a number of decimal places
-        (default is `None`).
+        (Deprecated) Precision for the parameter estimate as a number of
+        decimal places (default is `None`).
     truth_x, truth_y : float or None, optional
         Truth value for the parameter (default is `None`).
     fig : :class:`matplotlib.figure.Figure` *or None, optional*
@@ -345,9 +349,9 @@ def plot_2d_constraints(chains, bins=None, smooth=None,
 
     # Fill in plottable areas.
     fig, x_estimate, y_estimate, patch = plot_2d_contours(
-        posterior, x, y, fig=fig, cmap=cmap, alpha=alpha,
-        x_label=label_x, y_label=label_y, x_range=range_x, y_range=range_y,
-        estimate=estimate, x_precision=precision_x, y_precision=precision_y
+        posterior, x, y, fig=fig, cmap=cmap, alpha=alpha, estimate=estimate,
+        x_range=range_x, y_range=range_y,
+        x_precision=precision_x, y_precision=precision_y
     )
 
     legend_state[0].append(patch)
