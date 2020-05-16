@@ -115,10 +115,11 @@ sum of three terms
     \frac{g(z)}{\mathcal{H}(z)} = \underbrace{
         \left[
             1 - \frac{3}{2} \Omega_\mathrm{m,0} (1 + z)^3
-            + \frac{2}{\mathcal{H}\chi}
         \right]
     }_{\text{geometric}}
-    \: \underbrace{- f_\mathrm{e}(z)}_{\text{evolution}}
+    + \underbrace{
+        \frac{2}{\mathcal{H}\chi} - f_\mathrm{e}(z)
+    }_{\text{evolution}}
     + \underbrace{
         5s(z) \left( 1 - \frac{1}{\mathcal{H}\chi} \right)
     }_{\text{magnification}} \,.
@@ -299,14 +300,14 @@ def relativistic_correction_func(cosmo=FIDUCIAL_COSMOLOGY, geometric=True,
 
     if geometric:
         geometric_term = lambda z: \
-            2 / chi(z) + aH(z) * (1 - 3./2. * astropy_cosmo.Om0 / a(z) ** 3)
+            aH(z) * (1 - 3./2. * astropy_cosmo.Om0 / a(z) ** 3)
     else:
         geometric_term = lambda z: 0.
 
     if evolution_bias is None:
         evolution_term = lambda z: 0.
     else:
-        evolution_term = lambda z: - aH(z) * evolution_bias(z)
+        evolution_term = lambda z: 2 / chi(z) - aH(z) * evolution_bias(z)
 
     if magnification_bias is None:
         lensing_term = lambda z: 0.
