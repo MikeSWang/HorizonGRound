@@ -359,7 +359,7 @@ def plot_2d_constraints(chains, bins=None, smooth=None,
         canvas.axhline(truth_y, c='k', ls='--', zorder=3)
 
     # Adjust plottable areas.
-    canvas.legend(*legend_state, fontsize='small')
+    canvas.legend(*legend_state)
     canvas.set_xlim(max(np.min(x), range_x[0]), min(np.max(x), range_x[-1]))
     canvas.set_ylim(max(np.min(y), range_y[0]), min(np.max(y), range_y[-1]))
     canvas.axes.tick_params(axis='x', which='both', direction='in', top=True)
@@ -372,7 +372,7 @@ def plot_2d_constraints(chains, bins=None, smooth=None,
     if show_estimates:
         top_panel.legend(
             bbox_to_anchor=[1.25, 0.775], loc='center',
-            handlelength=1.25, labelspacing=0., fontsize='small'
+            handlelength=1.25, labelspacing=0.
         )
     top_panel.set_ylim(bottom=0)
     top_panel.axes.tick_params(
@@ -388,7 +388,7 @@ def plot_2d_constraints(chains, bins=None, smooth=None,
     if show_estimates:
         side_panel.legend(
             bbox_to_anchor=[0.75, 1.075],
-            loc='center', handlelength=1.25, labelspacing=0., fontsize='small'
+            loc='center', handlelength=1.25, labelspacing=0.
         )
     side_panel.set_xlim(left=0)
     side_panel.axes.tick_params(

@@ -21,16 +21,16 @@ image.origin : lower
 
 legend.fancybox : False
 legend.frameon : False
-legend.fontsize : medium
-legend.handlelength : 2.5
+legend.fontsize : small
+legend.handlelength : 1.2
 legend.loc : best
-legend.markerscale : 0.8
+legend.markerscale : 1.
 legend.scatterpoints : 1
 
 lines.antialiased : True
 lines.linewidth : 1.2
 lines.markeredgewidth: 0.
-lines.markersize : 2.5
+lines.markersize : 3
 
 savefig.bbox : tight
 savefig.format : pdf
@@ -39,16 +39,16 @@ savefig.transparent : True
 text.usetex : False
 
 xtick.direction : in
-xtick.labelsize : medium
-xtick.major.size : 5.
+xtick.labelsize : small
+xtick.major.size : 4.
 xtick.major.width : 0.75
 xtick.minor.size : 2.
 xtick.minor.width : 0.75
 xtick.top : True
 
 ytick.direction : in
-ytick.labelsize : medium
-ytick.major.size : 5.
+ytick.labelsize : small
+ytick.major.size : 4.
 ytick.major.width : 0.75
 ytick.minor.size : 2.
 ytick.minor.width : 0.75
