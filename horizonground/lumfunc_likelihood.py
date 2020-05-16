@@ -223,7 +223,7 @@ class LumFuncMeasurements:
             if not np.allclose(self.luminosity_bins, uncertainty_source[0]):
                 warnings.warn(luminosity_bin_matching_msg, DataSourceWarning)
 
-            uncertainty_array = uncertainty_source[1:]
+            uncertainty_array = uncertainty_source[1:].copy()
 
             if np.shape(uncertainty_array) != np.shape(measurement_array):
                 raise DataSourceError(
@@ -232,7 +232,7 @@ class LumFuncMeasurements:
 
             if not self._lg_conversion:
                 # Optimistic wing of assymetric uncertainties.
-                error_array = uncertainty_source[1:]
+                error_array = uncertainty_source[1:].copy()
                 for z_idx, col_name in enumerate(uheadings):
                     if 'lg_' in col_name:
                         error_array[z_idx] = measurement_array[z_idx] \

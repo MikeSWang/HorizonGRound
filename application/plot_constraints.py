@@ -271,8 +271,9 @@ def plot_2d_contours(posterior, x, y, x_range=None, y_range=None,
 def plot_2d_constraints(chains, bins=None, smooth=None,
                         range_x=None, range_y=None, label_x='', label_y='',
                         estimate='median', precision_x=None, precision_y=None,
-                        truth_x=None, truth_y=None, fig=None, label=None,
-                        cmap=None, alpha=None, show_estimates=True):
+                        truth_x=None, truth_y=None, fig=None, figsize=None,
+                        label=None, cmap=None, alpha=None,
+                        show_estimates=True):
     """Plot 2-d parameter constraints from sample chains.
 
     Parameters
@@ -298,6 +299,8 @@ def plot_2d_constraints(chains, bins=None, smooth=None,
         Truth value for the parameter (default is `None`).
     fig : :class:`matplotlib.figure.Figure` *or None, optional*
         Any existing figures to plot on (default is `None`).
+    figsize : tuple of float or None, optional
+        Figure size in inches (default is `None`).
     label : (sequence of) str or None, optional
         Label for the parameter constraint (default is `None`).
     cmap : :class:`matplotlib.ScalarMappable` or None, optional
@@ -324,7 +327,7 @@ def plot_2d_constraints(chains, bins=None, smooth=None,
     # pylint: disable=global-statement
     global legend_state
     if fig is None:
-        fig = plt.figure("2-d constraint", figsize=(5.5, 5.5))
+        fig = plt.figure("2-d constraint", figsize=figsize or (5.5, 5.5))
         canvas = plt.subplot2grid((4, 4), (1, 0), rowspan=3, colspan=3)
         top_panel = plt.subplot2grid((4, 4), (0, 0), colspan=3, sharex=canvas)
         side_panel = plt.subplot2grid((4, 4), (1, 3), rowspan=3, sharey=canvas)
@@ -356,20 +359,20 @@ def plot_2d_constraints(chains, bins=None, smooth=None,
         canvas.axhline(truth_y, c='k', ls='--', zorder=3)
 
     # Adjust plottable areas.
-    canvas.legend(*legend_state)
+    canvas.legend(*legend_state, fontsize='small')
     canvas.set_xlim(max(np.min(x), range_x[0]), min(np.max(x), range_x[-1]))
     canvas.set_ylim(max(np.min(y), range_y[0]), min(np.max(y), range_y[-1]))
     canvas.axes.tick_params(axis='x', which='both', direction='in', top=True)
     canvas.axes.tick_params(axis='y', which='both', direction='in', right=True)
     canvas.xaxis.set_minor_locator(AutoMinorLocator())
     canvas.yaxis.set_minor_locator(AutoMinorLocator())
-    canvas.set_xlabel(r'${}$'.format(label_x))
-    canvas.set_ylabel(r'${}$'.format(label_y))
+    canvas.set_xlabel(r'${}$'.format(label_x), labelpad=8)
+    canvas.set_ylabel(r'${}$'.format(label_y), labelpad=8)
 
     if show_estimates:
         top_panel.legend(
             bbox_to_anchor=[1.25, 0.775], loc='center',
-            handlelength=1.25, labelspacing=0.
+            handlelength=1.25, labelspacing=0., fontsize='small'
         )
     top_panel.set_ylim(bottom=0)
     top_panel.axes.tick_params(
@@ -385,7 +388,7 @@ def plot_2d_constraints(chains, bins=None, smooth=None,
     if show_estimates:
         side_panel.legend(
             bbox_to_anchor=[0.75, 1.075],
-            loc='center', handlelength=1.25, labelspacing=0.
+            loc='center', handlelength=1.25, labelspacing=0., fontsize='small'
         )
     side_panel.set_xlim(left=0)
     side_panel.axes.tick_params(

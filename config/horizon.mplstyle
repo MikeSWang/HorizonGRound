@@ -1,9 +1,9 @@
 axes.formatter.limits : -4, 4
 axes.formatter.use_mathtext : True
-axes.labelsize : large
+axes.labelsize : medium
 axes.linewidth : 1.2
 axes.prop_cycle : cycler('color', ['000000', 'C40233', '0087BD', 'FFD300', '009F6B'])
-axes.titlesize : large
+axes.titlesize : medium
 
 errorbar.capsize : 0.
 
@@ -21,7 +21,7 @@ image.origin : lower
 
 legend.fancybox : False
 legend.frameon : False
-legend.fontsize : large
+legend.fontsize : medium
 legend.handlelength : 2.5
 legend.loc : best
 legend.markerscale : 0.8
@@ -30,7 +30,7 @@ legend.scatterpoints : 1
 lines.antialiased : True
 lines.linewidth : 1.2
 lines.markeredgewidth: 0.
-lines.markersize : 4
+lines.markersize : 2.5
 
 savefig.bbox : tight
 savefig.format : pdf
@@ -39,7 +39,7 @@ savefig.transparent : True
 text.usetex : False
 
 xtick.direction : in
-xtick.labelsize : large
+xtick.labelsize : medium
 xtick.major.size : 5.
 xtick.major.width : 0.75
 xtick.minor.size : 2.
@@ -47,7 +47,7 @@ xtick.minor.width : 0.75
 xtick.top : True
 
 ytick.direction : in
-ytick.labelsize : large
+ytick.labelsize : medium
 ytick.major.size : 5.
 ytick.major.width : 0.75
 ytick.minor.size : 2.
