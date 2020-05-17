@@ -105,8 +105,7 @@ def convert_chains_to_grid(chains, bins=None, smooth=None,
 
 def plot_2d_contours(posterior, x, y, x_range=None, y_range=None,
                      estimate=None, x_precision=None, y_precision=None,
-                     cmap=None, alpha=None,
-                     fig=None):
+                     cmap=None, alpha=None, linestyle=None, fig=None):
     """Plot 2-d contours from the joint parameter posterior on a grid.
 
     Parameters
@@ -201,7 +200,7 @@ def plot_2d_contours(posterior, x, y, x_range=None, y_range=None,
         )
         primary_colour = contour.cmap(contour.cmap.N)
         patch = plt.Rectangle(
-            (0, 0), 2./3., 1, ec=None,
+            (0., 0.), 2., 1., ec=None, ls=linestyle,
             fc=contour.collections[-1].get_facecolor()[0]
         )
     except ValueError as error:
@@ -212,7 +211,7 @@ def plot_2d_contours(posterior, x, y, x_range=None, y_range=None,
         raise ValueError from error
 
     xy_panel.contour(
-        contour, colors=primary_colour,
+        contour, colors=primary_colour, linestyles=linestyle,
         alpha=min(2*alpha, 1.) if isinstance(alpha, float) else 1.,
         zorder=3
     )
@@ -229,8 +228,8 @@ def plot_2d_contours(posterior, x, y, x_range=None, y_range=None,
     cdf_y /= cdf_y[-1]
 
     # Plot marginal posteriors.
-    x_panel.plot(x, pdf_x, c=primary_colour, zorder=3)
-    y_panel.plot(pdf_y, y, c=primary_colour, zorder=3)
+    x_panel.plot(x, pdf_x, c=primary_colour, ls=linestyle, zorder=3)
+    y_panel.plot(pdf_y, y, c=primary_colour, ls=linestyle, zorder=3)
 
     # Make estimates.
     if estimate:
@@ -276,7 +275,7 @@ def plot_2d_constraints(chains, bins=None, smooth=None,
                         range_x=None, range_y=None, label_x='', label_y='',
                         estimate='median', precision_x=None, precision_y=None,
                         truth_x=None, truth_y=None, fig=None, figsize=None,
-                        label=None, cmap=None, alpha=None,
+                        label=None, cmap=None, linestyle=None, alpha=None,
                         show_estimates=True):
     """Plot 2-d parameter constraints from sample chains.
 
@@ -309,6 +308,9 @@ def plot_2d_constraints(chains, bins=None, smooth=None,
         Label for the parameter constraint (default is `None`).
     cmap : :class:`matplotlib.ScalarMappable` or None, optional
         Colour map for constraint contours (default is `None`).
+    linestyle : str or None, optional
+        Linestyle for the contour. See
+        :class:`matplotlib.axes.Axes.contour`.
     alpha : float or None, optional
         Transparency value for constraint contours (default is `None`).
     show_estimates : bool, optional
@@ -349,9 +351,9 @@ def plot_2d_constraints(chains, bins=None, smooth=None,
 
     # Fill in plottable areas.
     fig, x_estimate, y_estimate, patch = plot_2d_contours(
-        posterior, x, y, fig=fig, cmap=cmap, alpha=alpha, estimate=estimate,
-        x_range=range_x, y_range=range_y,
-        x_precision=precision_x, y_precision=precision_y
+        posterior, x, y, fig=fig, cmap=cmap, linestyle=linestyle, alpha=alpha,
+        estimate=estimate, x_precision=precision_x, y_precision=precision_y,
+        x_range=range_x, y_range=range_y
     )
 
     legend_state[0].append(patch)
@@ -363,7 +365,7 @@ def plot_2d_constraints(chains, bins=None, smooth=None,
         canvas.axhline(truth_y, c='k', ls='--', zorder=3)
 
     # Adjust plottable areas.
-    canvas.legend(*legend_state)
+    canvas.legend(*legend_state, handlelength=1.6)
     canvas.set_xlim(max(np.min(x), range_x[0]), min(np.max(x), range_x[-1]))
     canvas.set_ylim(max(np.min(y), range_y[0]), min(np.max(y), range_y[-1]))
     canvas.axes.tick_params(axis='x', which='both', direction='in', top=True)
