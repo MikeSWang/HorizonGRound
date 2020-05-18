@@ -7,9 +7,10 @@ axes.titlesize : medium
 
 errorbar.capsize : 0.
 
+figure.dpi : 100
 figure.figsize : 8., 5.
-figure.subplot.wspace: 0
-figure.subplot.hspace: 0
+figure.subplot.wspace : 0
+figure.subplot.hspace : 0
 figure.titlesize : large
 
 font.family : serif
