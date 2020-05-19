@@ -148,7 +148,7 @@ corrections are
 import numpy as np
 from nbodykit.lab import cosmology as nbk_cosmology
 
-_SPEED_OF_LIGHT_IN_KM_PER_S = 2998792.
+_SPEED_OF_LIGHT_IN_KM_PER_S = 299792.
 _SPHERICAL_COLLAPSE_CRITICAL_OVERDENSITY = 1.686
 _TRANSFER_FUNCTION_NORMALISATION = 1.27
 
