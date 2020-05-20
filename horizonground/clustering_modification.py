@@ -252,7 +252,7 @@ def non_gaussianity_correction_factor(wavenumber, order, local_png, bias,
 
     """
     f_nl, p = local_png, tracer_p
-    b_1 = bias(redshift) if isinstance(bias, callable) else bias
+    b_1 = bias(redshift) if callable(bias) else bias
 
     f = cosmo.scale_independent_growth_rate(redshift)
 
