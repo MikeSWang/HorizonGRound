@@ -21,7 +21,7 @@ from horizonground.lumfunc_modeller import (
 )
 import horizonground.lumfunc_modeller as lumfunc_modeller
 
-LABELS = [r'$\bar{n}(z={})$']
+LABELS = [r'$\bar{{n}}(z={})$']
 NDIM = len(LABELS)
 
 burnin, reduce = 0, 1
