@@ -169,7 +169,7 @@ def view_distilled(chain):
     """
     _labels = [lab.format(progrc.redshift) for lab in LABELS]
 
-    LEVELS = [0.39346934, 0.86466472]
+    LEVELS = [0.6826895, 0.9544997]
     QUANTILES = [0.1587, 0.5, 0.8413]
     COLOUR = '#A3C1AD'
     CORNER_OPTIONS = dict(
