@@ -5,8 +5,8 @@ Luminosity function modeller (:mod:`~horizonground.lumfunc_modeller`)
 Provide some models of the redshift-dependent tracer luminosity function
 :math:`\Phi(m, z)` (for appropriately normalised magnitude :math:`m`) or
 :math:`\Phi(\lg{L}, z)` (for base-10 logarithm of the intrinsic
-flux :math:`L`), from which the comoving number density below/above some
-luminosity threshold :math:`\bar{m}` or :math:`\bar{L}`
+luminosity :math:`L`), from which the comoving number density below/above
+some luminosity threshold :math:`\bar{m}` or :math:`\bar{L}`
 
 .. math::
 
@@ -20,7 +20,7 @@ can be predicted, and the corresponding evolution bias
 
 .. math::
 
-    f_\mathrm{e}(z) = - (1 + z)
+    b_\mathrm{e}(z) = - (1 + z)
         \frac{\partial \ln\bar{n}(z)}{\partial z}
 
 and magnification bias
@@ -183,13 +183,13 @@ from scipy.misc import derivative
 
 
 def konstante_correction(redshift, normalisation_redshift=2., index=-0.5):
-    r"""Konstante correction (*K*-correction) to magnitude for bandpass
-    redshifting.
+    r"""Subtractive Konstante correction (*K*-correction) to magnitude
+    for correcting bandpass redshifting.
 
     Notes
     -----
-    This implements the *K*-correction :math:`K(z) - K(z_\ast)` normaslied
-    to redshift :math:`z_\ast`, where
+    This implements the subtractive *K*-correction :math:`K(z) - K(z_\ast)`
+    normalised to redshift :math:`z_\ast`, where
 
     .. math::
 
@@ -426,15 +426,15 @@ def quasar_hybrid_model_constraint(**model_parameters):
     return model_parameters[r'\alpha'] < model_parameters[r'\beta']
 
 
-def alpha_emitter_schechter_lumfunc(flux, redshift, base10_log=True,
+def alpha_emitter_schechter_lumfunc(luminosity, redshift, base10_log=True,
                                     **model_parameters):
     r"""Evaluate the Schechter model for the H |alpha| -emitter
-    luminosity function at the given flux and redshift.
+    luminosity function at the given luminosity and redshift.
 
     Parameters
     ----------
-    flux : float
-        H |alpha| -emitter flux in dex (base-10 logarithm).
+    luminosity : float
+        H |alpha| -emitter luminosity in dex (base-10 logarithm).
     redshift : float
         H |alpha| -emitter redshift.
     base10_log : bool, optional
@@ -452,7 +452,7 @@ def alpha_emitter_schechter_lumfunc(flux, redshift, base10_log=True,
         `base10_log` is `True`.
 
     """
-    lg_L, z = flux, redshift
+    lg_L, z = luminosity, redshift
 
     lg_Phi_star0 = model_parameters[r'\lg\Phi_{\ast0}']
     lg_L_star0 = model_parameters[r'\lg{L_{\ast0}}']
@@ -496,14 +496,14 @@ class LumFuncModeller:
         this will be overriden to `False`.
     model_parameters : dict
         Model parameters passed to `model_lumfunc` as keyword arguments.
-    luminosity_variable : {'flux', 'magnitude'}, str
-        Luminosity variable of `model_lumfunc`, either 'flux' (in dex) or
-        'magnitude'.
+    luminosity_variable : {'luminosity', 'magnitude'}, str
+        Luminosity variable of `model_lumfunc`, either 'luminosity' (in
+        dex) or 'magnitude'.
     threshold_value : float
         Luminosity threshold value for `luminosity_variable`.  If
-        `luminosity_variable` is 'flux', this is converted to an intrinsic
-        flux value at the tracer redshift using the luminosity distance
-        for model evaluation.
+        `luminosity_variable` is 'luminosity', this is interpreted as a
+        flux limit and converted to an intrinsic luminosity value at the
+        tracer redshift using the luminosity distance.
     cosmology : :class:`astropy.cosmology.Cosmology`
         Background cosmological model.
     exponentiation : bool, optional
@@ -529,12 +529,12 @@ class LumFuncModeller:
 
     # HINT: Instead of ``np.inf`` to prevent arithmetic overflow.
     luminosity_bound = {
-        'flux': 100.,
+        'luminosity': 100.,
         'magnitude': -50.,
     }
     r"""float: Finite luminosity upper bound.
 
-    If :attr:`luminosity_variable` is 'flux', it is the base-10
+    If :attr:`luminosity_variable` is 'luminosity', it is the base-10
     logarithmic value in erg/s; else if it is 'magnitude' and
     dimensionless.
 
@@ -564,7 +564,7 @@ class LumFuncModeller:
                 lambda lum, z: 10 ** model_lumfunc(lum, z, **model_parameters)
             )
 
-        if luminosity_variable == 'flux':
+        if luminosity_variable == 'luminosity':
             # pylint: disable=no-member
             self.luminosity_threshold = lambda z: np.log10(
                 4 * np.pi * threshold_value
@@ -604,7 +604,8 @@ class LumFuncModeller:
         return cls(model_parameters=model_parameters, **kwargs)
 
     def comoving_number_density(self, redshift):
-        r"""Return the comoving number density at a given redshift.
+        r"""Return the comoving number density :math:`\bar{n}(z)`
+        above the brightness threshold at a given redshift.
 
         Parameters
         ----------
@@ -630,7 +631,8 @@ class LumFuncModeller:
         return _comoving_number_density
 
     def evolution_bias(self, redshift):
-        r"""Return the evolution bias at a given redshift.
+        r"""Return the evolution bias :math:`b_\mathrm{e}(z)` at a
+        given redshift.
 
         Parameters
         ----------
@@ -650,7 +652,7 @@ class LumFuncModeller:
         return _evolution_bias
 
     def magnification_bias(self, redshift):
-        r"""Return the magnification bias at a given redshift.
+        r"""Return the magnification bias :math:`s(z)` at a given redshift.
 
         Parameters
         ----------
