@@ -146,7 +146,7 @@ import numpy as np
 from astropy.constants import c
 from nbodykit.lab import cosmology as nbk_cosmology
 
-_SPEED_OF_LIGHT_IN_KM_PER_S = c.to('km/s')
+_SPEED_OF_LIGHT_IN_KM_PER_S = c.to('km/s').value
 _SPHERICAL_COLLAPSE_CRITICAL_OVERDENSITY = 1.686
 _GROWTH_FACTOR_NORMALISATION = 1.27
 
