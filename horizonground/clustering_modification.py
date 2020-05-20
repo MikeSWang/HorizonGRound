@@ -98,8 +98,7 @@ are parametrised by the redshift-dependent, dimensionless quantity
 
 .. math::
 
-    \frac{g(z)}{\mathcal{H}(z)} =
-        \frac{\mathcal{H}'}{\mathcal{H}^2}
+    g(z) = \frac{\mathcal{H}'}{\mathcal{H}^2}
         + 5s + \frac{2 - 5s}{\mathcal{H} \chi}
         - b_\mathrm{e}
 
@@ -115,7 +114,7 @@ sum of three terms
         \left[ 1 - \frac{3}{2} \Omega_\mathrm{m,0} (1 + z)^3 \right]
     }_{\text{background expansion}}
     + \underbrace{
-        \left( \frac{2}{\mathcal{H}\chi} - b_\mathrm{e}(z) \right)
+        \left[ \frac{2}{\mathcal{H}\chi} - b_\mathrm{e}(z) \right]
     }_{\text{evolution}}
     + \underbrace{
         5s(z) \left( 1 - \frac{1}{\mathcal{H}\chi} \right)
@@ -127,12 +126,10 @@ corrections are
 .. math::
 
     \begin{align*}
-        \Delta P_0(k, z) &= \frac{1}{3}
-            \frac{\mathcal{H}(z)^2 g(z)^2}{k^2}
-            f(z)^2 P_\mathrm{m}(k,z) \,,\\
-        \Delta P_2(k, z) &= \frac{2}{3}
-            \frac{\mathcal{H}(z)^2 g(z)^2}{k^2}
-            f(z)^2 P_\mathrm{m}(k,z) \,,
+        \Delta P_0(k, z) &= \frac{1}{3} \frac{\mathcal{H}^2}{k^2}
+            g(z)^2 f(z)^2 P_\mathrm{m}(k,z) \,,\\
+        \Delta P_2(k, z) &= \frac{2}{3} \frac{\mathcal{H}^2}{k^2}
+            g(z)^2 f(z)^2 P_\mathrm{m}(k,z) \,,
     \end{align*}
 
 .. autosummary::
@@ -144,6 +141,7 @@ corrections are
 |
 
 """
+# pylint: disable=no-name-in-module
 import numpy as np
 from astropy.constants import c
 from nbodykit.lab import cosmology as nbk_cosmology
@@ -223,8 +221,9 @@ def scale_dependence_kernel(redshift, cosmo=FIDUCIAL_COSMOLOGY):
     return lambda k: numerical_constants / transfer_function(k)
 
 
-def non_gaussianity_factor(wavenumber, order, local_png, bias, redshift,
-                           cosmo=FIDUCIAL_COSMOLOGY, tracer_p=1.):
+def non_gaussianity_correction_factor(wavenumber, order, local_png, bias,
+                                      redshift, cosmo=FIDUCIAL_COSMOLOGY,
+                                      tracer_p=1.):
     r"""Compute the power spectrum multipoles modified by local primordial
     non-Gaussianity as multiples of the matter power spectrum.
 

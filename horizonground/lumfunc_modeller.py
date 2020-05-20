@@ -665,7 +665,7 @@ class LumFuncModeller:
             Magnification bias.
 
         """
-        if self.attrs['luminosity_variable'] == 'flux':
+        if self.attrs['luminosity_variable'] == 'luminosity':
             prefactor = 2./5. / np.log(10)
         elif self.attrs['luminosity_variable'] == 'magnitude':
             prefactor = 1 / np.log(10)
