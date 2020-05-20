@@ -244,6 +244,8 @@ def view_extracts(chain):
         Chain and contour figures.
 
     """
+    _labels = [lab.format(progrc.redshift) for lab in LABELS]
+
     LEVELS = [0.6826895, 0.9544997]
     QUANTILES = [0.1587, 0.5, 0.8413]
     COLOUR = '#A3C1AD'
@@ -251,45 +253,32 @@ def view_extracts(chain):
         color=COLOUR,
         quantiles=QUANTILES,
         levels=LEVELS,
-        labels=[lab.format(progrc.redshift) for lab in LABELS],
+        labels=_labels,
         label_kwargs={'visible': False},
+        title_fmt='.5f',
         plot_datapoints=False,
         plot_contours=True,
         fill_contours=True,
-        range=(0.999,)*NDIM,
-        show_titles=True,
-        title_fmt='.3f',
         quiet=True,
+        range=(0.999,)*len(_labels),
         rasterized=True,
+        show_titles=True,
     )
 
     plt.close('all')
 
-    chain_fig, axes = plt.subplots(NDIM, figsize=(12, NDIM), sharex=True)
-    for param_idx in range(NDIM):
-        ax = axes[param_idx]
-        ax.plot(
-            chain[:, param_idx], color=COLOUR, alpha=0.66, rasterized=True
-        )
-        ax.set_xlim(0, len(chain))
-        ax.set_ylabel(LABELS[param_idx])
-    axes[-1].set_xlabel("steps")
-
-    fig_file = str(output_path).replace('.h5', '.chains.pdf')
-    if SAVEFIG:
-        chain_fig.savefig(fig_file)
-    logger.info("Saved chain plot of tracer number density samples.\n")
-
-    contour_fig = corner.corner(
+    distribution_fig = corner.corner(
         chain, bins=160, smooth=.75, smooth1d=.95, **CORNER_OPTIONS
     )
 
-    fig_file = str(output_path).replace('.h5', '.contours.pdf')
+    fig_file = str(output_path).replace('.h5', '.pdf')
     if SAVEFIG:
-        contour_fig.savefig(fig_file)
-    logger.info("Saved contour plot of tracer number density samples.\n")
+        distribution_fig.savefig(fig_file)
+    logger.info(
+        "Saved distribution plot of tracer number density samples.\n"
+    )
 
-    return contour_fig
+    return distribution_fig
 
 
 # Model-independent settings.
