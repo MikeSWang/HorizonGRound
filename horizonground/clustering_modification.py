@@ -302,7 +302,9 @@ def relativistic_correction_func(cosmo=FIDUCIAL_COSMOLOGY, geometric=True,
 
     if geometric:
         geometric_term = lambda z: \
-            1 - 3./2. * astropy_cosmo.Om0 * (1 + z) ** 3
+            1 - 3./2. * astropy_cosmo.Om0 \
+            * (astropy_cosmo.H0 / astropy_cosmo.H(z)) ** 2 \
+            * (1 + z) ** 3
     else:
         geometric_term = lambda z: 0.
 
