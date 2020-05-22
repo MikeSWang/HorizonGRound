@@ -111,9 +111,9 @@ sum of three terms
 
 .. math::
 
-    g(z) = \underbrace{
-        \left[ 1 - \frac{3}{2} \Omega_\mathrm{m,0} (1 + z)^3 \right]
-    }_{\text{background expansion}}
+    g(z) = \underbrace{\left[
+        1 - \frac{3}{2} \frac{H_0^2}{H(z)^2} \Omega_\mathrm{m,0} (1 + z)^3
+    \right]}_{\text{background expansion}}
     + \underbrace{
         \left[ \frac{2}{\mathcal{H}\chi} - b_\mathrm{e}(z) \right]
     }_{\text{evolution}}
