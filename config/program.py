@@ -11,6 +11,7 @@ import sys
 import time
 
 import matplotlib as mpl
+import matplotlib.ticker as ticker
 
 
 class LoggingFormatter(logging.Formatter):
@@ -113,6 +114,41 @@ def sci_notation(num):
     num_str = "E".join([base, index])
 
     return num_str
+
+
+class SciFormatter(ticker.Formatter):
+    """Scientific notation axis label formatter.
+
+    Parameters
+    ----------
+    fmt : str
+        String format.
+
+    """
+
+    def __init__(self, fmt='%1.0e'):
+
+        self.fmt = fmt
+
+    def __call__(self, num, pos=None):
+
+        base, signed_exponent = (self.fmt % num).split('e')
+
+        base_sign = '-' if base.startswith('-') else ''
+        base = base.rstrip('.')
+        exponent_sign = signed_exponent[0].replace('+', '')
+        exponent = signed_exponent[1:].lstrip('0')
+
+        if exponent:
+            exponent = '10^{%s%s}' % (exponent_sign, exponent)
+            if abs(float(base)) in [0., 1.]:
+                s = r'%s %s' % (base_sign, exponent)
+            else:
+                s = r'%s \times %s' % (base, exponent)
+        else:
+            s = r'%s' % (base)
+
+        return "${}$".format(s)
 
 
 # Configure logging.

@@ -28,15 +28,17 @@ SIGMA_LEVELS = [0.864665, 0.393469, 0.000001]
 legend_state = ([], [])
 
 
-def gradient_colour_map(start_colour, end_colour, name):
+def gradient_colour_map(colour, bg_colour='#FFFFFF', name=None):
     """Generate a colour map using gradients between two colours.
 
     Parameters
     ----------
-    start_colour, end_colour : str
-        Start or end colour as a HEX code string.
+    colour : str
+        Primary colour as a hex code string.
+    bg_colour : str
+        Background colour as a hex code string (default is '#FFFFFF').
     name : str
-        Name of the colour map.
+        Name of the colour map (default is `None`).
 
     Returns
     -------
@@ -44,8 +46,8 @@ def gradient_colour_map(start_colour, end_colour, name):
         Generated colour map.
 
     """
-    r0, g0, b0 = to_rgb(start_colour)
-    r1, g1, b1 = to_rgb(end_colour)
+    r0, g0, b0 = to_rgb(bg_colour)
+    r1, g1, b1 = to_rgb(colour)
 
     colour_dict = {
         'red': ((0, r0, r0), (1, r1, r1)),
@@ -256,13 +258,13 @@ def plot_2d_contours(posterior, x, y, x_range=None, y_range=None,
         x_panel.fill_between(
             x[x_lower_idx:(x_upper_idx + 1)],
             pdf_x[x_lower_idx:(x_upper_idx + 1)],
-            antialiased=True, facecolor=[primary_colour],
+            antialiased=True, facecolor=[primary_colour], edgecolor='none',
             alpha=AREA_FILL_ALPHA, zorder=2
         )
         y_panel.fill_betweenx(
             y[y_lower_idx:(y_upper_idx + 1)],
             pdf_y[y_lower_idx:(y_upper_idx + 1)],
-            antialiased=True, facecolor=[primary_colour],
+            antialiased=True, facecolor=[primary_colour], edgecolor='none',
             alpha=AREA_FILL_ALPHA, zorder=2
         )
     else:
@@ -356,8 +358,8 @@ def plot_2d_constraints(chains, bins=None, smooth=None,
         x_range=range_x, y_range=range_y
     )
 
-    legend_state[0].append(patch)
-    legend_state[1].append(label)
+    legend_state[0].insert(0, patch)
+    legend_state[1].insert(0, label)
 
     if truth_x is not None:
         canvas.axvline(truth_x, c='k', ls='--', zorder=3)

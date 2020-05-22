@@ -68,7 +68,8 @@ non-Gaussianty are
 
     \begin{align*}
         \Delta P_0(k, z) &= \left[
-            (2 b_1 + \frac{2}{3} f) \Delta b(k, z) + \Delta b(k, z)^2
+            \left( 2 b_1 + \frac{2}{3} f \right) \Delta b(k, z)
+            + \Delta b(k, z)^2
         \right] P_\mathrm{m}(k, z) \,, \\
         \Delta P_2(k, z) &=
             \frac{4}{3} f \Delta b(k, z) P_\mathrm{m}(k, z) \,.
@@ -314,7 +315,7 @@ def relativistic_correction_func(cosmo=FIDUCIAL_COSMOLOGY, geometric=True,
         lensing_term = lambda z: 0.
     else:
         lensing_term = lambda z: \
-            5 * magnification_bias(z) * (1 - 1 / (aH(z) *chi(z)))
+            5 * magnification_bias(z) * (1 - 1 / (aH(z) * chi(z)))
 
     return np.vectorize(
         lambda z: aH(z) / astropy_cosmo.h
