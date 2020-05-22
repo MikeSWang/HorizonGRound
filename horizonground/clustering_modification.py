@@ -359,7 +359,9 @@ def relativistic_correction_value(redshift, cosmo=FIDUCIAL_COSMOLOGY,
 
     correction_value = 0.
     if geometric:
-        correction_value += 1 - 3./2. * astropy_cosmo.Om0 * (1 + redshift) ** 3
+        correction_value += 1 - 3./2. * astropy_cosmo.Om0 \
+            * (astropy_cosmo.H0 / astropy_cosmo.H(redshift)) ** 2 \
+            * (1 + redshift) ** 3
     if evolution_bias:
         correction_value += 2 / (aH * chi) - evolution_bias
     if magnification_bias:
