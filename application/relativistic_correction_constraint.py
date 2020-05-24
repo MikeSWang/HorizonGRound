@@ -33,6 +33,10 @@ def initialise():
     parser.add_argument('--redshift', type=float, default=2.)
     parser.add_argument('--chain-subdir', type=str, default='')
     parser.add_argument('--chain-file', type=str, default=None)
+    parser.add_argument(
+        '--contribution',
+        choices=['all', 'evolution', 'magnification'], default='all'
+    )
 
     program_configuration = parser.parse_args()
 
@@ -77,11 +81,28 @@ def compute_correction_from_biases(biases):
         Relativistic correction value.
 
     """
-    correction = relativistic_correction_value(
-        progrc.redshift, evolution_bias=biases[0], magnification_bias=biases[1]
-    )
+    if progrc.contribution == 'all':
+        correction = relativistic_correction_value(
+            progrc.redshift,
+            evolution_bias=biases[0], magnification_bias=biases[1]
+        )
+        return [correction]
 
-    return [correction]
+    if progrc.contribution == 'evolution':
+        correction = relativistic_correction_value(
+            progrc.redshift,
+            geometric=False, evolution_bias=biases[0], magnification_bias=None
+        )
+        return [correction]
+
+    if progrc.contribution == 'magnification':
+        correction = relativistic_correction_value(
+            progrc.redshift,
+            geometric=False, evolution_bias=None, magnification_bias=biases[1]
+        )
+        return [correction]
+
+    raise ValueError("Which relativistic correction(s) unspecified.")
 
 
 def distill_corrections(bias_chain, pool=None):
@@ -134,10 +155,14 @@ def save_distilled():
     redshift_tag = redshift_tag if "." not in redshift_tag \
         else redshift_tag.rstrip("0")
 
-    if redshift_tag not in progrc.chain_file:
-        prefix = "relcrct_" + redshift_tag + "_"
-    else:
+    if progrc.contribution == 'all':
         prefix = "relcrct_"
+    elif progrc.contribution == 'evolution':
+        prefix = "relcrct_evol_"
+    elif progrc.contribution == 'magnification':
+        prefix = "relcrct_magn_"
+    if redshift_tag not in progrc.chain_file:
+        prefix += redshift_tag + "_"
 
     outfile = PATHOUT/progrc.chain_subdir/(
         prefix + progrc.chain_file
