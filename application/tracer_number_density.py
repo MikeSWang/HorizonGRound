@@ -107,7 +107,7 @@ def read_chains():
         flat_chain = reader.get_chain(flat=True, discard=_burnin, thin=_reduce)
     elif progrc.sampler == 'zeus':
         flat_chain = reader['chain'][_burnin::_reduce, :, :]\
-            .reshape((-1, len(PARAMETERS)))
+            .reshape((-1, len(parameters)))
         chain_data.close()
 
     logger.info(
@@ -133,7 +133,7 @@ def compute_density_from_lumfunc(lumfunc_params):
     """
     lumfunc_model = getattr(lumfunc_modeller, progrc.model_name + '_lumfunc')
 
-    model_parameters = dict(zip(PARAMETERS, lumfunc_params))
+    model_parameters = dict(zip(parameters, lumfunc_params))
 
     modeller = LumFuncModeller(
         lumfunc_model, model_parameters,
@@ -146,7 +146,7 @@ def compute_density_from_lumfunc(lumfunc_params):
 
 
 def extract_number_density(lumfunc_param_chain, pool=None):
-    """Extract tracer number_density from a luminosity function parameter
+    """Extract tracer number density from a luminosity function parameter
     chain.
 
     Parameters
@@ -165,7 +165,7 @@ def extract_number_density(lumfunc_param_chain, pool=None):
     mapping = pool.imap if pool else map
     num_cpus = cpu_count() if pool else 1
 
-    logger.info("Resampling tracer number_density with %i CPUs...\n", num_cpus)
+    logger.info("Resampling tracer number density with %i CPUs...\n", num_cpus)
     density_samples = list(tqdm(
         mapping(compute_density_from_lumfunc, lumfunc_param_chain),
         total=len(lumfunc_param_chain), mininterval=15, file=sys.stdout
@@ -287,16 +287,24 @@ BASE10_LOG = True
 COSMOLOGY = cosmology.Planck15
 
 # Model-specific settings.
-PARAMETERS = [
-    'm_\\ast(z_\\mathrm{p})', '\\lg\\Phi_\\ast',
-    '\\alpha_\\mathrm{l}', '\\alpha_\\mathrm{h}',
-    '\\beta_\\mathrm{l}', '\\beta_\\mathrm{h}',
-    'k_{1\\mathrm{l}}', 'k_{1\\mathrm{h}}',
-    'k_{2\\mathrm{l}}', 'k_{2\\mathrm{h}}',
-]
-
 LUMINOSITY_VARIABLE = 'magnitude'
 THRESHOLD_VARIABLE = 'magnitude'
+PARAMETERS = {
+    'quasar_PLE': [
+        'm_\\ast(z_\\mathrm{p})', '\\lg\\Phi_\\ast',
+        '\\alpha_\\mathrm{l}', '\\alpha_\\mathrm{h}',
+        '\\beta_\\mathrm{l}', '\\beta_\\mathrm{h}',
+        'k_{1\\mathrm{l}}', 'k_{1\\mathrm{h}}',
+        'k_{2\\mathrm{l}}', 'k_{2\\mathrm{h}}',
+    ],
+    'quasar_hybrid': [
+        'm_\\ast(0)', '\\lg\\Phi_\\ast(0)',
+        '\\alpha', '\\beta',
+        'k_1', 'k_2',
+        'c_{1\\mathrm{a}}', 'c_{1\\mathrm{b}}',
+        'c_2', 'c_3',
+    ],
+}
 
 # Program-specific settings.
 SAVE = True
@@ -305,6 +313,8 @@ SAVEFIG = True
 if __name__ == '__main__':
 
     progrc = initialise()
+
+    parameters = PARAMETERS.get(progrc.model_name)
 
     input_chain, burin, reduce = read_chains()  #
 

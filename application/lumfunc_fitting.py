@@ -356,8 +356,8 @@ def load_chains():
         map(lambda s: "$" + s + "$", list(log_likelihood.prior.keys()))
     )
     truth = None
-    if TRUTH_FILE:
-        external_fits = load_parameter_set(TRUTH_FILE)
+    if truth_file:
+        external_fits = load_parameter_set(truth_file)
         truth = list(external_fits.values())
 
     # Load the chain.
@@ -440,11 +440,16 @@ def load_chains():
 
 
 SAVEFIG = True
-TRUTH_FILE = PATHEXT/"eBOSS_QSO_LF_PLE_model_fits.txt"
+TRUTH_FILE = {
+    'quasar_PLE': PATHEXT/"eBOSS_QSO_LF_PLE_model_fits.txt",
+    'quasar_hybrid': PATHEXT/"eBOSS_QSO_LF_PLE+LEDE_model_fits.txt",
+}
 
 if __name__ == '__main__':
 
     prog_params = parse_ext_args()
+
+    truth_file = TRUTH_FILE.get(prog_params.model_name)
 
     if prog_params.task in ['sample', 'resume']:
         with Pool() as pool:

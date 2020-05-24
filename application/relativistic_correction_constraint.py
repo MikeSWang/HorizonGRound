@@ -31,6 +31,7 @@ def initialise():
     parser = ArgumentParser("relativistic-correction-constraint")
 
     parser.add_argument('--redshift', type=float, default=2.)
+    parser.add_argument('--chain-subdir', type=str, default='')
     parser.add_argument('--chain-file', type=str, default=None)
 
     program_configuration = parser.parse_args()
@@ -52,7 +53,7 @@ def load_samples():
         Relativistic bias samples.
 
     """
-    chain_file = PATHOUT/progrc.chain_file
+    chain_file = PATHOUT/progrc.chain_subdir/progrc.chain_file
     with hp.File(chain_file, 'r') as chain_data:
         bias_samples = chain_data['extract/chain'][()]
 
@@ -127,7 +128,7 @@ def save_distilled():
         Chain output file path.
 
     """
-    infile = PATHOUT/progrc.chain_file
+    infile = PATHOUT/progrc.chain_subdir/progrc.chain_file
 
     redshift_tag = "z{}".format(progrc.redshift)
     redshift_tag = redshift_tag if "." not in redshift_tag \
@@ -138,7 +139,9 @@ def save_distilled():
     else:
         prefix = "relcrct_"
 
-    outfile = PATHOUT/(prefix + progrc.chain_file).replace("relbias_", "")
+    outfile = PATHOUT/progrc.chain_subdir/(
+        prefix + progrc.chain_file
+    ).replace("relbias_", "")
 
     with hp.File(infile, 'r') as indata, hp.File(outfile, 'w') as outdata:
         outdata.create_group('distill')
