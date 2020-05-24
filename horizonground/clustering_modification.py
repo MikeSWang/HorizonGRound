@@ -430,6 +430,10 @@ def relativistic_correction_factor(wavenumber, order, redshift,
                 evolution_bias=evolution_bias,
                 magnification_bias=magnification_bias
             )
+        elif evolution_bias is None and magnification_bias is None:
+            correction_value = relativistic_correction_value(
+                redshift, cosmo=cosmo, geometric=geometric
+            )
         else:
             raise TypeError(
                 "`evolution_bias` and `magnification_bias` must be "
