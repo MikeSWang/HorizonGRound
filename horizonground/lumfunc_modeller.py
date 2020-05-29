@@ -572,7 +572,7 @@ class LumFuncModeller:
             )
         elif luminosity_variable == 'magnitude':
             self.luminosity_threshold = lambda z: \
-                threshold_value - self.cosmology.distmod(z).value
+                threshold_value  # - self.cosmology.distmod(z).value
 
         self.cosmology = cosmology
 

@@ -24,7 +24,7 @@ import horizonground.lumfunc_modeller as lumfunc_modeller
 LABELS = [r'$\bar{{n}}(z={})$']
 NDIM = len(LABELS)
 
-burnin, reduce = 0, 1
+burnin, reduction = 0, 1
 
 
 def initialise():
@@ -40,11 +40,13 @@ def initialise():
 
     parser.add_argument('--model-name', type=str, default='quasar_PLE')
     parser.add_argument('--redshift', type=float, default=2.)
+    parser.add_argument('--threshold', type=float, default=-22.)
+    parser.add_argument('--convert-to-source', action='store_true')
 
     parser.add_argument('--sampler', type=str.lower, choices=['emcee', 'zeus'])
     parser.add_argument('--chain-file', type=str, default=None)
     parser.add_argument('--burnin', type=int, default=None)
-    parser.add_argument('--reduce', type=int, default=None)
+    parser.add_argument('--reduction', type=int, default=None)
 
     program_configuration = parser.parse_args()
 
@@ -77,7 +79,7 @@ def read_chains():
     logger.info("Loaded chain file: %s.\n", chain_file)
 
     # Process chains by burn-in and thinning.
-    if progrc.burnin is None or progrc.reduce is None:
+    if progrc.burnin is None or progrc.reduction is None:
         try:
             autocorr_time = reader.get_autocorr_time()
         except AttributeError:
@@ -94,27 +96,30 @@ def read_chains():
     else:
         _burnin = progrc.burnin
 
-    if progrc.reduce is None:
+    if progrc.reduction is None:
         try:
-            _reduce = int(np.min(autocorr_time)) // 5  # can change 5 to 2
+            _reduction = int(np.min(autocorr_time)) // 5  # can change 5 to 2
         except (TypeError, ValueError):
-            _reduce = 1
+            _reduction = 1
     else:
-        _reduce = progrc.reduce
+        _reduction = progrc.reduction
 
     # Flatten chains.
     if progrc.sampler == 'emcee':
-        flat_chain = reader.get_chain(flat=True, discard=_burnin, thin=_reduce)
+        flat_chain = reader.get_chain(
+            flat=True, discard=_burnin, thin=_reduction
+        )
     elif progrc.sampler == 'zeus':
-        flat_chain = reader['chain'][_burnin::_reduce, :, :]\
+        flat_chain = reader['chain'][_burnin::_reduction, :, :]\
             .reshape((-1, len(parameters)))
         chain_data.close()
 
     logger.info(
-        "Chain flattened with %i burn-in and %i thinning.\n", _burnin, _reduce
+        "Chain flattened with %i burn-in and %i thinning.\n",
+        _burnin, _reduction
     )
 
-    return flat_chain, _burnin, _reduce
+    return flat_chain, _burnin, _reduction
 
 
 def compute_density_from_lumfunc(lumfunc_params):
@@ -137,7 +142,7 @@ def compute_density_from_lumfunc(lumfunc_params):
 
     modeller = LumFuncModeller(
         lumfunc_model, model_parameters,
-        LUMINOSITY_VARIABLE, threshold_value, COSMOLOGY
+        LUMINOSITY_VARIABLE, luminosity_threshold, COSMOLOGY
     )
 
     number_density = modeller.comoving_number_density(progrc.redshift)
@@ -188,11 +193,10 @@ def save_extracts():
     """
     infile = PATHOUT/progrc.chain_file
 
-    redshift_tag = "z{}".format(progrc.redshift)
-    redshift_tag = redshift_tag if "." not in redshift_tag \
-        else redshift_tag.rstrip("0")
+    redshift_tag = "_z{:.2f}".format(progrc.redshift)
+    threshold_tag = "_m{:.1f}".format(luminosity_threshold)
 
-    prefix = "numden_" + redshift_tag + "_"
+    prefix = "numden" + redshift_tag + threshold_tag + "_"
 
     outfile = PATHOUT/(prefix + progrc.chain_file)
 
@@ -202,7 +206,7 @@ def save_extracts():
         if progrc.sampler == 'emcee':
             outdata.create_dataset(
                 'extract/log_prob',
-                data=np.ravel(indata['mcmc/log_prob'][burnin::reduce, :])
+                data=np.ravel(indata['mcmc/log_prob'][burnin::reduction, :])
             )
 
     logger.info("Extracted chain saved to %s.\n", outfile)
@@ -316,9 +320,14 @@ if __name__ == '__main__':
 
     parameters = PARAMETERS.get(progrc.model_name)
 
-    input_chain, burin, reduce = read_chains()  #
+    if progrc.convert_to_source:
+        luminosity_threshold = progrc.threshold \
+            - cosmology.Planck15.distmod(progrc.redshift).value \
+            - konstante_correction(progrc.redshift)
+    else:
+        luminosity_threshold = progrc.threshold
 
-    threshold_value = 22.5 - konstante_correction(progrc.redshift)
+    input_chain, burin, reduction = read_chains()  #
 
     with Pool() as mpool:  #
         extracted_chain = extract_number_density(input_chain, pool=mpool)  #
