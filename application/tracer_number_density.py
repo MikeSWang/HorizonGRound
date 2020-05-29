@@ -46,7 +46,7 @@ def initialise():
     parser.add_argument('--sampler', type=str.lower, choices=['emcee', 'zeus'])
     parser.add_argument('--chain-file', type=str, default=None)
     parser.add_argument('--burnin', type=int, default=None)
-    parser.add_argument('--reduction', type=int, default=None)
+    parser.add_argument('--reduction', type=int, default=1)
 
     program_configuration = parser.parse_args()
 
@@ -79,7 +79,7 @@ def read_chains():
     logger.info("Loaded chain file: %s.\n", chain_file)
 
     # Process chains by burn-in and thinning.
-    if progrc.burnin is None or progrc.reduction is None:
+    if progrc.burnin is None or progrc.reduction == 0:
         try:
             autocorr_time = reader.get_autocorr_time()
         except AttributeError:
@@ -96,7 +96,7 @@ def read_chains():
     else:
         _burnin = progrc.burnin
 
-    if progrc.reduction is None:
+    if progrc.reduction == 0:
         try:
             _reduction = int(np.min(autocorr_time)) // 5  # can change 5 to 2
         except (TypeError, ValueError):
