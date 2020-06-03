@@ -382,6 +382,7 @@ def plot_2d_constraints(chains, bins=None, smooth=None,
             bbox_to_anchor=[1.25, 0.775], loc='center',
             handlelength=1.25, labelspacing=0.
         )
+    top_panel.autoscale(axis='y')
     top_panel.set_ylim(bottom=0)
     top_panel.axes.tick_params(
         axis='x', which='both', top=False, bottom=False, labelbottom=False
@@ -398,6 +399,7 @@ def plot_2d_constraints(chains, bins=None, smooth=None,
             bbox_to_anchor=[0.75, 1.075],
             loc='center', handlelength=1.25, labelspacing=0.
         )
+    side_panel.autoscale(axis='x')
     side_panel.set_xlim(left=0)
     side_panel.axes.tick_params(
         axis='x', which='both', top=False, bottom=False, labelbottom=False
