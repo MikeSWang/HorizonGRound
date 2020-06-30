@@ -23,7 +23,7 @@ def pytest_addoption(parser):
 
     """
     parser.addoption(
-        '--runslow', action='store_true', default=False, help="Run slow tests."
+        '--runslow', action='store_true', default=False, help="run slow tests"
     )
 
 
@@ -54,7 +54,7 @@ def pytest_collection_modifyitems(config, items):
         return
 
     skip_slow = pytest.mark.skip(
-        reason="Use --runslow option to run slow tests."
+        reason="use --runslow option to run slow tests"
     )
     for item in items:
         if 'slow' in item.keywords:
@@ -78,7 +78,7 @@ def quasar_PLE_LEDE_model_params(request):
 
 
 @pytest.fixture(scope="session", autouse=True)
-def alpha_emitter_Schechter_model_params(request):
+def alpha_emitter_schechter_model_params(request):
 
     return load_parameter_set(
         test_data_dir/"H-alpha_LF_Schechter_model_fits.txt"

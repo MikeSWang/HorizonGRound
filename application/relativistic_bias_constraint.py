@@ -38,9 +38,9 @@ def initialise():
     """
     parser = ArgumentParser("relativistic-bias-constraint")
 
-    parser.add_argument('--model-name', type=str, default='quasar_PLE')
-    parser.add_argument('--redshift', type=float, default=2.)
-    parser.add_argument('--threshold', type=float, default=-22.)
+    parser.add_argument('--model-name', type=str)
+    parser.add_argument('--redshift', type=float)
+    parser.add_argument('--threshold', type=float)
     parser.add_argument('--convert-to-source', action='store_true')
 
     parser.add_argument('--sampler', type=str.lower, choices=['emcee', 'zeus'])

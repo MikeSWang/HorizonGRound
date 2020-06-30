@@ -30,7 +30,7 @@ def initialise():
     """
     parser = ArgumentParser("relativistic-correction-constraint")
 
-    parser.add_argument('--redshift', type=float, default=2.)
+    parser.add_argument('--redshift', type=float)
     parser.add_argument('--chain-subdir', type=str, default='')
     parser.add_argument('--chain-file', type=str, default=None)
     parser.add_argument(
@@ -77,7 +77,7 @@ def compute_correction_from_biases(biases):
 
     Returns
     -------
-    correction : [float]
+    correction : list of float
         Relativistic correction value.
 
     """

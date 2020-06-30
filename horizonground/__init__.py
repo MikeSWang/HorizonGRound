@@ -1,6 +1,6 @@
 """
 ###########################################################################
-``HorizonGRound`` | Relativistic Impact on Large-Scale Clustering
+``HorizonGRound`` | Relativistic Effects in Ultra-Large-Scale Clustering
 ###########################################################################
 
 .. topic:: Licence Statement
@@ -22,13 +22,14 @@
 
 """
 __author__ = "Mike S Wang"
-__contact__ = "M S Wang"
+__contact__ = "Mike S Wang"
 __copyright__ = "Copyright 2020, HorizonGRound/M S Wang"
-__date__ = "2020/04/01"
+__date__ = "2020/07/01"
 __description__ = (
-    "Investigative tools for relativistic impact on large-scale clustering."
+    "Forward-modelling of relativistic effects in ultra-large-scale clustering"
+    " from tracer luminosity functions."
 )
 __email__ = "mike.wang@port.ac.uk"
 __license__ = "GPLv3"
 __url__ = "https://mikeswang.github.io/HorizonGRound/"
-__version__ = "0.1.0"
+__version__ = "1.0.0"

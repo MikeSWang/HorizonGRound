@@ -2,11 +2,11 @@ r"""
 Luminosity function modeller (:mod:`~horizonground.lumfunc_modeller`)
 ===========================================================================
 
-Provide some models of the redshift-dependent tracer luminosity function
-:math:`\Phi(m, z)` (for appropriately normalised magnitude :math:`m`) or
+Provide models of the redshift-dependent tracer luminosity function
+:math:`\Phi(m, z)` (for absolute magnitude :math:`m`) or
 :math:`\Phi(\lg{L}, z)` (for base-10 logarithm of the intrinsic
 luminosity :math:`L`), from which the comoving number density below/above
-some luminosity threshold :math:`\bar{m}` or :math:`\bar{L}`
+some luminosity threshold :math:`\bar{m}` or :math:`\bar{L}`,
 
 .. math::
 
@@ -14,9 +14,9 @@ some luminosity threshold :math:`\bar{m}` or :math:`\bar{L}`
         \operatorname{d}\!m\, \Phi(m, z)
     \quad \mathrm{or} \quad
     \bar{n}(z; >\!\lg\bar{L}) = \int^{\infty}_{\lg\bar{L}}
-        \operatorname{d}\!\lg{L}\, \Phi(\lg{L}, z) \,.
+        \operatorname{d}\!\lg{L}\, \Phi(\lg{L}, z) \,,
 
-can be predicted, and the corresponding evolution bias
+can be predicted.  The corresponding evolution bias is
 
 .. math::
 
@@ -32,9 +32,13 @@ and magnification bias
     \quad \mathrm{or} \quad
     s(z) = \frac{2}{5\ln10}
         \frac{\Phi(\lg\bar{L},z)}{\bar{n}(z; >\!\lg\bar{L})}
-    \,
+    \,,
 
-derived.
+We also offer a simple :math:`K`-correction formula taken from ref. [1]_.
+
+.. [1] Croom S.~M. et al., 2009. MNRAS 399(4), 1755--1772.
+   [arXiv: `0907.2727 <https://arxiv.org/abs/0907.2727>`_]
+
 
 .. autosummary::
 
@@ -71,7 +75,7 @@ evaluates to :math:`\Phi_\ast`,
     \right] \,,
 
 where :math:`k_1, k_2` are the redshift-evolution parameters whose values
-also differ below and above the pivot redshift [1]_.
+also differ below and above the pivot redshift [2]_.
 
 This is a parametric model with 10 parameters: :math:`\lg\Phi_\ast`,
 :math:`m_\ast(z_\mathrm{p})`, :math:`(\alpha, \beta, k_1, k_2)_\mathrm{l}`
@@ -101,7 +105,7 @@ bright-end power law index have different redshift evolutions
 
 and continuity across redshift is imposed by requiring the same
 :math:`\lg\Phi_\ast(z_\mathrm{p})` and :math:`m_\ast(z_\mathrm{p})` for
-two models.
+two models [2]_.
 
 The hybrid model still has 10 overall parameters: the PLE model retains 6
 low-redshift parameters and the high-redshift LEDE model has 8 parameters,
@@ -112,8 +116,9 @@ with the substitutions of :math:`\lg\Phi_\ast(0)` for :math:`\lg\Phi_\ast`,
 to the exchange symmetry between :math:`\alpha` and :math:`\beta`, the
 low-redshift PLE model constraint :math:`\alpha < \beta` is imposed.
 
-.. [1] Palanque-Delabrouille N. et al., 2016. A&A 587, A41.
+.. [2] Palanque-Delabrouille N. et al., 2016. A&A 587, A41.
    [arXiv: `1509.05607 <https://arxiv.org/abs/1509.05607>`_]
+
 
 .. autosummary::
 
@@ -155,12 +160,12 @@ where :math:`\alpha` is the faint-end slope parameter,
 are the redshift-dependent characteristic comoving number density and
 relative luminosity of the H |alpha| -emitters, :math:`\epsilon, \delta`
 are the redshift-evolution indices, and :math:`z_\mathrm{b}` is the break
-magnitude [2]_.
+magnitude [3]_.
 
 This is a parametric model with 6 parameters: :math:`\alpha, \epsilon,
 \delta`, :math:`z_\mathrm{b}`, :math:`m_{\ast0}` and :math:`\Phi_{\ast0}`.
 
-.. [2] Pozzetti L. et al., 2016. A&A 590, A3.
+.. [3] Pozzetti L. et al., 2016. A&A 590, A3.
    [arXiv: `1603.01453 <https://arxiv.org/abs/1603.01453>`_]
 
 
@@ -220,12 +225,12 @@ def konstante_correction(redshift, normalisation_redshift=2., index=-0.5):
 def quasar_PLE_lumfunc(magnitude, redshift, *, base10_log=True,
                        redshift_pivot=2.2, **model_parameters):
     r"""Evaluate the pure luminosity evolution (PLE) model for the quasar
-    luminosity function at the given magnitude and redshift.
+    luminosity function at the given absolute magnitude and redshift.
 
     Parameters
     ----------
     magnitude : float
-        Quasar magnitude.
+        Quasar absolute magnitude.
     redshift : float
         Quasar redshift.
     base10_log : bool, optional
@@ -532,16 +537,16 @@ class LumFuncModeller:
         'luminosity': 100.,
         'magnitude': -50.,
     }
-    r"""float: Finite luminosity upper bound.
+    r"""float: Finite luminosity upper bound for numerical integration.
 
-    If :attr:`luminosity_variable` is 'luminosity', it is the base-10
-    logarithmic value in erg/s; else if it is 'magnitude' and
-    dimensionless.
+    If :attr:`luminosity_variable` is 'luminosity', the bound is given as
+    a base-10 logarithmic value in erg/s; else if it is 'magnitude', the
+    value is dimensionless.
 
     """
 
     redshift_stepsize = 0.001
-    r"""float: Redshift step size for numerical computations.
+    r"""float: Redshift step size for numerical differentiation.
 
     """
 
@@ -605,7 +610,7 @@ class LumFuncModeller:
 
     def comoving_number_density(self, redshift):
         r"""Return the comoving number density :math:`\bar{n}(z)`
-        above the brightness threshold at a given redshift.
+        above the luminosity threshold at a given redshift.
 
         Parameters
         ----------

@@ -7,9 +7,9 @@ sys.path.insert(0, os.path.abspath('../../'))
 # -- Project information -----------------------------------------------------
 
 author = 'Mike Shengbo Wang'
-copyright = '2020, Mike Shengbo Wang'
+copyright = ' Copyright 2020, Mike Shengbo Wang'
 project = 'HorizonGRound'
-release = '0.0'
+release = '1.0'
 
 
 # -- General configuration ---------------------------------------------------
@@ -26,11 +26,10 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
+    'nbsphinx',
 ]
 
-language = None
-
-master_doc = 'horizonground'
+master_doc = 'index'
 
 pygments_style = 'sphinx'
 
@@ -73,6 +72,7 @@ intersphinx_mapping = {
     'numpy': ('https://docs.scipy.org/doc/numpy', None),
     'scipy': ('https://docs.scipy.org/doc/scipy/reference', None),
     'matplotlib': ('https://matplotlib.org', None),
+    'astropy': ('https://docs.astropy.org/en/stable/', None),
     'nbodykit': ('https://nbodykit.readthedocs.io/en/latest', None),
 }
 

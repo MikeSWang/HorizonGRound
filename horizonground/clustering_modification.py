@@ -2,8 +2,8 @@ r"""
 Clustering modification (:mod:`~horizonground.clustering_modification`)
 ===========================================================================
 
-Compute modifications to the Newtonian isotropic tracer power spectrum in
-the distant-observer and plane-parallel limits.
+Compute modifications to the Newtonian power spectrum in the
+distant-observer and plane-parallel limits.
 
 
 Standard Kaiser RSD model
@@ -50,11 +50,11 @@ where the scale-dependence kernel is
 .. math::
 
     A(k, z) = 3 \left( \frac{H_0}{\mathrm{c}} \right)^2
-        \frac{1.27 \Omega_\mathrm{m,0} \delta_\mathrm{c}}{D(z)T(k)} \,.
+        \frac{1.27 \varOmega_\mathrm{m,0} \delta_\mathrm{c}}{D(z)T(k)} \,.
 
 Here :math:`H_0` is the Hubble parameter at the current epoch
 (in km/s/Mpc), :math:`\mathrm{c}` the speed of light,
-:math:`\Omega_\mathrm{m,0}` the matter density parameter at the current
+:math:`\varOmega_\mathrm{m,0}` the matter density parameter at the current
 epoch, and :math:`\delta_\mathrm{c}` the critical over-density in
 spherical gravitational collapse.  The growth factor :math:`D(z)` is
 normalised to unity at the current epoch (thus the numerical factor 1.27),
@@ -84,7 +84,7 @@ non-Gaussianty are
 Relativistic corrections
 ---------------------------------------------------------------------------
 
-The relativistic corrections to the Newtonian tracer clustering mode
+Relativistic corrections to the Newtonian clustering mode
 
 .. math::
 
@@ -107,21 +107,21 @@ with evolution bias :math:`b_\mathrm{e}(z)` and magnification bias
 :math:`s(z)`, where :math:`v_{\parallel}` is the line-of-sight peculiar
 velocity, :math:`\chi(z)` is the comoving distance and :math:`'` denotes
 derivatives with respect to the conformal time. This can be written as the
-sum of three terms
+sum of three contributions
 
 .. math::
 
     g(z) = \underbrace{\left[
-        1 - \frac{3}{2} \frac{H_0^2}{H(z)^2} \Omega_\mathrm{m,0} (1 + z)^3
+        1
+        - \frac{3}{2} \frac{H_0^2}{H(z)^2} \varOmega_\mathrm{m,0} (1 + z)^3
+        + \frac{2}{\mathcal{H}\chi}
     \right]}_{\text{background expansion}}
-    + \underbrace{
-        \left[ \frac{2}{\mathcal{H}\chi} - b_\mathrm{e}(z) \right]
-    }_{\text{evolution}}
+    \underbrace{- b_\mathrm{e}(z)}_{\text{evolution}}
     + \underbrace{
         5s(z) \left( 1 - \frac{1}{\mathcal{H}\chi} \right)
     }_{\text{magnification}} \,.
 
-Modifications to power spectrum multipoles as a result of the relativistic
+Modifications to power spectrum multipoles from the relativistic
 corrections are
 
 .. math::
@@ -376,7 +376,7 @@ def relativistic_correction_factor(wavenumber, order, redshift,
                                    geometric=True,
                                    evolution_bias=None,
                                    magnification_bias=None):
-    r"""Compute power spectrum multipole modified by relativistic
+    r"""Compute the power spectrum multipoles modified by relativistic
     corrections as multiples of the matter power spectrum.
 
     Parameters

@@ -38,10 +38,11 @@ def initialise():
     """
     parser = ArgumentParser("tracer-number-density")
 
-    parser.add_argument('--model-name', type=str, default='quasar_PLE')
-    parser.add_argument('--redshift', type=float, default=2.)
-    parser.add_argument('--threshold', type=float, default=-22.)
-    parser.add_argument('--convert-to-source', action='store_true')
+    parser.add_argument('--task', type=str, choices=['extract', 'load'])
+    parser.add_argument('--model-name', type=str)
+    parser.add_argument('--redshift', type=float)
+    parser.add_argument('--threshold', type=float)
+    parser.add_argument('--apparent_to_absolute', action='store_true')
 
     parser.add_argument('--sampler', type=str.lower, choices=['emcee', 'zeus'])
     parser.add_argument('--chain-file', type=str, default=None)
@@ -193,12 +194,12 @@ def save_extracts():
     """
     infile = PATHOUT/progrc.chain_file
 
-    redshift_tag = "_z{:.2f}".format(progrc.redshift)
-    threshold_tag = "_m{:.1f}".format(luminosity_threshold)
+    _redshift_tag = "_z{:.2f}".format(progrc.redshift)
+    _threshold_tag = "_m{:.1f}".format(luminosity_threshold)
 
-    prefix = "numden" + redshift_tag + threshold_tag + "_"
+    _prefix = "numden" + _redshift_tag + _threshold_tag + "_"
 
-    outfile = PATHOUT/(prefix + progrc.chain_file)
+    outfile = PATHOUT/(_prefix + progrc.chain_file)
 
     with hp.File(infile, 'r') as indata, hp.File(outfile, 'w') as outdata:
         outdata.create_group('extract')
@@ -320,19 +321,28 @@ if __name__ == '__main__':
 
     parameters = PARAMETERS.get(progrc.model_name)
 
-    if progrc.convert_to_source:
+    if progrc.apparent_to_absolute:
         luminosity_threshold = progrc.threshold \
             - cosmology.Planck15.distmod(progrc.redshift).value \
             - konstante_correction(progrc.redshift)
     else:
         luminosity_threshold = progrc.threshold
 
-    input_chain, burin, reduction = read_chains()  #
+    if progrc.taski == 'extract':
 
-    with Pool() as mpool:  #
-        extracted_chain = extract_number_density(input_chain, pool=mpool)  #
+        input_chain, burin, reduction = read_chains()
 
-    output_path = save_extracts()  #
-    # extracted_chain = load_extracts(progrc.chain_file)  #
+        with Pool() as mpool:
+            extracted_chain = extract_number_density(input_chain, pool=mpool)
+
+        output_path = save_extracts()
+
+    if progrc.taski == 'load':
+        redshift_tag = "_z{:.2f}".format(progrc.redshift)
+        threshold_tag = "_m{:.1f}".format(luminosity_threshold)
+        prefix = "numden" + redshift_tag + threshold_tag + "_"
+        output_path = PATHOUT/(prefix + progrc.chain_file)
+
+        extracted_chain = load_extracts(progrc.chain_file)
 
     figures = view_extracts(extracted_chain)

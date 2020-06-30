@@ -42,6 +42,7 @@ def test_quasar_PLE_model_constraint(quasar_PLE_model_params):
 
     assert quasar_PLE_model_constraint(**quasar_PLE_model_params)
 
+    # Exchange power-law indices to break the constraint.
     quasar_PLE_model_params.update({
         r'\alpha_\mathrm{l}': quasar_PLE_model_params[r'\beta_\mathrm{l}'],
         r'\beta_\mathrm{l}': quasar_PLE_model_params[r'\alpha_\mathrm{l}'],
@@ -53,6 +54,7 @@ def test_quasar_hybrid_model_constraint(quasar_PLE_LEDE_model_params):
 
     assert quasar_hybrid_model_constraint(**quasar_PLE_LEDE_model_params)
 
+    # Exchange power-law indices to break the constraint.
     quasar_PLE_LEDE_model_params.update({
         r'\alpha': quasar_PLE_LEDE_model_params[r'\beta'],
         r'\beta': quasar_PLE_LEDE_model_params[r'\alpha'],
@@ -77,7 +79,7 @@ class TestLumFuncModeller:
             (
                 2.0,
                 alpha_emitter_schechter_lumfunc,
-                'alpha_emitter_Schechter_model_params',
+                'alpha_emitter_schechter_model_params',
                 'luminosity',
                 3.e-16,
                 Planck15,
@@ -86,7 +88,7 @@ class TestLumFuncModeller:
         ]
     )
     def test_comoving_number_density(self, quasar_PLE_model_params,
-                                     alpha_emitter_Schechter_model_params,
+                                     alpha_emitter_schechter_model_params,
                                      z, lumfunc, lumparams, lumvar, threshold,
                                      cosmology, value):
 
@@ -115,7 +117,7 @@ class TestLumFuncModeller:
             (
                 2.0,
                 alpha_emitter_schechter_lumfunc,
-                'alpha_emitter_Schechter_model_params',
+                'alpha_emitter_schechter_model_params',
                 'luminosity',
                 3.e-16,
                 Planck15,
@@ -124,7 +126,7 @@ class TestLumFuncModeller:
         ]
     )
     def test_evolution_bias(self, quasar_PLE_model_params,
-                            alpha_emitter_Schechter_model_params,
+                            alpha_emitter_schechter_model_params,
                             z, lumfunc, lumparams, lumvar, threshold,
                             cosmology, value):
 
@@ -153,7 +155,7 @@ class TestLumFuncModeller:
             (
                 2.0,
                 alpha_emitter_schechter_lumfunc,
-                'alpha_emitter_Schechter_model_params',
+                'alpha_emitter_schechter_model_params',
                 'luminosity',
                 3.e-16,
                 Planck15,
@@ -162,7 +164,7 @@ class TestLumFuncModeller:
         ]
     )
     def test_magnification_bias(self, quasar_PLE_model_params,
-                                alpha_emitter_Schechter_model_params,
+                                alpha_emitter_schechter_model_params,
                                 z, lumfunc, lumparams, lumvar, threshold,
                                 cosmology, value):
 
