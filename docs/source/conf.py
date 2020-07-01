@@ -1,3 +1,4 @@
+# pylint: disable=missing-module-docstring
 import os
 import sys
 
@@ -6,6 +7,7 @@ sys.path.insert(0, os.path.abspath('../../'))
 
 # -- Project information -----------------------------------------------------
 
+# pylint: disable=redefined-builtin
 author = 'Mike Shengbo Wang'
 copyright = ' Copyright 2020, Mike Shengbo Wang'
 project = 'HorizonGRound'
@@ -14,7 +16,7 @@ release = '0.1'
 
 # -- General configuration ---------------------------------------------------
 
-exclude_patterns = ['config', 'application', 'scripts', 'tests']
+exclude_patterns = ['setup', 'config', 'application', 'scripts', 'tests']
 
 extensions = [
     'sphinx.ext.autodoc',
