@@ -1,10 +1,12 @@
 ![HorizonGRound](
-https://github.com/mikeswang/HorizonGRound/blob/master/docs/source/_static/HorizonGRound.png)
+https://github.com/mikeswang/HorizonGRound/tree/v0.1.0/docs/source/_static/HorizonGRound.png)
 
-[![version](https://img.shields.io/badge/version-0.0-green)](
-https://github.com/mikeswang/HorizonGRound/blob/master/README.md)
+[![version](https://img.shields.io/badge/version-0.1-green)](
+https://github.com/mikeswang/HorizonGRound/tree/v0.1.0/README.md)
+[![GitHub](https://img.shields.io/badge/GitHub-MikeSWang%2FHorizonGRound-lightgrey
+)](https://github.com/mikeswang/HorizonGRound/tree/v0.1.0)
 [![licence](https://img.shields.io/badge/licence-GPL%20v3-lightgrey)](
-https://github.com/mikeswang/HorizonGRound/blob/master/LICENCE)
+https://github.com/mikeswang/HorizonGRound/tree/v0.1.0/LICENCE)
 
 
 # Relativistic Effects in Ultra-Large-Scale Clustering
