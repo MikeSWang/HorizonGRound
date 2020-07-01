@@ -31,5 +31,6 @@ __description__ = (
 )
 __email__ = "mike.wang@port.ac.uk"
 __license__ = "GPLv3"
-__url__ = "https://github.com/MikeSWang/HorizonGRound"
 __version__ = "0.1.0"
+__url__ = "https://github.com/MikeSWang/HorizonGRound/tree/{}"\
+    .format(__version__)
