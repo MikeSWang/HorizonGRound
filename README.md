@@ -6,12 +6,12 @@ https://github.com/mikeswang/HorizonGRound/blob/master/README.md)
 https://github.com/mikeswang/HorizonGRound/blob/master/LICENCE)
 
 
-# Relativistic Impact on Large-Scale Clustering
+# Relativistic Effects in Ultra-Large-Scale Clustering
 
-``HorizonGRound`` is a Python package that offers investigative tools for
-assessing general relativistic impacts, related to the tracer luminosity
-function, on the primordial non-Gaussianity signature in large-scale
-clustering statistics.
+``HorizonGRound`` is a Python package that offers tools for forward
+modelling of general relativistic effects from tracer luminosity functions
+as well as comparing relativistic corrections with the local primordial
+non-Gaussianity signature in large-scale clustering statistics.
 
 
 ## Installation
@@ -25,21 +25,34 @@ pip install horizonground
 
 ## Documentation
 
-API documentation can be found at [...](docs/).
-
-
-## Tutorials
-
-Currently under development. See the latest updates in
-[``TODO``](tutorials/TODO.md).
+API documentation and quick recipes can be found at
+[mikeswang.github.io/HorizonGRound](
+https://mikeswang.github.io/HorizonGRound/).
 
 
 ## Attribution
+
+If you would like to acknowledge this work please consider citing
+`Wang, Beutler & Bacon (2020) <https://arxiv.org/abs/2007.xxxxx>`_. You
+may use the following BibTeX record.
+
+    @article{Wang_2020,
+        author = {Wang, M.~S. and Beutler, F. and Bacon, D.},
+        title = {
+            Impact of relativistic effects on the primordial {non-Gaussianity}
+            signature in the large-scale clustering of quasars
+        },
+        year = {2020},
+        archivePrefix = {arXiv},
+        primaryClass = {astro-ph.CO}
+        eprint = {2007.xxxx},
+    }
 
 
 ## Licence
 
 Copyright 2020, M S Wang
 
-Licensed under GPL v3.0. See terms and conditions in
-[``LICENCE``](LICENCE).
+``HorizonGRound`` is free software provided under the [GPL v3.0 licence](
+https://www.gnu.org/licenses/gpl-3.0.en.html
+).

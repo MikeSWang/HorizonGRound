@@ -9,7 +9,7 @@ sys.path.insert(0, os.path.abspath('../../'))
 author = 'Mike Shengbo Wang'
 copyright = ' Copyright 2020, Mike Shengbo Wang'
 project = 'HorizonGRound'
-release = '1.0'
+release = '0.1'
 
 
 # -- General configuration ---------------------------------------------------
