@@ -1,4 +1,5 @@
-![HorizonGRound](./docs/source/_static/HorizonGRound.png)
+![HorizonGRound](
+https://github.com/mikeswang/HorizonGRound/blob/master/docs/source/_static/HorizonGRound.png)
 
 [![version](https://img.shields.io/badge/version-0.0-green)](
 https://github.com/mikeswang/HorizonGRound/blob/master/README.md)
@@ -19,7 +20,7 @@ non-Gaussianity signature in large-scale clustering statistics.
 The simplest installation method is ``pip``:
 
 ```bash
-pip install horizonground
+pip install HorizonGRound
 ```
 
 
