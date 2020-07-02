@@ -531,7 +531,7 @@ class LumFuncModeller:
         If not `None` (default) and `normalise_threshold` is `True`, this
         redshift is used convert flux or apparent magnitude limit to an
         intrinsic luminosity or absolute magnitude threshold.
-    cosmology : :class:`astropy.cosmology.Cosmology` or None, optional
+    cosmology : :class:`astropy.cosmology.core.Cosmology` or None, optional
         Background cosmological model used to calculate the luminosity
         distance or distance modulus (default is `None`).
     exponentiation : bool, optional
@@ -549,7 +549,7 @@ class LumFuncModeller:
         Intrinsic luminosity or absoloute magnitude threshold, depending
         on the input argument of `brightness_variable`, as a function
         of redshift.
-    cosmology : :class:`astropy.cosmology.Cosmology`
+    cosmology : :class:`astropy.cosmology.core.Cosmology`
         Background cosmological model.
     attrs : dict
         Model parameters and luminosity variables stored in a dictionary.
