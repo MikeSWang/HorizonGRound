@@ -142,7 +142,7 @@ def compute_biases_from_lumfunc(lumfunc_params):
 
     modeller = LumFuncModeller(
         lumfunc_model, model_parameters,
-        LUMINOSITY_VARIABLE, luminosity_threshold, COSMOLOGY
+        brightness_variable, brightness_threshold, cosmology=COSMOLOGY
     )
 
     bias_evo = modeller.evolution_bias(progrc.redshift)
@@ -195,7 +195,7 @@ def save_extracts():
     infile = PATHOUT/progrc.chain_file
 
     redshift_tag = "_z{:.2f}".format(progrc.redshift)
-    threshold_tag = "_m{:.1f}".format(luminosity_threshold)
+    threshold_tag = "_m{:.1f}".format(brightness_threshold)
 
     prefix = "relbias" + redshift_tag + threshold_tag + "_"
 
@@ -303,7 +303,7 @@ BASE10_LOG = True
 COSMOLOGY = cosmology.Planck15
 
 # Model-specific settings.
-LUMINOSITY_VARIABLE = 'magnitude'
+brightness_variable = 'magnitude'
 THRESHOLD_VARIABLE = 'magnitude'
 PARAMETERS = {
     'quasar_PLE': [
@@ -333,11 +333,11 @@ if __name__ == '__main__':
     parameters = PARAMETERS[progrc.model_name]
 
     if progrc.convert_to_source:
-        luminosity_threshold = progrc.threshold \
+        brightness_threshold = progrc.threshold \
             - cosmology.Planck15.distmod(progrc.redshift).value \
             - konstante_correction(progrc.redshift)
     else:
-        luminosity_threshold = progrc.threshold
+        brightness_threshold = progrc.threshold
 
     input_chain, burin, reduction = read_chains()  #
 

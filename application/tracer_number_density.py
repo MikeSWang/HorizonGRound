@@ -143,7 +143,7 @@ def compute_density_from_lumfunc(lumfunc_params):
 
     modeller = LumFuncModeller(
         lumfunc_model, model_parameters,
-        LUMINOSITY_VARIABLE, luminosity_threshold, COSMOLOGY
+        brightness_variable, brightness_threshold, cosmology=COSMOLOGY
     )
 
     number_density = modeller.comoving_number_density(progrc.redshift)
@@ -195,7 +195,7 @@ def save_extracts():
     infile = PATHOUT/progrc.chain_file
 
     _redshift_tag = "_z{:.2f}".format(progrc.redshift)
-    _threshold_tag = "_m{:.1f}".format(luminosity_threshold)
+    _threshold_tag = "_m{:.1f}".format(brightness_threshold)
 
     _prefix = "numden" + _redshift_tag + _threshold_tag + "_"
 
@@ -292,7 +292,7 @@ BASE10_LOG = True
 COSMOLOGY = cosmology.Planck15
 
 # Model-specific settings.
-LUMINOSITY_VARIABLE = 'magnitude'
+brightness_variable = 'magnitude'
 THRESHOLD_VARIABLE = 'magnitude'
 PARAMETERS = {
     'quasar_PLE': [
@@ -322,11 +322,11 @@ if __name__ == '__main__':
     parameters = PARAMETERS.get(progrc.model_name)
 
     if progrc.apparent_to_absolute:
-        luminosity_threshold = progrc.threshold \
+        brightness_threshold = progrc.threshold \
             - cosmology.Planck15.distmod(progrc.redshift).value \
             - konstante_correction(progrc.redshift)
     else:
-        luminosity_threshold = progrc.threshold
+        brightness_threshold = progrc.threshold
 
     if progrc.taski == 'extract':
 
@@ -339,7 +339,7 @@ if __name__ == '__main__':
 
     if progrc.taski == 'load':
         redshift_tag = "_z{:.2f}".format(progrc.redshift)
-        threshold_tag = "_m{:.1f}".format(luminosity_threshold)
+        threshold_tag = "_m{:.1f}".format(brightness_threshold)
         prefix = "numden" + redshift_tag + threshold_tag + "_"
         output_path = PATHOUT/(prefix + progrc.chain_file)
 

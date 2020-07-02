@@ -23,13 +23,13 @@ __all__ = [
 
 
 def process_header(header, skipcols=0):
-    r"""Process comment-line header (indicated by the \'#\' character) of
-    text files.
+    r"""Process comment-line header (usually indicated by the \'#\'
+    character) of text files.
 
     Parameters
     ----------
     header : str
-        File header line.
+        File header line either delimited by comma or space.
     skipcols : int, optional
         Skip the first columns (default is 0).
 
@@ -55,17 +55,23 @@ def process_header(header, skipcols=0):
 
 
 def load_parameter_set(parameter_file):
-    """Load a parameter set from a file into a dictionary.
+    r"""Load a parameter set from a file into a dictionary.
 
     Parameters
     ----------
     parameter_file : *str or* :class:`pathlib.Path`
-        Parameter file.
+        Parameter file with the header line giving the parameter names
+        and the first non-comment line giving the parameter values
+        delimited by comma.
 
     Returns
     -------
     parameter_set : dict
         Parameter set.
+
+    Notes
+    -----
+    Parameters with names beginning with '\Delta' are discarded.
 
     """
     with open(parameter_file, 'r') as pfile:

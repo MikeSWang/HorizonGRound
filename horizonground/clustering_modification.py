@@ -159,7 +159,7 @@ r""":class:`nbodykit.cosmology.Cosmology`: Default Planck15 cosmology.
 
 def standard_kaiser_factor(order, bias, redshift, cosmo=FIDUCIAL_COSMOLOGY):
     r"""Compute the standard Kaiser power spectrum multipoles as multiples
-    of the matter power spectrum.
+    of the matter power spectrum, i.e. :math:`P_\ell/P_\mathrm{m}`.
 
     Parameters
     ----------
@@ -225,8 +225,9 @@ def scale_dependence_kernel(redshift, cosmo=FIDUCIAL_COSMOLOGY):
 def non_gaussianity_correction_factor(wavenumber, order, local_png, bias,
                                       redshift, cosmo=FIDUCIAL_COSMOLOGY,
                                       tracer_p=1.):
-    r"""Compute the power spectrum multipoles modified by local primordial
-    non-Gaussianity as multiples of the matter power spectrum.
+    r"""Compute modifications to the power spectrum multipoles by local
+    primordial non-Gaussianity as multiples of the matter power spectrum,
+    i.e. :math:`\Delta P_\ell/P_\mathrm{m}`.
 
     Parameters
     ----------
@@ -248,8 +249,8 @@ def non_gaussianity_correction_factor(wavenumber, order, local_png, bias,
     Returns
     -------
     factor : float :class:`numpy.ndarray`
-        Power spectrum multipoles as multiples of the matter power
-        spectrum.
+        Power spectrum multipole modifications as multiples of the matter
+        power spectrum.
 
     """
     f_nl, p = local_png, tracer_p
@@ -273,7 +274,7 @@ def non_gaussianity_correction_factor(wavenumber, order, local_png, bias,
 
 def relativistic_correction_func(cosmo=FIDUCIAL_COSMOLOGY, geometric=True,
                                  evolution_bias=None, magnification_bias=None):
-    r"""Return the relativistic correction function
+    r"""Return the relativistic correction function as
     :math:`\mathcal{H} g(z)`.
 
     Parameters
@@ -376,8 +377,9 @@ def relativistic_correction_factor(wavenumber, order, redshift,
                                    geometric=True,
                                    evolution_bias=None,
                                    magnification_bias=None):
-    r"""Compute the power spectrum multipoles modified by relativistic
-    corrections as multiples of the matter power spectrum.
+    r"""Compute modifications to the power spectrum multipoles by
+    relativistic corrections as multiples of the matter power spectrum,
+    i.e. :math:`\Delta P_\ell/P_\mathrm{m}`.
 
     Parameters
     ----------
@@ -388,9 +390,10 @@ def relativistic_correction_factor(wavenumber, order, redshift,
     redshift : float
         Redshift.
     correction_value : float or None, optional
-        If not `None` (default), this is directly used as :math:`g(z)`
-        at `redshift` in calculations, and `cosmo`, `geometric`,
-        `evolution_bias` and `magnification_bias` are ignored.
+        If not `None` (default), this is directly used as
+        :math:`\mathcal{H} g(z)` at `redshift` in calculations, and
+        `cosmo`, `geometric`, `evolution_bias` and `magnification_bias`
+        are ignored.
     cosmo : :class:`nbodykit.cosmology.Cosmology`, optional
         Cosmological model (default is ``FIDUCIAL_COSMOLOGY``).
     geometric : bool, optional

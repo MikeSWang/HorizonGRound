@@ -61,7 +61,8 @@ class LumFuncMeasurements:
     base10_log : bool, optional
         If `True` (default), measurement values are converted to base-10
         logarithms.  String ``'lg_'`` is detected in file headers to
-        determine whether loaded measurements are in base-10 algorithms.
+        determine whether loaded measurements are already in base-10
+        logarithms.
 
     Attributes
     ----------
@@ -335,7 +336,7 @@ class LumFuncLikelihood(LumFuncMeasurements):
         the prior.
     prescription : {'native', 'poisson', 'symlg', 'symlin'}, str, optional
         Gaussian likelihood approximation prescription (default is
-        'native').
+        'poisson').
     model_options : dict or None, optional
         Additional parameters passed to the `model_lumfunc` for model
         evaluation (default is `None`).  This should not contain

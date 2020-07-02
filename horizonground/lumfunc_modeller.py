@@ -6,7 +6,7 @@ Provide models of the redshift-dependent tracer luminosity function
 :math:`\Phi(m, z)` (for absolute magnitude :math:`m`) or
 :math:`\Phi(\lg{L}, z)` (for base-10 logarithm of the intrinsic
 luminosity :math:`L`), from which the comoving number density below/above
-some luminosity threshold :math:`\bar{m}` or :math:`\bar{L}`,
+some brightness threshold :math:`\bar{m}` or :math:`\bar{L}`,
 
 .. math::
 
@@ -23,7 +23,7 @@ can be predicted.  The corresponding evolution bias is
     b_\mathrm{e}(z) = - (1 + z)
         \frac{\partial \ln\bar{n}(z)}{\partial z}
 
-and magnification bias
+and magnification bias is
 
 .. math::
 
@@ -61,12 +61,12 @@ model is a double power law
         + 10^{0.4 (\beta + 1) [m - m_\ast(z)]}
     }
 
-where :math:`m` is the absolute magnitude suitably normalised, :math:`z`
-is the redshift, and the slope parameters :math:`\alpha, \beta` describe
-the power law on the bright and faint ends respectively, but their values
-differ below and above the pivot redshift :math:`z_\mathrm{p}`.
-:math:`m_\ast` is the break magnitude at which the luminosity function
-evaluates to :math:`\Phi_\ast`,
+where :math:`m` is the absolute magnitude, :math:`z` is the redshift, and
+the slope parameters :math:`\alpha, \beta` describe the power laws on the
+bright and faint ends respectively, but their values differ below and
+above the pivot redshift :math:`z_\mathrm{p}`.  :math:`m_\ast` is the
+break magnitude at which the luminosity function evaluates to
+:math:`\Phi_\ast`,
 
 .. math::
 
@@ -188,8 +188,8 @@ from scipy.misc import derivative
 
 
 def konstante_correction(redshift, normalisation_redshift=2., index=-0.5):
-    r"""Subtractive Konstante correction (*K*-correction) to magnitude
-    for correcting bandpass redshifting.
+    r"""Subtractive Konstante correction (*K*-correction) to apparent
+    magnitude for correcting bandpass redshifting.
 
     Notes
     -----
@@ -209,7 +209,7 @@ def konstante_correction(redshift, normalisation_redshift=2., index=-0.5):
     normalisation_redshift : float, optional
         Normalisation redshift (default is 2.).
     index : float, optional
-        Correction power-law index (default is -0.5).
+        :math:`K`-correction power-law index (default is -0.5).
 
     Returns
     -------
@@ -253,11 +253,14 @@ def quasar_PLE_lumfunc(magnitude, redshift, *, base10_log=True,
         per unit magnitude).  Base-10 logarithmic value is returned if
         `base10_log` is `True`.
 
+    Notes
+    -----
+    This function is not vectorised.  Please use `numpy.vectorize` or
+    `functools` if you need vectorisation.
+
     """
     if not isinstance(model_parameters, dict):
-        raise TypeError(
-            "No quasar PLE model parameters passed as a dictionary."
-        )
+        raise TypeError("Model parameters must be passed as a dictionary.")
 
     m, z, z_p = magnitude, redshift, redshift_pivot
 
@@ -322,12 +325,12 @@ def quasar_hybrid_lumfunc(magnitude, redshift, *, base10_log=True,
                           redshift_pivot=2.2, **model_parameters):
     r"""Evaluate the hybrid model (pure luminosity evolution and luminosity
     evolution--density evolution, 'PLE+LEDE') for the quasar luminosity
-    function at the given magnitude and redshift.
+    function at the given absolute magnitude and redshift.
 
     Parameters
     ----------
     magnitude : float
-        Quasar magnitude.
+        Quasar absolute magnitude.
     redshift : float
         Quasar redshift.
     base10_log : bool, optional
@@ -348,11 +351,14 @@ def quasar_hybrid_lumfunc(magnitude, redshift, *, base10_log=True,
         per unit magnitude).  Base-10 logarithmic value is returned if
         `base10_log` is `True`.
 
+    Notes
+    -----
+    This function is not vectorised.  Please use `numpy.vectorize` or
+    `functools` if you need vectorisation.
+
     """
     if not isinstance(model_parameters, dict):
-        raise TypeError(
-            "No quasar hybrid model parameters passed as a dictionary."
-        )
+        raise TypeError("Model parameters must be passed as a dictionary.")
 
     m, z, z_p = magnitude, redshift, redshift_pivot
 
@@ -431,10 +437,10 @@ def quasar_hybrid_model_constraint(**model_parameters):
     return model_parameters[r'\alpha'] < model_parameters[r'\beta']
 
 
-def alpha_emitter_schechter_lumfunc(luminosity, redshift, base10_log=True,
+def alpha_emitter_schechter_lumfunc(luminosity, redshift, *, base10_log=True,
                                     **model_parameters):
     r"""Evaluate the Schechter model for the H |alpha| -emitter
-    luminosity function at the given luminosity and redshift.
+    luminosity function at the given intrinsic luminosity and redshift.
 
     Parameters
     ----------
@@ -455,6 +461,11 @@ def alpha_emitter_schechter_lumfunc(luminosity, redshift, base10_log=True,
         Predicted H |alpha| -emitter luminosity function value (in inverse
         cubic Mpc per flux dex).  Base-10 logarithmic value is returned if
         `base10_log` is `True`.
+
+    Notes
+    -----
+    This function is not vectorised.  Please use `numpy.vectorize` or
+    `functools` if you need vectorisation.
 
     """
     lg_L, z = luminosity, redshift
@@ -494,54 +505,70 @@ class LumFuncModeller:
     Parameters
     ----------
     model_lumfunc : callable
-        A parametric luminosity function model as a function of luminosity
-        and redshift (in that order).  If it returns the luminosity
-        function value in base-10 logarithm, `exponentiation` should be
-        set to `True`; if it accepts a boolean argument 'base10_log',
-        this will be overriden to `False`.
+        A parametric luminosity function model as a function of brightness
+        and redshift (in that order) in units of inverse cubic Mpc.  If it
+        returns the luminosity function value in base-10 logarithm,
+        `exponentiation` should be set to `True`; if it accepts a boolean
+        parameter 'base10_log', this will be overriden to `False`.
     model_parameters : dict
         Model parameters passed to `model_lumfunc` as keyword arguments.
-    luminosity_variable : {'luminosity', 'magnitude'}, str
-        Luminosity variable of `model_lumfunc`, either 'luminosity' (in
+    brightness_variable : {'luminosity', 'magnitude'}, str
+        Brightness variable of `model_lumfunc`, either 'luminosity' (in
         dex) or 'magnitude'.
     threshold_value : float
-        Luminosity threshold value for `luminosity_variable`.  If
-        `luminosity_variable` is 'luminosity', this is interpreted as a
+        Brightness threshold value for `brightness_variable`.  If
+        `brightness_variable` is 'luminosity', this is interpreted as a
         flux limit and converted to an intrinsic luminosity value at the
         tracer redshift using the luminosity distance.
-    cosmology : :class:`astropy.cosmology.Cosmology`
-        Background cosmological model.
+    normalise_threshold : bool, optional
+        If `True` (default is `False`), `threshold_value` is converted
+        from a flux limit to a luminosity value at `normalisation_redshift`
+        using the luminosity distance if `brightness_variable` is
+        'luminosity', or converted from an apparent magnitude limit to
+        an absolute magnitude value at `normalisation_redshift` using the
+        distance modulus if `brightness_variable` is 'magnitude'.
+    normalisation_redshift : float or None, optional
+        If not `None` (default) and `normalise_threshold` is `True`, this
+        redshift is used convert flux or apparent magnitude limit to an
+        intrinsic luminosity or absolute magnitude threshold.
+    cosmology : :class:`astropy.cosmology.Cosmology` or None, optional
+        Background cosmological model used to calculate the luminosity
+        distance or distance modulus (default is `None`).
     exponentiation : bool, optional
         If `True` (default is `False`), this assumes `model_lumfunc` only
-        returns the base-10 logarithmic luminosity function and raises its
-        returned value as a power of 10.
+        returns the base-10 logarithmic luminosity function and
+        exponentiate its returned value to a power of 10.
 
     Attributes
     ----------
     luminosity_function : callable
-        Luminosity function of luminosity and redshift variables only
+        Luminosity function of brightness and redshift variables only
         (in that order) (in inverse cubic :math:`\mathrm{Mpc}/h` per unit
         luminosity).
-    luminosity_threshold : callable
-        Luminosity threshold value in :attr:`luminosity_variable` as a
-        function of redshift.
+    brightness_threshold : callable
+        Intrinsic luminosity or absoloute magnitude threshold, depending
+        on the input argument of `brightness_variable`, as a function
+        of redshift.
     cosmology : :class:`astropy.cosmology.Cosmology`
         Background cosmological model.
     attrs : dict
         Model parameters and luminosity variables stored in a dictionary.
 
+    Notes
+    -----
+    :attr:`luminosity_function` is a vectorised function.
+
     """
 
-    # HINT: Instead of ``np.inf`` to prevent arithmetic overflow.
     luminosity_bound = {
         'luminosity': 100.,
         'magnitude': -50.,
     }
     r"""float: Finite luminosity upper bound for numerical integration.
 
-    If :attr:`luminosity_variable` is 'luminosity', the bound is given as
-    a base-10 logarithmic value in erg/s; else if it is 'magnitude', the
-    value is dimensionless.
+    If :attr:`brightness_variable` is 'luminosity', the bound is given as
+    a base-10 logarithmic flux value in erg/s; else if 'magnitude',
+    the bound is dimensionless.
 
     """
 
@@ -550,13 +577,17 @@ class LumFuncModeller:
 
     """
 
-    def __init__(self, model_lumfunc, model_parameters, luminosity_variable,
-                 threshold_value, cosmology, exponentiation=False):
+    def __init__(self, model_lumfunc, model_parameters, brightness_variable,
+                 threshold_value, normalise_threshold=False,
+                 normalisation_redshift=None, cosmology=None,
+                 exponentiation=False):
 
         self.attrs = {
             'model_parameters': model_parameters,
-            'luminosity_variable': luminosity_variable,
+            'brightness_variable': brightness_variable,
         }
+
+        self.cosmology = cosmology
 
         if 'base10_log' in signature(model_lumfunc).parameters:
             model_parameters.update({'base10_log': False})
@@ -569,17 +600,21 @@ class LumFuncModeller:
                 lambda lum, z: 10 ** model_lumfunc(lum, z, **model_parameters)
             )
 
-        if luminosity_variable == 'luminosity':
+        if brightness_variable == 'luminosity':
             # pylint: disable=no-member
-            self.luminosity_threshold = lambda z: np.log10(
+            self.brightness_threshold = lambda z: np.log10(
                 4 * np.pi * threshold_value
                 * self.cosmology.luminosity_distance(z).to(units.cm).value ** 2
             )
-        elif luminosity_variable == 'magnitude':
-            self.luminosity_threshold = lambda z: \
-                threshold_value  # - self.cosmology.distmod(z).value
-
-        self.cosmology = cosmology
+            self._brightness_threshold = \
+                self.brightness_threshold(normalisation_redshift)
+        elif brightness_variable == 'magnitude':
+            self.brightness_threshold = lambda z: \
+                threshold_value - self.cosmology.distmod(z).value \
+                if normalise_threshold else threshold_value
+            self._brightness_threshold = \
+                self.brightness_threshold(normalisation_redshift) \
+                if normalise_threshold else threshold_value
 
     @classmethod
     def from_parameter_file(cls, parameter_file, **kwargs):
@@ -627,8 +662,8 @@ class LumFuncModeller:
         _comoving_number_density = np.abs(
             quad(
                 self.luminosity_function,
-                self.luminosity_threshold(redshift),
-                self.luminosity_bound[self.attrs['luminosity_variable']],
+                self._brightness_threshold,
+                self.luminosity_bound[self.attrs['brightness_variable']],
                 args=(redshift,)
             )[0]
         ) / self.cosmology.h ** 3
@@ -670,13 +705,13 @@ class LumFuncModeller:
             Magnification bias.
 
         """
-        if self.attrs['luminosity_variable'] == 'luminosity':
+        if self.attrs['brightness_variable'] == 'luminosity':
             prefactor = 2./5. / np.log(10)
-        elif self.attrs['luminosity_variable'] == 'magnitude':
+        elif self.attrs['brightness_variable'] == 'magnitude':
             prefactor = 1 / np.log(10)
 
         _magnification_bias = prefactor * self.luminosity_function(
-            self.luminosity_threshold(redshift), redshift
+            self._brightness_threshold, redshift
         ) / self.comoving_number_density(redshift)
 
         return _magnification_bias

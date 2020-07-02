@@ -95,7 +95,8 @@ class TestLumFuncModeller:
         lumparams = locals()[lumparams]
 
         test_instance = LumFuncModeller(
-            lumfunc, lumparams, lumvar, threshold, cosmology
+            lumfunc, lumparams, lumvar, threshold, cosmology=cosmology,
+            normalisation_redshift=2.
         )
 
         assert test_instance.comoving_number_density(z) \
@@ -121,7 +122,7 @@ class TestLumFuncModeller:
                 'luminosity',
                 3.e-16,
                 Planck15,
-                8.19,
+                -7.65,
             ),
         ]
     )
@@ -133,7 +134,8 @@ class TestLumFuncModeller:
         lumparams = locals()[lumparams]
 
         test_instance = LumFuncModeller(
-            lumfunc, lumparams, lumvar, threshold, cosmology
+            lumfunc, lumparams, lumvar, threshold, cosmology=cosmology,
+            normalisation_redshift=2.
         )
 
         assert test_instance.evolution_bias(z) \
@@ -171,7 +173,8 @@ class TestLumFuncModeller:
         lumparams = locals()[lumparams]
 
         test_instance = LumFuncModeller(
-            lumfunc, lumparams, lumvar, threshold, cosmology
+            lumfunc, lumparams, lumvar, threshold, cosmology=cosmology,
+            normalisation_redshift=2.
         )
 
         assert test_instance.magnification_bias(z) \
