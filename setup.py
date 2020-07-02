@@ -15,7 +15,10 @@ setuptools.setup(
     author="Mike S Wang",
     author_email="mike.wang@port.ac.uk",
     license="GPLv3",
-    description="Forward-modelling of relativistic effects.",
+    description=(
+        "Forward-modelling of relativistic effects "
+        "from tracer luminosity function.",
+    ),
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/MikeSWang/HorizonGRound/tree/v{}".format(VERSION),

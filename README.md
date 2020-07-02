@@ -15,7 +15,7 @@ https://github.com/mikeswang/HorizonGRound/tree/v0.1.0/LICENCE)
 ``HorizonGRound`` is a Python package that offers tools for forward
 modelling of general relativistic effects from tracer luminosity functions
 as well as comparing relativistic corrections with the local primordial
-non-Gaussianity signature in large-scale clustering statistics.
+non-Gaussianity signature in ultra-large-scale clustering statistics.
 
 
 ## Installation
@@ -57,6 +57,6 @@ may use the following BibTeX record.
 
 Copyright 2020, M S Wang
 
-``HorizonGRound`` is free software provided under the [GPL v3.0 licence](
+``HorizonGRound`` is free software provided under the [GPL v3.0](
 https://www.gnu.org/licenses/gpl-3.0.en.html
-).
+) licence.
