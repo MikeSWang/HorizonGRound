@@ -12,10 +12,13 @@ Utilities tools.
 |
 
 """
+import os
+from pathlib import Path
 
 __all__ = [
     'process_header',
     'load_parameter_set',
+    'get_test_data_loc',
 ]
 
 
@@ -75,3 +78,24 @@ def load_parameter_set(parameter_file):
             del parameter_set[parameter]
 
     return parameter_set
+
+
+def get_test_data_loc(filename):
+    """Get location of the test data set.
+
+    Parameters
+    ----------
+    filename : str
+        File name of the test data set including its extension.
+
+    Returns
+    -------
+    filepath : :class:`pathlib.Path`
+        Path to the test data file.
+
+    """
+    pkg_dir = os.path.dirname(os.path.abspath(__file__))
+
+    filepath = Path(pkg_dir)/"tests"/"test_data"/filename
+
+    return filepath

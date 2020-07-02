@@ -36,7 +36,7 @@ and magnification bias
 
 We also offer a simple :math:`K`-correction formula taken from ref. [1]_.
 
-.. [1] Croom S.~M. et al., 2009. MNRAS 399(4), 1755--1772.
+.. [1] Croom S. M. et al., 2009. **MNRAS** 399(4), 1755--1772.
    [arXiv: `0907.2727 <https://arxiv.org/abs/0907.2727>`_]
 
 
@@ -116,7 +116,7 @@ with the substitutions of :math:`\lg\Phi_\ast(0)` for :math:`\lg\Phi_\ast`,
 to the exchange symmetry between :math:`\alpha` and :math:`\beta`, the
 low-redshift PLE model constraint :math:`\alpha < \beta` is imposed.
 
-.. [2] Palanque-Delabrouille N. et al., 2016. A&A 587, A41.
+.. [2] Palanque-Delabrouille N. et al., 2016. **A&A** 587, A41.
    [arXiv: `1509.05607 <https://arxiv.org/abs/1509.05607>`_]
 
 
@@ -165,7 +165,7 @@ magnitude [3]_.
 This is a parametric model with 6 parameters: :math:`\alpha, \epsilon,
 \delta`, :math:`z_\mathrm{b}`, :math:`m_{\ast0}` and :math:`\Phi_{\ast0}`.
 
-.. [3] Pozzetti L. et al., 2016. A&A 590, A3.
+.. [3] Pozzetti L. et al., 2016. **A&A** 590, A3.
    [arXiv: `1603.01453 <https://arxiv.org/abs/1603.01453>`_]
 
 
