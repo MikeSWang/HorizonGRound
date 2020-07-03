@@ -1,6 +1,11 @@
 # pylint: disable=missing-module-docstring
 import setuptools
 
+try:
+    from Cython.Build import cythonize
+except ImportError:
+    cythonize = False
+
 with open("README.md", 'r') as readme:
     long_description = readme.read()
 
@@ -29,7 +34,6 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     install_requires=requirements,
-    setup_requires=['setuptools>=18.0', "cython>=0.19"],
     python_requires='>=3.6',
     project_urls={
         "Documentation": "https://mikeswang.github.io/HorizonGRound/",
