@@ -1,5 +1,4 @@
 numpy
 scipy
-cython
 astropy
 nbodykit
