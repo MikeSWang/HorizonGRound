@@ -29,6 +29,7 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     install_requires=requirements,
+    setup_requires=['setuptools>=18.0', "cython>=0.19"],
     python_requires='>=3.6',
     project_urls={
         "Documentation": "https://mikeswang.github.io/HorizonGRound/",
