@@ -2,4 +2,3 @@ include LICENCE
 include README.md
 include requirements.txt
 include horizonground/tests/test_data/*.txt
-recursive-include cf_units *.py *.py *.pxd *.pyx *.c
