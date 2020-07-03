@@ -1,0 +1,123 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>HorizonGRound | Relativistic Effects in Ultra-Large-Scale Clustering &#8212; HorizonGRound 0.1 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/HorizonGRound.png" alt="Logo"/>
+            </a></p><h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quick_recipes.html">Quick Recipes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="apidoc.html">API Reference</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <span class="target" id="module-horizonground"></span><div class="section" id="horizonground-relativistic-effects-in-ultra-large-scale-clustering">
+<h1><code class="docutils literal notranslate"><span class="pre">HorizonGRound</span></code> | Relativistic Effects in Ultra-Large-Scale Clustering<a class="headerlink" href="#horizonground-relativistic-effects-in-ultra-large-scale-clustering" title="Permalink to this headline">¶</a></h1>
+<div class="topic">
+<p class="topic-title first">Licence Statement</p>
+<p>Copyright (C) 2020, M S Wang</p>
+<p>This program is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at your
+option) any later version.</p>
+<p>This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+General Public License for more details.</p>
+<p>You should have received a copy of the GNU General Public License along
+with this program.  If not, see <a class="reference external" href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>.</p>
+</div>
+</div>
+<div class="section" id="modules">
+<h1>Modules<a class="headerlink" href="#modules" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="horizonground.clustering_modification.html">Clustering modification (<code class="xref py py-mod docutils literal notranslate"><span class="pre">clustering_modification</span></code>)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="horizonground.clustering_modification.html#standard-kaiser-rsd-model">Standard Kaiser RSD model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="horizonground.clustering_modification.html#non-gaussianity-scale-dependent-modifications">Non-Gaussianity scale-dependent modifications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="horizonground.clustering_modification.html#relativistic-corrections">Relativistic corrections</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="horizonground.lumfunc_likelihood.html">Luminosity function likelihood (<code class="xref py py-mod docutils literal notranslate"><span class="pre">lumfunc_likelihood</span></code>)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="horizonground.lumfunc_likelihood.html#data-processing">Data processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="horizonground.lumfunc_likelihood.html#likelihood-evaluation">Likelihood evaluation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="horizonground.lumfunc_modeller.html">Luminosity function modeller (<code class="xref py py-mod docutils literal notranslate"><span class="pre">lumfunc_modeller</span></code>)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="horizonground.lumfunc_modeller.html#quasar-qso-luminosity-function">Quasar (QSO) luminosity function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="horizonground.lumfunc_modeller.html#h-alpha-emitter-luminosity-function">Hα-emitter luminosity function</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="horizonground.utils.html">Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">utils</span></code>)</a></li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy; Copyright 2020, Mike Shengbo Wang.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/horizonground.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

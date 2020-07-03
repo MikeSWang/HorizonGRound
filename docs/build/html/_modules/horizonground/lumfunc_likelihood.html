@@ -1,0 +1,620 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>horizonground.lumfunc_likelihood &#8212; HorizonGRound 0.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/HorizonGRound.png" alt="Logo"/>
+            </a></p><h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../quick_recipes.html">Quick Recipes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../apidoc.html">API Reference</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for horizonground.lumfunc_likelihood</h1><div class="highlight"><pre>
+<span></span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Luminosity function likelihood (:mod:`~horizonground.lumfunc_likelihood`)</span>
+<span class="sd">===========================================================================</span>
+
+<span class="sd">Fit tracer luminosity functions and produce model constraints.</span>
+
+<span class="sd">Data processing</span>
+<span class="sd">---------------</span>
+
+<span class="sd">.. autosummary::</span>
+
+<span class="sd">    DataSourceError</span>
+<span class="sd">    DataSourceWarning</span>
+<span class="sd">    LumFuncMeasurements</span>
+
+
+<span class="sd">Likelihood evaluation</span>
+<span class="sd">---------------------</span>
+
+<span class="sd">.. autosummary::</span>
+
+<span class="sd">    LumFuncLikelihood</span>
+
+<span class="sd">|</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">signature</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">compress</span> <span class="k">as</span> <span class="n">iterfilter</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">product</span> <span class="k">as</span> <span class="n">iterproduct</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">process_header</span>
+
+
+<div class="viewcode-block" id="DataSourceError"><a class="viewcode-back" href="../../horizonground.lumfunc_likelihood.html#horizonground.lumfunc_likelihood.DataSourceError">[docs]</a><span class="k">class</span> <span class="nc">DataSourceError</span><span class="p">(</span><span class="ne">IOError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Raise an exception when the data source is not available or not in</span>
+<span class="sd">    the correct format.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="DataSourceWarning"><a class="viewcode-back" href="../../horizonground.lumfunc_likelihood.html#horizonground.lumfunc_likelihood.DataSourceWarning">[docs]</a><span class="k">class</span> <span class="nc">DataSourceWarning</span><span class="p">(</span><span class="ne">UserWarning</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Raise an exception when the data source does not appear to be</span>
+<span class="sd">    self-consistent.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="LumFuncMeasurements"><a class="viewcode-back" href="../../horizonground.lumfunc_likelihood.html#horizonground.lumfunc_likelihood.LumFuncMeasurements">[docs]</a><span class="k">class</span> <span class="nc">LumFuncMeasurements</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Luminosity function measurements for a tracer sample.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    measurement_file : *str or* :class:`pathlib.Path`</span>
+<span class="sd">        File path to luminosity function measurements.</span>
+<span class="sd">    uncertainty_file : *str or* :class:`pathlib.Path` *or None, optional*</span>
+<span class="sd">        File path to luminosity function uncertainties.</span>
+<span class="sd">    base10_log : bool, optional</span>
+<span class="sd">        If `True` (default), measurement values are converted to base-10</span>
+<span class="sd">        logarithms.  String ``&#39;lg_&#39;`` is detected in file headers to</span>
+<span class="sd">        determine whether loaded measurements are already in base-10</span>
+<span class="sd">        logarithms.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    luminosity_bins : list of float</span>
+<span class="sd">        Luminosity bin centres.</span>
+<span class="sd">    redshift_bins : list of float</span>
+<span class="sd">        Redshift bin centres.</span>
+<span class="sd">    redshift_labels : list of str</span>
+<span class="sd">        Redshift bin labels.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Data files are assumed to be an array where rows correspond to</span>
+<span class="sd">    increasing luminosity bins and columns correspond to increasing</span>
+<span class="sd">    redshift bins.  The first line should be a comment line for column</span>
+<span class="sd">    headings and the first column should be the luminosity bins.  Redshift</span>
+<span class="sd">    bin labels are read from column headings as suffices in the</span>
+<span class="sd">    format e.g. &quot;z_0.5_1.5&quot;.  If symmetric uncertainties are given for</span>
+<span class="sd">    base-10 logarithmic luminosity function and conversion to linear values</span>
+<span class="sd">    is needed, the larger asymmetric uncertainty on the linear luminosity</span>
+<span class="sd">    function value is taken.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">measurement_file</span><span class="p">,</span> <span class="n">uncertainty_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">base10_log</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lg_conversion</span> <span class="o">=</span> <span class="n">base10_log</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_measurement_source_path</span> <span class="o">=</span> <span class="n">measurement_file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_uncertainty_source_path</span> <span class="o">=</span> <span class="n">uncertainty_file</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_load_source_files</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_valid_data_points</span> <span class="o">=</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_measurements</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uncertainties</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_valid_data_points</span> <span class="o">&amp;=</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_uncertainties</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lg_conversion</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_valid_data_points</span> <span class="o">&amp;=</span> <span class="n">np</span><span class="o">.</span><span class="n">greater_equal</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_measurements</span><span class="o">.</span><span class="n">flatten</span><span class="p">()),</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_uncertainties</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
+                <span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="s2">&quot;LuminosityFunctionMeasurements(</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="s2">&quot;measurement_source=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_measurement_source_path</span><span class="p">),</span>
+                <span class="s2">&quot;uncertainty_source=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_uncertainty_source_path</span><span class="p">),</span>
+            <span class="p">]</span>
+        <span class="p">))</span>
+
+<div class="viewcode-block" id="LumFuncMeasurements.__getitem__"><a class="viewcode-back" href="../../horizonground.lumfunc_likelihood.html#horizonground.lumfunc_likelihood.LumFuncMeasurements.__getitem__">[docs]</a>    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z_key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get luminosity function measurements and uncertainties (if</span>
+<span class="sd">        available) for a specific redshift bin.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        z_key: int, slice or str</span>
+<span class="sd">            Slice or integer index or string representing redshift</span>
+<span class="sd">            bins.  If a string, the accepted format is e.g. ``z=1.0``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`numpy.ndarray`, :class:`numpy.ndarray` or None</span>
+<span class="sd">            Measurements and uncertainties for the redshift bin(s).</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">z_key</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">slice</span><span class="p">)):</span>
+            <span class="n">z_idx</span> <span class="o">=</span> <span class="n">z_key</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">z</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">z_key</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;z=&quot;</span><span class="p">))</span>
+                <span class="n">z_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">redshift_bins</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+                    <span class="s2">&quot;Non-existent redshift bin for &#39;</span><span class="si">{}</span><span class="s2">&#39;.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">z_key</span><span class="p">)</span>
+                <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uncertainties</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_measurements</span><span class="p">[</span><span class="n">z_idx</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uncertainties</span><span class="p">[</span><span class="n">z_idx</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_measurements</span><span class="p">[</span><span class="n">z_idx</span><span class="p">],</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="LumFuncMeasurements.get_statistics"><a class="viewcode-back" href="../../horizonground.lumfunc_likelihood.html#horizonground.lumfunc_likelihood.LumFuncMeasurements.get_statistics">[docs]</a>    <span class="k">def</span> <span class="nf">get_statistics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the empirical luminosity function data measurements</span>
+<span class="sd">        and uncertainties as mean and variance statistics.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        data_mean : :class:`numpy.ndarray`</span>
+<span class="sd">            Luminosity function measurements as empirical mean.</span>
+<span class="sd">        data_variance : :class:`numpy.ndarray` or None</span>
+<span class="sd">            Luminosity function uncertainties as empirical variance,</span>
+<span class="sd">            if available.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Data vectors are ordered by increasing redshift bins and</span>
+<span class="sd">        within the same redshift bin ordered by increasing luminosity.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data_mean</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_measurements</span><span class="o">.</span><span class="n">flatten</span><span class="p">()[</span><span class="bp">self</span><span class="o">.</span><span class="n">_valid_data_points</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uncertainties</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">data_variance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_uncertainties</span><span class="o">.</span><span class="n">flatten</span><span class="p">()[</span><span class="bp">self</span><span class="o">.</span><span class="n">_valid_data_points</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data_variance</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">data_mean</span><span class="p">,</span> <span class="n">data_variance</span></div>
+
+    <span class="k">def</span> <span class="nf">_load_source_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="c1"># Process measurements.</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_measurement_source_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">mfile</span><span class="p">:</span>
+            <span class="n">mheadings</span> <span class="o">=</span> <span class="n">process_header</span><span class="p">(</span><span class="n">mfile</span><span class="o">.</span><span class="n">readline</span><span class="p">(),</span> <span class="n">skipcols</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">redshift_labels</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">redshift_bins</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">_extract_redshift_bins</span><span class="p">(</span><span class="n">mheadings</span><span class="p">)</span>
+
+        <span class="n">measurement_source</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_measurement_source_path</span><span class="p">,</span> <span class="n">unpack</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">luminosity_bins</span> <span class="o">=</span> <span class="n">measurement_source</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">measurement_array</span> <span class="o">=</span> <span class="n">measurement_source</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">measurement_array</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">mheadings</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">DataSourceError</span><span class="p">(</span>
+                <span class="s2">&quot;Measurements do not match the number of headings .&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lg_conversion</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">z_idx</span><span class="p">,</span> <span class="n">col_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">mheadings</span><span class="p">):</span>
+                <span class="k">if</span> <span class="s1">&#39;lg_&#39;</span> <span class="ow">in</span> <span class="n">col_name</span><span class="p">:</span>
+                    <span class="n">measurement_array</span><span class="p">[</span><span class="n">z_idx</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="n">measurement_array</span><span class="p">[</span><span class="n">z_idx</span><span class="p">]</span>
+                    <span class="n">mheadings</span><span class="p">[</span><span class="n">z_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">col_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;lg_&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_measurements</span> <span class="o">=</span> <span class="n">measurement_array</span>
+
+        <span class="c1"># Process uncertainties.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uncertainty_source_path</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_uncertainties</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_uncertainty_source_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">ufile</span><span class="p">:</span>
+                <span class="n">uheadings</span> <span class="o">=</span> <span class="n">process_header</span><span class="p">(</span><span class="n">ufile</span><span class="o">.</span><span class="n">readline</span><span class="p">(),</span> <span class="n">skipcols</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="n">uncertainty_source</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_uncertainty_source_path</span><span class="p">,</span> <span class="n">unpack</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+
+            <span class="n">luminosity_bin_matching_msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;Luminosity bins in measurement and uncertainty files &quot;</span>
+                <span class="s2">&quot;do not match.&quot;</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">luminosity_bins</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">uncertainty_source</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                <span class="k">raise</span> <span class="n">DataSourceError</span><span class="p">(</span><span class="n">luminosity_bin_matching_msg</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">luminosity_bins</span><span class="p">,</span> <span class="n">uncertainty_source</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">luminosity_bin_matching_msg</span><span class="p">,</span> <span class="n">DataSourceWarning</span><span class="p">)</span>
+
+            <span class="n">uncertainty_array</span> <span class="o">=</span> <span class="n">uncertainty_source</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">uncertainty_array</span><span class="p">)</span> <span class="o">!=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">measurement_array</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">DataSourceError</span><span class="p">(</span>
+                    <span class="s2">&quot;Uncertainty file data do not match measurement file data.&quot;</span>
+                <span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lg_conversion</span><span class="p">:</span>
+                <span class="c1"># Optimistic wing of assymetric uncertainties.</span>
+                <span class="n">error_array</span> <span class="o">=</span> <span class="n">uncertainty_source</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">z_idx</span><span class="p">,</span> <span class="n">col_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">uheadings</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="s1">&#39;lg_&#39;</span> <span class="ow">in</span> <span class="n">col_name</span><span class="p">:</span>
+                        <span class="n">error_array</span><span class="p">[</span><span class="n">z_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">measurement_array</span><span class="p">[</span><span class="n">z_idx</span><span class="p">]</span> \
+                            <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="mi">10</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span> <span class="n">error_array</span><span class="p">[</span><span class="n">z_idx</span><span class="p">]))</span>
+                        <span class="c1"># Larger asymetric uncertainty is taken.</span>
+                        <span class="n">uncertainty_array</span><span class="p">[</span><span class="n">z_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">measurement_array</span><span class="p">[</span><span class="n">z_idx</span><span class="p">]</span> \
+                            <span class="o">*</span> <span class="p">(</span><span class="mi">10</span> <span class="o">**</span> <span class="n">uncertainty_array</span><span class="p">[</span><span class="n">z_idx</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+                        <span class="n">uheadings</span><span class="p">[</span><span class="n">z_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">col_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;lg_&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_errors</span> <span class="o">=</span> <span class="n">error_array</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_uncertainties</span> <span class="o">=</span> <span class="n">uncertainty_array</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_extract_redshift_bins</span><span class="p">(</span><span class="n">headings</span><span class="p">):</span>
+
+        <span class="n">bin_labels</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span>
+            <span class="sa">r</span><span class="s2">&quot;$</span><span class="si">{}</span><span class="s2">$&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">,</span>
+            <span class="p">[</span>
+                <span class="n">column</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;z_&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;z&lt;&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">headings</span> <span class="k">if</span> <span class="s1">&#39;z_&#39;</span> <span class="ow">in</span> <span class="n">column</span>
+            <span class="p">]</span>
+        <span class="p">)))</span>
+
+        <span class="n">bin_centres</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">column</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;z_&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)))</span>
+                <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">headings</span> <span class="k">if</span> <span class="s1">&#39;z_&#39;</span> <span class="ow">in</span> <span class="n">column</span>
+            <span class="p">],</span>
+            <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">bin_labels</span><span class="p">,</span> <span class="n">bin_centres</span></div>
+
+
+<span class="k">def</span> <span class="nf">_uniform_log_pdf</span><span class="p">(</span><span class="n">param_vals</span><span class="p">,</span> <span class="n">param_ranges</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">param_ranges</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">param_vals</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Number of parameter ranges does not match &quot;</span>
+            <span class="s2">&quot;the number of parameters.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">param_ranges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">param_ranges</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">less</span><span class="p">(</span><span class="n">param_vals</span><span class="p">,</span> <span class="n">param_ranges</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]))</span> \
+            <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">greater</span><span class="p">(</span><span class="n">param_vals</span><span class="p">,</span> <span class="n">param_ranges</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])):</span>
+        <span class="k">return</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+    <span class="k">return</span> <span class="mf">0.</span>
+
+
+<span class="k">def</span> <span class="nf">_normal_log_pdf</span><span class="p">(</span><span class="n">deviation_vector</span><span class="p">,</span> <span class="n">covariance_matrix</span><span class="p">):</span>
+
+    <span class="n">deviation_vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">deviation_vector</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">deviation_vector</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+
+    <span class="k">return</span> <span class="o">-</span> <span class="mi">1</span><span class="o">/</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span>
+        <span class="n">deviation_vector</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">covariance_matrix</span><span class="p">,</span> <span class="n">deviation_vector</span><span class="p">)</span>
+    <span class="p">)</span>
+
+
+<div class="viewcode-block" id="LumFuncLikelihood"><a class="viewcode-back" href="../../horizonground.lumfunc_likelihood.html#horizonground.lumfunc_likelihood.LumFuncLikelihood">[docs]</a><span class="k">class</span> <span class="nc">LumFuncLikelihood</span><span class="p">(</span><span class="n">LumFuncMeasurements</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Luminosity function likelihood.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The built-in likelihood distribution is a multivariate normal</span>
+<span class="sd">    approximation near the maximum point of the Poisson distribution that</span>
+<span class="sd">    describes the tracer number count in redshift and luminosity bins,</span>
+<span class="sd">    with different prescriptions of the luminosity function uncertainties</span>
+<span class="sd">    to the diagonal covariance matrix of the multivariate normal</span>
+<span class="sd">    distribution (see appendix B of [1]_).  The built-in prior</span>
+<span class="sd">    distribution is multivariate uniform.</span>
+
+<span class="sd">    .. [1] Pozzetti L. et al., 2016. A&amp;A 590, A3.</span>
+<span class="sd">       [arXiv: `1603.01453 &lt;https://arxiv.org/abs/1603.01453&gt;`_]</span>
+
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    model_lumfunc : callable</span>
+<span class="sd">        Luminosity function model.  Must return base-10 logarithmic values</span>
+<span class="sd">        or accept `base10_log` boolean keyword argument.</span>
+<span class="sd">    measurement_file : str or :class:`pathlib.Path`</span>
+<span class="sd">        Luminosity function measurement file path.</span>
+<span class="sd">    prior_file : str or :class:`pathlib.Path`</span>
+<span class="sd">        Luminosity function model prior file path.  The prior parameter</span>
+<span class="sd">        values (parameter ranges) may not matter, but the parameter names</span>
+<span class="sd">        provided in the file do.</span>
+<span class="sd">    model_constraint : callable or None, optional</span>
+<span class="sd">        Additional model constraint(s) to be imposed on model parameters</span>
+<span class="sd">        as a prior (default is `None`).</span>
+<span class="sd">    uncertainty_file : str or :class:`pathlib.Path` *or None, optional*</span>
+<span class="sd">        Luminosity function uncertainty file path (default is `None`).</span>
+<span class="sd">        Ignored if `data_covariance` is provided.</span>
+<span class="sd">    fixed_file : str or :class:`pathlib.Path`*or None, optional*</span>
+<span class="sd">        Luminosity function model fixed parameter file path (default is</span>
+<span class="sd">        `None`).  This covers any model parameter(s) not included in</span>
+<span class="sd">        the prior.</span>
+<span class="sd">    prescription : {&#39;native&#39;, &#39;poisson&#39;, &#39;symlg&#39;, &#39;symlin&#39;}, str, optional</span>
+<span class="sd">        Gaussian likelihood approximation prescription (default is</span>
+<span class="sd">        &#39;poisson&#39;).</span>
+<span class="sd">    model_options : dict or None, optional</span>
+<span class="sd">        Additional parameters passed to the `model_lumfunc` for model</span>
+<span class="sd">        evaluation (default is `None`).  This should not contain</span>
+<span class="sd">        parametric luminosity function model parameters but only Python</span>
+<span class="sd">        function implementation optional parameters (e.g.</span>
+<span class="sd">        ``redshift_pivot=2.2`` for</span>
+<span class="sd">        :func:`~horizonground.lumfunc_modeller.quasar_PLE_lumfunc`).</span>
+<span class="sd">    covariance_matrix : float array_like or None, optional</span>
+<span class="sd">        Covariance matrix for the multivariate normal likelihood</span>
+<span class="sd">        approximation (default is `None`).  Its dimensions must match the</span>
+<span class="sd">        length of the data vector flattened by redshift and</span>
+<span class="sd">        luminosity bins.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data_points : list of float</span>
+<span class="sd">        A vector of (luminosity, redshift) points for each valid</span>
+<span class="sd">        luminosity function measurement.</span>
+<span class="sd">    data_vector : float :class:`numpy.ndarray`</span>
+<span class="sd">        Flattened luminosity function measurements for valid data points.</span>
+<span class="sd">    prior, fixed : :class:`collections.OrderedDict` or None</span>
+<span class="sd">        Ordered dictionary of varied prior parameter names and values or</span>
+<span class="sd">        fixed parameter names and values.  The parameters are ordered</span>
+<span class="sd">        as in the input files, so that the ordering of luminosity function</span>
+<span class="sd">        arguments is consistent.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_lumfunc</span><span class="p">,</span> <span class="n">measurement_file</span><span class="p">,</span> <span class="n">prior_file</span><span class="p">,</span>
+                 <span class="n">uncertainty_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fixed_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">prescription</span><span class="o">=</span><span class="s1">&#39;poisson&#39;</span><span class="p">,</span> <span class="n">model_constraint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">model_options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">covariance_matrix</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="c1"># Set up likelihood treatment.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prior_source_path</span> <span class="o">=</span> <span class="n">prior_file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fixed_source_path</span> <span class="o">=</span> <span class="n">fixed_file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prior</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fixed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_setup_prior</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_presciption</span> <span class="o">=</span> <span class="n">prescription</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_presciption</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;native&#39;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_lg_conversion</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_presciption</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;poisson&#39;</span><span class="p">,</span> <span class="s1">&#39;symlg&#39;</span><span class="p">,</span> <span class="s1">&#39;symlin&#39;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_lg_conversion</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Invalid Gaussian likelihood prescription: </span><span class="si">{prescription}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Set up model evaluation.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model_lumfunc</span> <span class="o">=</span> <span class="n">model_lumfunc</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model_constraint</span> <span class="o">=</span> <span class="n">model_constraint</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model_options</span> <span class="o">=</span> <span class="n">model_options</span> <span class="ow">or</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="s1">&#39;base10_log&#39;</span> <span class="ow">in</span> <span class="n">signature</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model_lumfunc</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_model_options</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;base10_log&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lg_conversion</span><span class="p">})</span>
+
+        <span class="c1"># Set up data processing.</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">measurement_file</span><span class="p">,</span> <span class="n">uncertainty_file</span><span class="o">=</span><span class="n">uncertainty_file</span><span class="p">,</span>
+            <span class="n">base10_log</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_lg_conversion</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_setup_data_points</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_vector</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_covariance</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_moments</span><span class="p">(</span><span class="n">external_covariance</span><span class="o">=</span><span class="n">covariance_matrix</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="s2">&quot;LuminosityFunctionLikelihood(</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="s2">&quot;LF_model=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model_lumfunc</span><span class="o">.</span><span class="vm">__name__</span><span class="p">),</span>
+                <span class="s2">&quot;measurement_source=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_measurement_source_path</span><span class="p">),</span>
+                <span class="s2">&quot;uncertainty_source=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_uncertainty_source_path</span><span class="p">),</span>
+                <span class="s2">&quot;prior_source=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_prior_source_path</span><span class="p">),</span>
+                <span class="s2">&quot;fixed_source=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fixed_source_path</span><span class="p">),</span>
+                <span class="s2">&quot;likelihood_approximant=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_presciption</span><span class="p">),</span>
+            <span class="p">]</span>
+        <span class="p">))</span>
+
+<div class="viewcode-block" id="LumFuncLikelihood.__call__"><a class="viewcode-back" href="../../horizonground.lumfunc_likelihood.html#horizonground.lumfunc_likelihood.LumFuncLikelihood.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_point</span><span class="p">,</span> <span class="n">use_prior</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Evaluate the logarithmic likelihood at the model parameter</span>
+<span class="sd">        point.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        param_point : float array_like</span>
+<span class="sd">            :attr:`model_lumfunc` parametric model parameters ordered in</span>
+<span class="sd">            the same way as the prior parameters.</span>
+<span class="sd">        use_prior : bool, optional</span>
+<span class="sd">            If `True` (default is `False`), use the user-input prior range.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Logarithmic likelihood value.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param_point</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="n">param_point</span> <span class="o">=</span> <span class="n">param_point</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">param_point</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">param_point</span><span class="p">)</span>
+
+        <span class="c1"># Check for prior.</span>
+        <span class="k">if</span> <span class="n">use_prior</span><span class="p">:</span>
+            <span class="n">log_prior</span> <span class="o">=</span> <span class="n">_uniform_log_pdf</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">param_point</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">log_prior</span> <span class="o">=</span> <span class="mf">0.</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">log_prior</span><span class="p">):</span>
+            <span class="k">return</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+
+        <span class="c1"># Check for model constraint.</span>
+        <span class="n">model_params</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span> <span class="n">param_point</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fixed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">model_params</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fixed</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">within_constraint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_constraint</span><span class="p">(</span><span class="n">model_params</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="n">within_constraint</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">within_constraint</span><span class="p">:</span>
+            <span class="k">return</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+
+        <span class="c1"># Pass full parameter scope to the luminosity function model.</span>
+        <span class="n">model_params</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model_options</span><span class="p">)</span>
+
+        <span class="n">model_vector</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_model_lumfunc</span><span class="p">(</span><span class="o">*</span><span class="n">data_point</span><span class="p">,</span> <span class="o">**</span><span class="n">model_params</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">data_point</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_points</span>
+        <span class="p">]</span>
+
+        <span class="c1"># Form Gaussian approximant likelihood deviation vector.</span>
+        <span class="n">deviation_vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">model_vector</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_vector</span><span class="p">)</span>
+        <span class="n">covariance_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_covariance</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_presciption</span> <span class="o">==</span> <span class="s1">&#39;poisson&#39;</span><span class="p">:</span>
+            <span class="n">deviation_vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+                <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">deviation_vector</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">deviation_vector</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_presciption</span> <span class="o">==</span> <span class="s1">&#39;symlin&#39;</span><span class="p">:</span>
+            <span class="n">deviation_vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">deviation_vector</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+
+        <span class="n">log_likelihood</span> <span class="o">=</span> <span class="n">_normal_log_pdf</span><span class="p">(</span><span class="n">deviation_vector</span><span class="p">,</span> <span class="n">covariance_matrix</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">log_prior</span> <span class="o">+</span> <span class="n">log_likelihood</span></div>
+
+    <span class="k">def</span> <span class="nf">_setup_data_points</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="c1"># The primary axis is redshift, secondary luminosity.</span>
+        <span class="n">_data_points</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">tup</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">tup</span><span class="p">)),</span>
+            <span class="n">iterproduct</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">redshift_bins</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">luminosity_bins</span><span class="p">)</span>
+        <span class="p">))</span>
+
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">iterfilter</span><span class="p">(</span><span class="n">_data_points</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_valid_data_points</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_setup_prior</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_prior_source_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pfile</span><span class="p">:</span>
+            <span class="n">parameter_names</span> <span class="o">=</span> <span class="n">process_header</span><span class="p">(</span><span class="n">pfile</span><span class="o">.</span><span class="n">readline</span><span class="p">())</span>
+
+        <span class="n">prior_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_prior_source_path</span><span class="p">,</span> <span class="n">unpack</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">prior_ranges</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="n">prior_data</span><span class="p">))</span>
+
+        <span class="n">prior</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">parameter_names</span><span class="p">,</span> <span class="n">prior_ranges</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fixed_source_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fixed</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fixed_source_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">ffile</span><span class="p">:</span>
+                <span class="n">fixed_names</span> <span class="o">=</span> <span class="n">process_header</span><span class="p">(</span><span class="n">ffile</span><span class="o">.</span><span class="n">readline</span><span class="p">())</span>
+            <span class="n">fixed_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fixed_source_path</span><span class="p">,</span> <span class="n">unpack</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">fixed</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">fixed_names</span><span class="p">,</span> <span class="n">fixed_values</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">prior</span><span class="p">,</span> <span class="n">fixed</span>
+
+    <span class="k">def</span> <span class="nf">_get_moments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">external_covariance</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="n">data_mean</span><span class="p">,</span> <span class="n">data_var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_statistics</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">external_covariance</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">data_covar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">external_covariance</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">data_covar</span><span class="p">)))</span> <span class="o">&gt;</span> <span class="mi">1</span> \
+                    <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_covar</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_points</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;`covariance_matrix` dimensions do not match data points: &quot;</span>
+                    <span class="s2">&quot;(</span><span class="si">{:d}</span><span class="s2">, </span><span class="si">{:d}</span><span class="s2">) versus </span><span class="si">{:d}</span><span class="s2">.&quot;</span>
+                    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">data_covar</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_points</span><span class="p">))</span>
+                <span class="p">)</span>
+            <span class="k">return</span> <span class="n">data_mean</span><span class="p">,</span> <span class="n">data_covar</span>
+
+        <span class="k">if</span> <span class="n">data_var</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Either `uncertainty_file` or `covariance_matrix` must be &quot;</span>
+                <span class="s2">&quot;provided for setting the likelihood covariance matrix.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">data_mean</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">data_var</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy; Copyright 2020, Mike Shengbo Wang.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
