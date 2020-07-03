@@ -1,11 +1,6 @@
 # pylint: disable=missing-module-docstring
 import setuptools
 
-try:
-    from Cython.Build import cythonize
-except ImportError:
-    cythonize = False
-
 with open("README.md", 'r') as readme:
     long_description = readme.read()
 
