@@ -599,6 +599,10 @@ class LumFuncModeller:
             self.luminosity_function = np.vectorize(
                 lambda lum, z: 10 ** model_lumfunc(lum, z, **model_parameters)
             )
+        else:
+            self.luminosity_function = np.vectorize(
+                lambda lum, z: model_lumfunc(lum, z, **model_parameters)
+            )
 
         if brightness_variable == 'luminosity':
             # pylint: disable=no-member

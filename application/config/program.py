@@ -165,4 +165,4 @@ stylesheet = mpl.rc_params_from_file(
 )
 
 # Modifies Python search path.
-sys.path.append("".join([config_dir, "/../horizonground/"]))
+sys.path.append("".join([config_dir, "../../horizonground/"]))

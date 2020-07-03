@@ -83,6 +83,6 @@ venv.bak/
 .vscode/
 
 # Project specific
-storage/input/
-storage/output/
-jobs/
+application/storage/input/
+application/storage/output/
+application/storage/jobs/

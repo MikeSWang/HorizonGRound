@@ -4,7 +4,7 @@
 https://pypi.org/project/HorizonGRound/)
 [![licence](https://img.shields.io/badge/licence-GPL%20v3-informational)](
 https://github.com/mikeswang/HorizonGRound/tree/v0.1.0/LICENCE)
-[![GitHub](https://img.shields.io/badge/GitHub-MikeSWang%2FHorizonGRound-a3c1ad
+[![GitHub](https://img.shields.io/badge/GitHub-MikeSWang%2FHorizonGRound-informational
 )](https://github.com/mikeswang/HorizonGRound/tree/v0.1.0)
 [![arXiv](https://img.shields.io/badge/arXiv-2007.xxxxx-important
 )](https://arxiv.org/abs/2007.xxxxx)
@@ -12,10 +12,11 @@ https://github.com/mikeswang/HorizonGRound/tree/v0.1.0/LICENCE)
 
 # Relativistic Effects in Ultra-Large-Scale Clustering
 
-``HorizonGRound`` is a Python package that offers tools for forward
-modelling of general relativistic effects from tracer luminosity functions
-as well as comparing relativistic corrections with the local primordial
-non-Gaussianity signature in ultra-large-scale clustering statistics.
+<span style="font-variant: small-caps">HorizonGRound</span> is a Python
+package that offers tools for forward modelling of general relativistic
+effects from tracer luminosity functions as well as comparing relativistic
+corrections with the local primordial non-Gaussianity signature in
+ultra-large-scale clustering statistics.
 
 
 ## Installation
@@ -57,6 +58,6 @@ may use the following BibTeX record.
 
 Copyright 2020, M S Wang
 
-``HorizonGRound`` is free software provided under the [GPL v3.0](
-https://www.gnu.org/licenses/gpl-3.0.en.html
-) licence.
+<span style="font-variant: small-caps">HorizonGRound</span> is made freely
+available under the [GPL v3.0](https://www.gnu.org/licenses/gpl-3.0.en.html)
+licence.
