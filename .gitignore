@@ -47,10 +47,6 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 
-# Sphinx documentation
-docs/build/
-docs/source/*.rst
-
 # PyBuilder
 target/
 
