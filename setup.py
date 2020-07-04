@@ -26,9 +26,7 @@ setuptools.setup(
     ),
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/MikeSWang/HorizonGRound/tree/{}".format(
-        branch
-    ),
+    url="https://github.com/MikeSWang/HorizonGRound/",
     packages=['horizonground', 'horizonground.tests'],
     classifiers=[
         "Programming Language :: Python :: 3",
@@ -38,9 +36,7 @@ setuptools.setup(
     install_requires=requirements,
     python_requires='>=3.6',
     project_urls={
-        "Documentation": "https://horizonground.readthedocs.io/en/{}"\
-            .format(version_tag),
-        "Source": "https://github.com/MikeSWang/HorizonGRound/tree/{}"\
-            .format(branch),
+        "Documentation": "https://mikeswang.github.io/HorizonGRound",
+        "Source": "https://github.com/MikeSWang/HorizonGRound/",
     },
 )

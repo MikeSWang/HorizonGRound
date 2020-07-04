@@ -9,7 +9,7 @@ https://img.shields.io/github/v/release/MikeSWang/HorizonGRound?label=release
 )](https://github.com/MikeSWang/HorizonGRound/releases/latest)
 [![Documentation status](
 https://readthedocs.org/projects/horizonground/badge/?version=latest
-)](https://horizonground.readthedocs.io/en/latest/?badge=latest)
+)](https://horizonground.readthedocs.io/en/latest)
 [![Build status](
 https://travis-ci.com/MikeSWang/HorizonGRound.svg?branch=master
 )](https://travis-ci.com/MikeSWang/HorizonGRound)
@@ -43,7 +43,7 @@ pip install HorizonGRound
 
 Quick recipes and API documentation can be found at
 [mikeswang.github.io/HorizonGRound](
-https://horizonground.readthedocs.io/en/latest/?badge=latest).
+https://mikeswang.github.io/HorizonGRound).
 
 
 ## Attribution

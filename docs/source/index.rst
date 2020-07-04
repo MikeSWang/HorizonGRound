@@ -11,7 +11,7 @@
     :target: https://github.com/MikeSWang/HorizonGRound/releases/latest
     :alt: GitHub release (latest by date)
 .. image:: https://readthedocs.org/projects/horizonground/badge/?version=latest
-    :target: https://horizonground.readthedocs.io/en/latest/?badge=latest
+    :target: https://horizonground.readthedocs.io/en/latest
     :alt: Documentation status
 .. image:: https://travis-ci.com/MikeSWang/HorizonGRound.svg?branch=master
     :target: https://travis-ci.com/MikeSWang/HorizonGRound

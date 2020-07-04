@@ -1,5 +1,5 @@
 include LICENCE
 include README.md
-include version.txt
 include requirements.txt
+include version.txt
 include horizonground/tests/test_data/*.txt
