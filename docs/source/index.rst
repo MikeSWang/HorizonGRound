@@ -60,7 +60,7 @@ may use the following BibTeX record.::
         },
         year = {2020},
         archivePrefix = {arXiv},
-        primaryClass = {astro-ph.CO}
+        primaryClass = {astro-ph.CO},
         eprint = {2007.xxxx},
     }
 
