@@ -10,6 +10,9 @@ https://img.shields.io/badge/arXiv-2007.xxxxx-important
 [![Build status](
 https://travis-ci.com/MikeSWang/HorizonGRound.svg?branch=master
 )](https://travis-ci.com/MikeSWang/HorizonGRound)
+[![Code Coverage](
+https://codecov.io/gh/MikeSWang/HorizonGRound/branch/master/graph/badge.svg
+)](https://codecov.io/gh/MikeSWang/HorizonGRound)
 [![Documentation status](
 https://readthedocs.org/projects/horizonground/badge/?version=latest
 )](https://horizonground.readthedocs.io/en/latest/?badge=latest)

@@ -16,6 +16,9 @@
 .. image:: https://readthedocs.org/projects/horizonground/badge/?version=latest
     :target: https://horizonground.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation status
+.. image:: https://codecov.io/gh/MikeSWang/HorizonGRound/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/MikeSWang/HorizonGRound
+    :alt: Code coverage
 .. image:: https://img.shields.io/badge/licence-GPLv3-informational
     :target: https://github.com/mikeswang/HorizonGRound/tree/master/LICENCE
     :alt: Licence
