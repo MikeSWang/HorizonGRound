@@ -1,3 +1,4 @@
 IPython
 sphinx>=1.4
 nbsphinx
+astropy
