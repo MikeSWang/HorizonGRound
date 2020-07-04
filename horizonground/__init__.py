@@ -27,7 +27,7 @@ __copyright__ = "Copyright 2020, HorizonGRound/M S Wang"
 __date__ = "2020/07/01"
 __description__ = (
     "Forward-modelling of relativistic effects in ultra-large-scale clustering"
-    " from tracer luminosity functions."
+    " from the tracer luminosity function."
 )
 __email__ = "mike.wang@port.ac.uk"
 __license__ = "GPLv3"

@@ -1,8 +1,8 @@
 # pylint: disable=missing-module-docstring
 import setuptools
 
-with open("README.md", 'r') as readme:
-    long_description = readme.read()
+with open("DESCRIPTION.md", 'r') as description:
+    long_description = description.read()
 
 with open("requirements.txt", 'r') as dependencies:
     requirements = [pkg.strip() for pkg in dependencies]
@@ -17,7 +17,7 @@ setuptools.setup(
     license="GPLv3",
     description=(
         "Forward-modelling of relativistic effects "
-        "from tracer luminosity function.",
+        "from the tracer luminosity function."
     ),
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -29,7 +29,7 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     install_requires=requirements,
-    python_requires='>=3.7',
+    python_requires='>=3.6',
     project_urls={
         "Documentation": "https://mikeswang.github.io/HorizonGRound/",
         "Source": "https://github.com/MikeSWang/HorizonGRound/tree/v{}"\
