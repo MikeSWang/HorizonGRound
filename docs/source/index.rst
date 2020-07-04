@@ -4,18 +4,18 @@
 **Relativistic Effects in Ultra-Large-Scale Clustering**
 ========================================================
 
-.. image:: https://img.shields.io/github/v/release/MikeSWang/HorizonGRound?label=release
-    :target: https://github.com/MikeSWang/HorizonGRound/releases/latest
-    :alt: GitHub release (latest by date)
 .. image:: https://img.shields.io/badge/arXiv-2007.xxxxx-important
     :target: https://arxiv.org/abs/2007.xxxxx
     :alt: arXiv eprint
-.. image:: https://travis-ci.com/MikeSWang/HorizonGRound.svg?branch=master
-    :target: https://travis-ci.com/MikeSWang/HorizonGRound
-    :alt: Build status
+.. image:: https://img.shields.io/github/v/release/MikeSWang/HorizonGRound?label=release
+    :target: https://github.com/MikeSWang/HorizonGRound/releases/latest
+    :alt: GitHub release (latest by date)
 .. image:: https://readthedocs.org/projects/horizonground/badge/?version=latest
     :target: https://horizonground.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation status
+.. image:: https://travis-ci.com/MikeSWang/HorizonGRound.svg?branch=master
+    :target: https://travis-ci.com/MikeSWang/HorizonGRound
+    :alt: Build status
 .. image:: https://codecov.io/gh/MikeSWang/HorizonGRound/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/MikeSWang/HorizonGRound
     :alt: Code coverage
