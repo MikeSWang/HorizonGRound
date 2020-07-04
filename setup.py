@@ -1,17 +1,22 @@
 # pylint: disable=missing-module-docstring
 import setuptools
 
-with open("DESCRIPTION.md", 'r') as description:
+with open("README.md", 'r') as description:
     long_description = description.read()
 
 with open("requirements.txt", 'r') as dependencies:
     requirements = [pkg.strip() for pkg in dependencies]
 
-VERSION = "0.1.1"
+with open("version.txt", 'r') as version_info:
+    version_tag, version = [v.strip() for v in version_info]
+    if version_tag == 'latest':
+        branch = 'master'
+    else:
+        branch = version_tag
 
 setuptools.setup(
     name="HorizonGRound",
-    version=VERSION,
+    version=version,
     author="Mike S Wang",
     author_email="mike.wang@port.ac.uk",
     license="GPLv3",
@@ -21,7 +26,9 @@ setuptools.setup(
     ),
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/MikeSWang/HorizonGRound/tree/v{}".format(VERSION),
+    url="https://github.com/MikeSWang/HorizonGRound/tree/{}".format(
+        branch
+    ),
     packages=['horizonground', 'horizonground.tests'],
     classifiers=[
         "Programming Language :: Python :: 3",
@@ -31,8 +38,9 @@ setuptools.setup(
     install_requires=requirements,
     python_requires='>=3.6',
     project_urls={
-        "Documentation": "https://mikeswang.github.io/HorizonGRound/",
-        "Source": "https://github.com/MikeSWang/HorizonGRound/tree/v{}"\
-            .format(VERSION),
+        "Documentation": "https://horizonground.readthedocs.io/en/{}"\
+            .format(version_tag),
+        "Source": "https://github.com/MikeSWang/HorizonGRound/tree/{}"\
+            .format(branch),
     },
 )

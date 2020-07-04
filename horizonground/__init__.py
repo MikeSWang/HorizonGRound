@@ -1,6 +1,6 @@
 """
 ###########################################################################
-``HorizonGRound`` | Relativistic Effects in Ultra-Large-Scale Clustering
+``HorizonGRound``
 ###########################################################################
 
 .. topic:: Licence Statement
@@ -21,16 +21,22 @@
     with this program.  If not, see `<https://www.gnu.org/licenses/>`_.
 
 """
+with open("../version.txt", 'r') as version_info:
+    version_tag, version = [v.strip() for v in version_info]
+    if version_tag == 'latest':
+        branch = 'master'
+    else:
+        branch = version_tag
+
 __author__ = "Mike S Wang"
 __contact__ = "Mike S Wang"
-__copyright__ = "Copyright 2020, HorizonGRound/M S Wang"
+__copyright__ = "Copyright 2020, M S Wang"
 __date__ = "2020/07/01"
 __description__ = (
-    "Forward-modelling of relativistic effects in ultra-large-scale clustering"
-    " from the tracer luminosity function."
+    "Forward-modelling of relativistic effects in ultra-large-scale "
+    "clustering from the tracer luminosity function."
 )
 __email__ = "mike.wang@port.ac.uk"
 __license__ = "GPLv3"
-__version__ = "0.1.1"
-__url__ = "https://github.com/MikeSWang/HorizonGRound/tree/{}"\
-    .format(__version__)
+__version__ = version
+__url__ = "https://github.com/MikeSWang/HorizonGRound/tree/{}".format(branch)

@@ -1,18 +1,21 @@
-![HorizonGRound](
+![HorizonGRound logo](
 https://raw.githubusercontent.com/MikeSWang/HorizonGRound/master/docs/source/_static/HorizonGRound.png)
 
-[![pypi](https://img.shields.io/badge/version-0.1-informational)](
-https://pypi.org/project/HorizonGRound/)
-[![GitHub](https://img.shields.io/badge/GitHub-MikeSWang%2FHorizonGRound-informational
-)](https://github.com/mikeswang/HorizonGRound/tree/master)
-[![arXiv](https://img.shields.io/badge/arXiv-2007.xxxxx-important
+[![GitHub release (latest by date)](
+https://img.shields.io/github/v/release/MikeSWang/HorizonGRound?label=release
+)](https://github.com/MikeSWang/HorizonGRound/releases/latest)
+[![arXiv eprint](
+https://img.shields.io/badge/arXiv-2007.xxxxx-important
 )](https://arxiv.org/abs/2007.xxxxx)
-[![Build Status](https://travis-ci.com/MikeSWang/HorizonGRound.svg?branch=master)](
-https://travis-ci.com/MikeSWang/HorizonGRound)
-[![Documentation Status](https://readthedocs.org/projects/horizonground/badge/?version=latest)](
-https://horizonground.readthedocs.io/en/latest/?badge=latest)
-[![Licence](https://img.shields.io/badge/licence-GPLv3-informational)](
-https://github.com/mikeswang/HorizonGRound/tree/master/LICENCE)
+[![Build status](
+https://travis-ci.com/MikeSWang/HorizonGRound.svg?branch=master
+)](https://travis-ci.com/MikeSWang/HorizonGRound)
+[![Documentation status](
+https://readthedocs.org/projects/horizonground/badge/?version=latest
+)](https://horizonground.readthedocs.io/en/latest/?badge=latest)
+[![Licence](
+https://img.shields.io/badge/licence-GPLv3-informational
+)](https://github.com/mikeswang/HorizonGRound/tree/master/LICENCE)
 
 
 # Relativistic Effects in Ultra-Large-Scale Clustering
@@ -26,7 +29,7 @@ ultra-large-scale clustering statistics.
 
 ## Installation
 
-The simplest installation method is ``pip``:
+To install, enter in bash:
 
 ```bash
 pip install HorizonGRound
@@ -37,7 +40,7 @@ pip install HorizonGRound
 
 Quick recipes and API documentation can be found at
 [mikeswang.github.io/HorizonGRound](
-https://mikeswang.github.io/HorizonGRound/).
+https://horizonground.readthedocs.io/en/latest/?badge=latest).
 
 
 ## Attribution

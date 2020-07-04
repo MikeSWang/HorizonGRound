@@ -1,30 +1,27 @@
-.. title:: HorizonGRound documentation
+.. title:: HorizonGRound Documentation
 
 ========================================================
 **Relativistic Effects in Ultra-Large-Scale Clustering**
 ========================================================
 
-.. image:: https://img.shields.io/badge/version-0.1-informational
-    :target: https://pypi.org/project/HorizonGRound/
-    :alt: Release
-.. image:: https://img.shields.io/badge/GitHub-MikeSWang%2FHorizonGRound-informational
-    :target: https://github.com/mikeswang/HorizonGRound/tree/master
-    :alt: GitHub Repository
+.. image:: https://img.shields.io/github/v/release/MikeSWang/HorizonGRound?label=release
+    :target: https://github.com/MikeSWang/HorizonGRound/releases/latest
+    :alt: GitHub release (latest by date)
 .. image:: https://img.shields.io/badge/arXiv-2007.xxxxx-important
     :target: https://arxiv.org/abs/2007.xxxxx
     :alt: arXiv eprint
 .. image:: https://travis-ci.com/MikeSWang/HorizonGRound.svg?branch=master
     :target: https://travis-ci.com/MikeSWang/HorizonGRound
-    :alt: Build Status
+    :alt: Build status
 .. image:: https://readthedocs.org/projects/horizonground/badge/?version=latest
     :target: https://horizonground.readthedocs.io/en/latest/?badge=latest
-    :alt: Documentation Status
+    :alt: Documentation status
 .. image:: https://img.shields.io/badge/licence-GPLv3-informational
     :target: https://github.com/mikeswang/HorizonGRound/tree/master/LICENCE
     :alt: Licence
 
 |HorizonGRound| is a Python package that offers tools for forward modelling of
-general relativistic effects from the tracer luminosity functions as well as
+general relativistic effects from the tracer luminosity function as well as
 comparing relativistic corrections with the local primordial non-Gaussianity
 signature in ultra-large-scale clustering statistics.
 
@@ -36,13 +33,14 @@ signature in ultra-large-scale clustering statistics.
 Installation
 ============
 
-The simplest installation method is from the terminal::
+To install, enter in bash::
 
     pip install HorizonGRound
 
 
 Where to start
 ==============
+
 - :doc:`quick_recipes` for ready-made recipes
 - :doc:`apidoc` for more detailed documentation of classes and functions
 
