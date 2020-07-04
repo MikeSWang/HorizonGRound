@@ -1,18 +1,25 @@
 name: horizonground-docs
 
 channels:
-- defaults
-- astropy
+    - defaults
+    - bccp
+    - astropy
 
 dependencies:
-- python=3.6
-- numpy
-- scipy
-- astropy
-- nbodykit
-- sphinx
-- IPython
-- pip
-- pip:
-  - nbsphinx
-  - numpydoc
+    - python=3.6
+    - numpy
+    - scipy
+    - astropy    
+    - mpi4py
+    - runtests
+    - pmesh
+    - kdcount
+    - mpsort
+    - nbodykit    
+    - sphinx
+    - IPython
+    - pip
+    - pip:
+        - nbsphinx
+        - sphinx-issues
+        - numpydoc
