@@ -2,17 +2,11 @@ language: python
 python:
     - 3.6
     - 3.7
-env:
-    - NUMPY_VERSION=1.17
-    - NUMPY_VERSION=1.16
-    - NUMPY_VERSION=1.15
 install:
     - travis_retry pip install --upgrade pip
     - travis_retry pip install --upgrade setuptools
-    - travis_retry pip install --upgrade numpy==$NUMPY_VERSION
-    - pip install -vv .
-    - pip install --upgrade cython
-    - pip install --upgrade mpi4py
+    - travis_retry pip install --upgrade cython
+    - travis_retry pip install --upgrade mpi4py
     - travis_retry pip install -r requirements.txt
 script:
     pytest horizonground/tests/
