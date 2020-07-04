@@ -1,5 +1,7 @@
 IPython
 sphinx>=1.4
 nbsphinx
+numpy
+scipy
 astropy
 nbodykit
