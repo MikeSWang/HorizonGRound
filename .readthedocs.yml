@@ -1,9 +1,12 @@
 version: 2
-    
-sphinx:
-    configuration: docs/source/conf.py
+
+name: horizonground-docs
+
+type: sphinx
+
+conda:
+    file: docs/environment.yml
 
 python:
-    version: 3.7
-    install:
-        - requirements: docs/requirements.txt
+    version: 3.6
+    setup_py_install: true
