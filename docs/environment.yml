@@ -1,0 +1,18 @@
+name: horizonground-docs
+
+channels:
+- defaults
+- astropy
+
+dependencies:
+- python=3.6
+- numpy
+- scipy
+- astropy
+- nbodykit
+- sphinx
+- IPython
+- pip
+- pip:
+  - nbsphinx
+  - numpydoc
