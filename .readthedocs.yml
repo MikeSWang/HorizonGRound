@@ -1,7 +1,4 @@
 version: 2
-
-install:
-    pip install --upgrade cython
     
 sphinx:
     configuration: docs/source/conf.py
