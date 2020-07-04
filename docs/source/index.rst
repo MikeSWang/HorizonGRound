@@ -6,12 +6,22 @@
 
 .. image:: https://img.shields.io/badge/version-0.1-informational
     :target: https://pypi.org/project/HorizonGRound/
+    :alt: Release
 .. image:: https://img.shields.io/badge/licence-GPLv3-informational
     :target: https://github.com/mikeswang/HorizonGRound/tree/v0.1.0/LICENCE
+    :alt: Licence
 .. image:: https://img.shields.io/badge/GitHub-MikeSWang%2FHorizonGRound-informational
     :target: https://github.com/mikeswang/HorizonGRound/tree/v0.1.0
+    :alt: GitHub Repository
 .. image:: https://img.shields.io/badge/arXiv-2007.xxxxx-important
     :target: https://arxiv.org/abs/2007.xxxxx
+    :alt: arXiv eprint
+.. image:: https://travis-ci.com/MikeSWang/HorizonGRound.svg
+    :target: https://travis-ci.com/MikeSWang/HorizonGRound
+    :alt: Build Status
+.. image:: https://readthedocs.org/projects/horizonground/badge/?version=latest
+    :target: https://horizonground.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
 
 |HorizonGRound| is a Python package that offers tools for forward modelling of general relativistic effects from tracer luminosity functions as well as comparing relativistic corrections with the local primordial non-Gaussianity signature in ultra-large-scale clustering statistics.
 
@@ -62,6 +72,6 @@ Licence
 
 .. toctree::
     :hidden:
-    
+
     quick_recipes
     apidoc

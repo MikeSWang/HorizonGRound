@@ -8,6 +8,10 @@ https://github.com/mikeswang/HorizonGRound/tree/v0.1.0/LICENCE)
 )](https://github.com/mikeswang/HorizonGRound/tree/v0.1.0)
 [![arXiv](https://img.shields.io/badge/arXiv-2007.xxxxx-important
 )](https://arxiv.org/abs/2007.xxxxx)
+[![Build Status](https://travis-ci.com/MikeSWang/HorizonGRound.svg?branch=master)](
+https://travis-ci.com/MikeSWang/HorizonGRound)
+[![Documentation Status](https://readthedocs.org/projects/horizonground/badge/?version=latest)](
+https://horizonground.readthedocs.io/en/latest/?badge=latest)
 
 
 # Relativistic Effects in Ultra-Large-Scale Clustering
