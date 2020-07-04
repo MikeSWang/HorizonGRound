@@ -600,6 +600,7 @@ class LumFuncModeller:
                 lambda lum, z: 10 ** model_lumfunc(lum, z, **model_parameters)
             )
         else:
+            # pylint: disable=unnecessary-lambda
             self.luminosity_function = np.vectorize(
                 lambda lum, z: model_lumfunc(lum, z, **model_parameters)
             )

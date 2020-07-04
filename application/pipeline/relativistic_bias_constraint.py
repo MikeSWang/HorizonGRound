@@ -14,6 +14,7 @@ import numpy as np
 from astropy import cosmology
 from tqdm import tqdm
 
+# pylint: disable=no-name-in-module
 from conf import PATHOUT, logger
 from horizonground.lumfunc_modeller import (
     LumFuncModeller,

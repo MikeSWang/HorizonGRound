@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from tqdm import tqdm
 
+# pylint: disable=no-name-in-module
 from conf import PATHOUT, logger
 from horizonground.clustering_modification import relativistic_correction_value
 

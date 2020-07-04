@@ -27,6 +27,7 @@ import numpy as np
 import zeus
 from emcee.autocorr import AutocorrError
 
+# pylint: disable=no-name-in-module
 from conf import PATHEXT, PATHIN, PATHOUT, logger, sci_notation
 from horizonground.lumfunc_likelihood import LumFuncLikelihood
 from horizonground.utils import load_parameter_set
