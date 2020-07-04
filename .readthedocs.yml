@@ -3,8 +3,8 @@ name: horizonground-docs
 type: sphinx
 
 conda:
-    file: docs/environment.yml
+    file: docs/.environment.yml
 
 python:
-    version: 3
+    version: 3.6
     setup_py_install: true
