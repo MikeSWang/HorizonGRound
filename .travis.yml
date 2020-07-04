@@ -5,4 +5,5 @@ python:
 install:
     - travis_retry pip install --upgrade cython
 script:
-    pytest horizonground/tests/
+    - pip install --upgrade astropy
+    - pytest horizonground/tests/
