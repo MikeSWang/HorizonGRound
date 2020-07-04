@@ -1,2 +1,5 @@
 [run]
 source=horizonground
+omit=
+    conftest.py
+    **/tests/*.py
