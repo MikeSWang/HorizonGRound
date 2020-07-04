@@ -1,0 +1,20 @@
+name: horizonground-docs
+
+channels:
+    - defaults
+    - astropy
+    - bccp
+
+dependencies:
+    - python=3.6
+    - numpy
+    - scipy
+    - astropy
+    - nbodykit
+    - IPython
+    - sphinx
+    - pip
+    - pip:
+        - sphinx-issues
+        - numpydoc
+        - nbsphinx
