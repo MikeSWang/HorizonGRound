@@ -1,4 +1,5 @@
-![HorizonGRound](./docs/source/_static/HorizonGRound.png)
+![HorizonGRound](
+https://raw.githubusercontent.com/MikeSWang/HorizonGRound/master/docs/source/_static/HorizonGRound.png)
 
 [![pypi](https://img.shields.io/badge/version-0.1-informational)](
 https://pypi.org/project/HorizonGRound/)
