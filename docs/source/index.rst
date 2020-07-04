@@ -16,7 +16,7 @@
 .. image:: https://img.shields.io/badge/arXiv-2007.xxxxx-important
     :target: https://arxiv.org/abs/2007.xxxxx
     :alt: arXiv eprint
-.. image:: https://travis-ci.com/MikeSWang/HorizonGRound.svg
+.. image:: https://travis-ci.com/MikeSWang/HorizonGRound.svg?branch=master
     :target: https://travis-ci.com/MikeSWang/HorizonGRound
     :alt: Build Status
 .. image:: https://readthedocs.org/projects/horizonground/badge/?version=latest
