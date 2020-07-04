@@ -1,9 +1,11 @@
 language: python
+
 python:
     - 3.6
-    - 3.7
+
 install:
-    - travis_retry pip install --upgrade cython
+    - pip install --upgrade cython
+
 script:
     - pip install --upgrade scipy
     - pip install --upgrade astropy
