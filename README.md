@@ -4,9 +4,9 @@ https://raw.githubusercontent.com/MikeSWang/HorizonGRound/master/docs/source/_st
 [![pypi](https://img.shields.io/badge/version-0.1-informational)](
 https://pypi.org/project/HorizonGRound/)
 [![licence](https://img.shields.io/badge/licence-GPLv3-informational)](
-https://github.com/mikeswang/HorizonGRound/tree/v0.1.0/LICENCE)
+https://github.com/mikeswang/HorizonGRound/tree/master/LICENCE)
 [![GitHub](https://img.shields.io/badge/GitHub-MikeSWang%2FHorizonGRound-informational
-)](https://github.com/mikeswang/HorizonGRound/tree/v0.1.0)
+)](https://github.com/mikeswang/HorizonGRound/tree/master)
 [![arXiv](https://img.shields.io/badge/arXiv-2007.xxxxx-important
 )](https://arxiv.org/abs/2007.xxxxx)
 [![Build Status](https://travis-ci.com/MikeSWang/HorizonGRound.svg?branch=master)](

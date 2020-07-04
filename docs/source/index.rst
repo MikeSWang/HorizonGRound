@@ -8,10 +8,10 @@
     :target: https://pypi.org/project/HorizonGRound/
     :alt: Release
 .. image:: https://img.shields.io/badge/licence-GPLv3-informational
-    :target: https://github.com/mikeswang/HorizonGRound/tree/v0.1.0/LICENCE
+    :target: https://github.com/mikeswang/HorizonGRound/tree/master/LICENCE
     :alt: Licence
 .. image:: https://img.shields.io/badge/GitHub-MikeSWang%2FHorizonGRound-informational
-    :target: https://github.com/mikeswang/HorizonGRound/tree/v0.1.0
+    :target: https://github.com/mikeswang/HorizonGRound/tree/master
     :alt: GitHub Repository
 .. image:: https://img.shields.io/badge/arXiv-2007.xxxxx-important
     :target: https://arxiv.org/abs/2007.xxxxx

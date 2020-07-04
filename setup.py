@@ -7,7 +7,7 @@ with open("README.md", 'r') as readme:
 with open("requirements.txt", 'r') as dependencies:
     requirements = [pkg.strip() for pkg in dependencies]
 
-VERSION = "0.1.0"
+VERSION = "0.1.1"
 
 setuptools.setup(
     name="HorizonGRound",
