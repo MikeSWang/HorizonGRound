@@ -6,7 +6,7 @@
 
 .. image:: https://img.shields.io/badge/version-0.1-informational
     :target: https://pypi.org/project/HorizonGRound/
-.. image:: https://img.shields.io/badge/licence-GPL%20v3-informational
+.. image:: https://img.shields.io/badge/licence-GPLv3-informational
     :target: https://github.com/mikeswang/HorizonGRound/tree/v0.1.0/LICENCE
 .. image:: https://img.shields.io/badge/GitHub-MikeSWang%2FHorizonGRound-informational
     :target: https://github.com/mikeswang/HorizonGRound/tree/v0.1.0
@@ -43,9 +43,9 @@ may use the following BibTeX record.::
 
     @article{Wang_2020,
         author = {Wang, M.~S. and Beutler, F. and Bacon, D.},
-        title = {
-            Impact of relativistic effects on the primordial {non-Gaussianity}
-            signature in the large-scale clustering of quasars
+        title = {%
+            Impact of relativistic effects on the primordial {non-Gaussianity} %
+            signature in the large-scale clustering of quasars%
         },
         year = {2020},
         archivePrefix = {arXiv},
