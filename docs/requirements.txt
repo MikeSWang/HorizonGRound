@@ -1,6 +1,5 @@
 IPython
 sphinx>=1.4
 nbsphinx
-pfft-python
 astropy
 nbodykit
