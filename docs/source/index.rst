@@ -53,7 +53,7 @@ Attribution
 
 If you would like to acknowledge this work, please cite
 `Wang, Beutler & Bacon (2020) <https://arxiv.org/abs/2007.xxxxx>`_. You
-may use the following BibTeX record.:
+may use the following BibTeX record::
 
     @article{Wang_2020a,
         author = {Wang, M.~S. and Beutler, F. and Bacon, D.},
