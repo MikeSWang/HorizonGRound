@@ -14,7 +14,7 @@ https://readthedocs.org/projects/horizonground/badge/?version=latest
 https://travis-ci.com/MikeSWang/HorizonGRound.svg?branch=master
 )](https://travis-ci.com/MikeSWang/HorizonGRound)
 [![Code Coverage](
-![Coverage](https://img.shields.io/codecov/c/github/MikeSWang/HorizonGRound)
+https://img.shields.io/codecov/c/github/MikeSWang/HorizonGRound
 )](https://codecov.io/gh/MikeSWang/HorizonGRound)
 [![Licence](
 https://img.shields.io/badge/licence-GPLv3-informational
