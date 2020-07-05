@@ -1,0 +1,2 @@
+# m_\ast(z_\mathrm{p}), \lg\Phi_\ast, \alpha_\mathrm{l}, \alpha_\mathrm{h}, \beta_\mathrm{l}, \beta_\mathrm{h}, k_{1\mathrm{l}}, k_{1\mathrm{h}}, k_{2\mathrm{l}}, k_{2\mathrm{h}}
+-26.71, -6.01, -4.31, -3.04, -1.54, -1.38, -0.08, -0.25, -0.40, -0.05

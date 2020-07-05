@@ -135,7 +135,7 @@ class LumFuncMeasurements:
         else:
             try:
                 z = float(str(z_key).replace(" ", "").lstrip("z="))
-                z_idx = self.redshift_bins.index(z)
+                z_idx = np.where(np.isclose(self.redshift_bins, z))[0][0]
             except (TypeError, ValueError):
                 raise KeyError(
                     "Non-existent redshift bin for '{}'.".format(z_key)
@@ -330,7 +330,7 @@ class LumFuncLikelihood(LumFuncMeasurements):
     uncertainty_file : str or :class:`pathlib.Path` *or None, optional*
         Luminosity function uncertainty file path (default is `None`).
         Ignored if `data_covariance` is provided.
-    fixed_file : str or :class:`pathlib.Path`*or None, optional*
+    fixed_file : str or :class:`pathlib.Path` *or None, optional*
         Luminosity function model fixed parameter file path (default is
         `None`).  This covers any model parameter(s) not included in
         the prior.

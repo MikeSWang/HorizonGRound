@@ -3,18 +3,18 @@ Luminosity function modeller (:mod:`~horizonground.lumfunc_modeller`)
 ===========================================================================
 
 Provide models of the redshift-dependent tracer luminosity function
-:math:`\Phi(m, z)` (for absolute magnitude :math:`m`) or
-:math:`\Phi(\lg{L}, z)` (for base-10 logarithm of the intrinsic
+:math:`\varPhi(m, z)` (for absolute magnitude :math:`m`) or
+:math:`\varPhi(\lg{L}, z)` (for base-10 logarithm of the intrinsic
 luminosity :math:`L`), from which the comoving number density below/above
 some brightness threshold :math:`\bar{m}` or :math:`\bar{L}`,
 
 .. math::
 
     \bar{n}(z; <\!\bar{m}) = \int_{-\infty}^{\bar{m}}
-        \operatorname{d}\!m\, \Phi(m, z)
+        \operatorname{d}\!m\, \varPhi(m, z)
     \quad \mathrm{or} \quad
     \bar{n}(z; >\!\lg\bar{L}) = \int^{\infty}_{\lg\bar{L}}
-        \operatorname{d}\!\lg{L}\, \Phi(\lg{L}, z) \,,
+        \operatorname{d}\!\lg{L}\, \varPhi(\lg{L}, z) \,,
 
 can be predicted.  The corresponding evolution bias is
 
@@ -28,10 +28,10 @@ and magnification bias is
 .. math::
 
     s(z) = \frac{1}{\ln10}
-        \frac{\Phi(\bar{m},z)}{\bar{n}(z; <\!\bar{m})}
+        \frac{\varPhi(\bar{m},z)}{\bar{n}(z; <\!\bar{m})}
     \quad \mathrm{or} \quad
     s(z) = \frac{2}{5\ln10}
-        \frac{\Phi(\lg\bar{L},z)}{\bar{n}(z; >\!\lg\bar{L})}
+        \frac{\varPhi(\lg\bar{L},z)}{\bar{n}(z; >\!\lg\bar{L})}
     \,,
 
 We also offer a simple :math:`K`-correction formula taken from ref. [1]_.
@@ -56,7 +56,7 @@ model is a double power law
 
 .. math::
 
-    \Phi(m, z) = \frac{\Phi_\ast}{
+    \varPhi(m, z) = \frac{\varPhi_\ast}{
         10^{0.4 (\alpha + 1) [m - m_\ast(z)]}
         + 10^{0.4 (\beta + 1) [m - m_\ast(z)]}
     }
@@ -66,7 +66,7 @@ the slope parameters :math:`\alpha, \beta` describe the power laws on the
 bright and faint ends respectively, but their values differ below and
 above the pivot redshift :math:`z_\mathrm{p}`.  :math:`m_\ast` is the
 break magnitude at which the luminosity function evaluates to
-:math:`\Phi_\ast`,
+:math:`\varPhi_\ast`,
 
 .. math::
 
@@ -77,7 +77,7 @@ break magnitude at which the luminosity function evaluates to
 where :math:`k_1, k_2` are the redshift-evolution parameters whose values
 also differ below and above the pivot redshift [2]_.
 
-This is a parametric model with 10 parameters: :math:`\lg\Phi_\ast`,
+This is a parametric model with 10 parameters: :math:`\lg\varPhi_\ast`,
 :math:`m_\ast(z_\mathrm{p})`, :math:`(\alpha, \beta, k_1, k_2)_\mathrm{l}`
 for :math:`z < z_\mathrm{p}` and :math:`(\alpha, \beta, k_1,
 k_2)_\mathrm{h}` for :math:`z > z_\mathrm{p}`.   Due to the exchange
@@ -96,7 +96,7 @@ bright-end power law index have different redshift evolutions
 .. math::
 
     \begin{align*}
-        \lg\Phi_\ast &= \lg\Phi_\ast(z_\mathrm{p}) \
+        \lg\varPhi_\ast &= \lg\varPhi_\ast(z_\mathrm{p}) \
             + c_{1\mathrm{a}} (z - z_\mathrm{p})
             + c_{1\mathrm{b}} (z - z_\mathrm{p})^2 \,, \\
         m_\ast(z) &= m_\ast(z_\mathrm{p}) + c_2 (z - z_\mathrm{p}) \,, \\
@@ -104,17 +104,18 @@ bright-end power law index have different redshift evolutions
     \end{align*}
 
 and continuity across redshift is imposed by requiring the same
-:math:`\lg\Phi_\ast(z_\mathrm{p})` and :math:`m_\ast(z_\mathrm{p})` for
+:math:`\lg\varPhi_\ast(z_\mathrm{p})` and :math:`m_\ast(z_\mathrm{p})` for
 two models [2]_.
 
 The hybrid model still has 10 overall parameters: the PLE model retains 6
 low-redshift parameters and the high-redshift LEDE model has 8 parameters,
-with the substitutions of :math:`\lg\Phi_\ast(0)` for :math:`\lg\Phi_\ast`,
-:math:`m_\ast(0)` for :math:`m_\ast(z_\mathrm{p})`, :math:`c_2` for
-:math:`k_1, k_2` and the addition of
-:math:`c_{1\mathrm{a}}, c_{1\mathrm{b}}` and :math:`c_3`.  As before, due
-to the exchange symmetry between :math:`\alpha` and :math:`\beta`, the
-low-redshift PLE model constraint :math:`\alpha < \beta` is imposed.
+with the substitutions of :math:`\lg\varPhi_\ast(0)` for
+:math:`\lg\varPhi_\ast`, :math:`m_\ast(0)` for
+:math:`m_\ast(z_\mathrm{p})`, :math:`c_2` for :math:`k_1, k_2` and the
+addition of :math:`c_{1\mathrm{a}}, c_{1\mathrm{b}}` and :math:`c_3`.
+As before, due to the exchange symmetry between :math:`\alpha` and
+:math:`\beta`, the low-redshift PLE model constraint :math:`\alpha < \beta`
+is imposed.
 
 .. [2] Palanque-Delabrouille N. et al., 2016. **A&A** 587, A41.
    [arXiv: `1509.05607 <https://arxiv.org/abs/1509.05607>`_]
@@ -138,20 +139,20 @@ takes the form of a gamma function
 
 .. math::
 
-    \Phi(L, z) \operatorname{d}\!L = \underbrace{
-        \ln10 \, \Phi_\ast(z) y(z)^{\alpha+1} \mathrm{e}^{-y(z)}
-    }_{\Phi(\lg{L}, z)} \operatorname{d}\!\lg{L}
+    \varPhi(L, z) \operatorname{d}\!L = \underbrace{
+        \ln10 \, \varPhi_\ast(z) y(z)^{\alpha+1} \mathrm{e}^{-y(z)}
+    }_{\varPhi(\lg{L}, z)} \operatorname{d}\!\lg{L}
 
 where :math:`\alpha` is the faint-end slope parameter,
 
 .. math::
 
     \begin{align*}
-        \Phi_\ast(z) &=
+        \varPhi_\ast(z) &=
             \begin{cases}
-                \Phi_{\ast0} (1 + z)^\epsilon \,,
+                \varPhi_{\ast0} (1 + z)^\epsilon \,,
                     \quad z \leqslant z_\mathrm{b} \,; \\
-                \Phi_{\ast0} (1 + z_\mathrm{b})^{2\epsilon}
+                \varPhi_{\ast0} (1 + z_\mathrm{b})^{2\epsilon}
                     (1 + z)^{-\epsilon} \,, \quad z > z_\mathrm{b} \,,
             \end{cases} \\
         y(z) &= \frac{L}{L_{\ast0}} (1 + z)^{-\delta} \,,
@@ -163,7 +164,8 @@ are the redshift-evolution indices, and :math:`z_\mathrm{b}` is the break
 magnitude [3]_.
 
 This is a parametric model with 6 parameters: :math:`\alpha, \epsilon,
-\delta`, :math:`z_\mathrm{b}`, :math:`m_{\ast0}` and :math:`\Phi_{\ast0}`.
+\delta`, :math:`z_\mathrm{b}`, :math:`m_{\ast0}` and
+:math:`\varPhi_{\ast0}`.
 
 .. [3] Pozzetti L. et al., 2016. **A&A** 590, A3.
    [arXiv: `1603.01453 <https://arxiv.org/abs/1603.01453>`_]
