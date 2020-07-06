@@ -7,13 +7,13 @@
 .. image:: https://img.shields.io/badge/arXiv-2007.01802-important
     :target: https://arxiv.org/abs/2007.01802
     :alt: arXiv eprint
-.. image:: https://img.shields.io/github/v/release/MikeSWang/HorizonGRound?label=release
-    :target: https://github.com/MikeSWang/HorizonGRound/releases/latest
-    :alt: GitHub release (latest by date)
-.. image:: https://readthedocs.org/projects/horizonground/badge/?version=latest
-    :target: https://horizonground.readthedocs.io/en/latest
+.. image:: https://img.shields.io/badge/release-v0.1-blue
+    :target: https://github.com/MikeSWang/HorizonGRound/releases/v0.1
+    :alt: GitHub release
+.. image:: https://readthedocs.org/projects/horizonground/badge/?version=stable
+    :target: https://horizonground.readthedocs.io/en/stable
     :alt: Documentation status
-.. image:: https://travis-ci.com/MikeSWang/HorizonGRound.svg?branch=master
+.. image:: https://travis-ci.com/MikeSWang/HorizonGRound.svg?branch=v0.1
     :target: https://travis-ci.com/MikeSWang/HorizonGRound
     :alt: Build status
 .. image:: https://img.shields.io/codecov/c/github/MikeSWang/HorizonGRound

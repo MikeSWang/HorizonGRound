@@ -76,6 +76,5 @@ venv.bak/
 .vscode/
 
 # Project specific
-application/storage/input/
-application/storage/jobs/
-application/storage/output/
+docs/build/
+application/

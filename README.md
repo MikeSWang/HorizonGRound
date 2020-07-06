@@ -1,24 +1,24 @@
 ![HorizonGRound logo](
-https://raw.githubusercontent.com/MikeSWang/HorizonGRound/master/docs/source/_static/HorizonGRound.png)
+https://raw.githubusercontent.com/MikeSWang/HorizonGRound/v0.1/docs/source/_static/HorizonGRound.png)
 
 [![arXiv eprint](
 https://img.shields.io/badge/arXiv-2007.01802-important
 )](https://arxiv.org/abs/2007.01802)
-[![GitHub release (latest by date)](
-https://img.shields.io/github/v/release/MikeSWang/HorizonGRound?label=release
-)](https://github.com/MikeSWang/HorizonGRound/releases/latest)
+[![GitHub release](
+https://img.shields.io/badge/release-v0.1-blue
+)](https://github.com/MikeSWang/HorizonGRound/releases/v0.1)
 [![Documentation status](
-https://readthedocs.org/projects/horizonground/badge/?version=latest
-)](https://horizonground.readthedocs.io/en/latest)
+https://readthedocs.org/projects/horizonground/badge/?version=stable
+)](https://horizonground.readthedocs.io/en/stable)
 [![Build status](
-https://travis-ci.com/MikeSWang/HorizonGRound.svg?branch=master
+https://travis-ci.com/MikeSWang/HorizonGRound.svg?branch=v0.1
 )](https://travis-ci.com/MikeSWang/HorizonGRound)
 [![Code Coverage](
 https://img.shields.io/codecov/c/github/MikeSWang/HorizonGRound
 )](https://codecov.io/gh/MikeSWang/HorizonGRound)
 [![Licence](
 https://img.shields.io/badge/licence-GPLv3-informational
-)](https://github.com/mikeswang/HorizonGRound/tree/master/LICENCE)
+)](https://github.com/mikeswang/HorizonGRound/tree/v0.1/LICENCE)
 
 
 # Relativistic Effects in Ultra-Large-Scale Clustering
@@ -43,7 +43,7 @@ pip install HorizonGRound
 
 Quick recipes and API documentation can be found at
 [mikeswang.github.io/HorizonGRound](
-https://mikeswang.github.io/HorizonGRound).
+https://horizonground.readthedocs.io/en/stable).
 
 
 ## Attribution
