@@ -8,9 +8,9 @@ from horizonground.clustering_modification import (
 )
 
 
-REDSHIFT = 1.
-BIAS = 2.
-PNG = 1.
+REDSHIFT = 1.0
+BIAS = 2.0
+PNG = 1.0
 WAVENUMBER = 1.e-3
 
 
