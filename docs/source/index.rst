@@ -4,8 +4,8 @@
 **Relativistic Effects in Ultra-Large-Scale Clustering**
 ========================================================
 
-.. image:: https://img.shields.io/badge/arXiv-2007.xxxxx-important
-    :target: https://arxiv.org/abs/2007.xxxxx
+.. image:: https://img.shields.io/badge/arXiv-2007.01802-important
+    :target: https://arxiv.org/abs/2007.01802
     :alt: arXiv eprint
 .. image:: https://img.shields.io/github/v/release/MikeSWang/HorizonGRound?label=release
     :target: https://github.com/MikeSWang/HorizonGRound/releases/latest
@@ -52,7 +52,7 @@ Attribution
 ===========
 
 If you would like to acknowledge this work, please cite
-`Wang, Beutler & Bacon (2020) <https://arxiv.org/abs/2007.xxxxx>`_. You
+`Wang, Beutler & Bacon (2020) <https://arxiv.org/abs/2007.01802>`_. You
 may use the following BibTeX record::
 
     @article{Wang_2020a,
@@ -64,7 +64,7 @@ may use the following BibTeX record::
         year = {2020},
         archivePrefix = {arXiv},
         primaryClass = {astro-ph.CO},
-        eprint = {2007.xxxx},
+        eprint = {2007.01802},
     }
 
 

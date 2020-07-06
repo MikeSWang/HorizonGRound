@@ -2,8 +2,8 @@
 https://raw.githubusercontent.com/MikeSWang/HorizonGRound/master/docs/source/_static/HorizonGRound.png)
 
 [![arXiv eprint](
-https://img.shields.io/badge/arXiv-2007.xxxxx-important
-)](https://arxiv.org/abs/2007.xxxxx)
+https://img.shields.io/badge/arXiv-2007.01802-important
+)](https://arxiv.org/abs/2007.01802)
 [![GitHub release (latest by date)](
 https://img.shields.io/github/v/release/MikeSWang/HorizonGRound?label=release
 )](https://github.com/MikeSWang/HorizonGRound/releases/latest)
@@ -49,7 +49,7 @@ https://mikeswang.github.io/HorizonGRound).
 ## Attribution
 
 If you would like to acknowledge this work, please cite
-`Wang, Beutler & Bacon (2020) <https://arxiv.org/abs/2007.xxxxx>`. You
+`Wang, Beutler & Bacon (2020) <https://arxiv.org/abs/2007.01802>`. You
 may use the following BibTeX record.
 
     @article{Wang_2020a,
@@ -61,7 +61,7 @@ may use the following BibTeX record.
         year = {2020},
         archivePrefix = {arXiv},
         primaryClass = {astro-ph.CO},
-        eprint = {2007.xxxx},
+        eprint = {2007.01802},
     }
 
 
