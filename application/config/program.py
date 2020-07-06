@@ -1,4 +1,4 @@
-"""Configuration file for ``horizonground`` applications.
+"""Configuration file for ``horizonground`` application.
 
 This provides custom logging facilities and `matplotlib` style sheet, and
 sets up I/O paths.
