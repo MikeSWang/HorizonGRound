@@ -49,7 +49,7 @@ https://mikeswang.github.io/HorizonGRound).
 ## Attribution
 
 If you would like to acknowledge this work, please cite
-`Wang, Beutler & Bacon (2020) <https://arxiv.org/abs/2007.01802>`. You
+[Wang, Beutler & Bacon (2020)](https://arxiv.org/abs/2007.01802). You
 may use the following BibTeX record.
 
     @article{Wang_2020a,
