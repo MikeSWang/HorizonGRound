@@ -1,2 +1,0 @@
-# \lg{L_{\ast0}}, \Delta\lg{L_{\ast0}}, -\Delta\lg{L_{\ast0}}, \lg\Phi_{\ast0}, \Delta\lg\Phi_{\ast0}, -\Delta\lg\Phi_{\ast0}, \alpha, \Delta\alpha, -\Delta\alpha, \delta, \Delta\delta, -\Delta\delta, \epsilon, \Delta\epsilon, -\Delta\epsilon, z_\mathrm{b}, \Delta{z}_\mathrm{b}, -\Delta{z}_\mathrm{b}
-41.5, 0.11, -0.11, -2.8, 0.15, -0.18, -1.35, 0.1, -0.15, 2., 0.1, -0.1, 1., 0.1, -0.1, 1.3, 0.1, -0.1

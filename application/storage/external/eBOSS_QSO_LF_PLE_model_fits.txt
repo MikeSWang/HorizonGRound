@@ -1,2 +1,0 @@
-# m_\ast(z_\mathrm{p}), \Delta{m_\ast(z_\mathrm{p})}, \lg\Phi_\ast, \Delta\lg\Phi_\ast, \alpha_\mathrm{l}, \Delta\alpha_\mathrm{l}, \alpha_\mathrm{h}, \Delta\alpha_\mathrm{h}, \beta_\mathrm{l}, \Delta\beta_\mathrm{l}, \beta_\mathrm{h}, \Delta\beta_\mathrm{h}, k_{1\mathrm{l}}, \Delta{k_{1\mathrm{l}}}, k_{1\mathrm{h}}, \Delta{k_{1\mathrm{h}}}, k_{2\mathrm{l}}, \Delta{k_{2\mathrm{l}}}, k_{2\mathrm{h}}, \Delta{k_{2\mathrm{h}}}
--26.71, 0.15, -6.01, 0.07, -4.31, 0.26, -3.04, 0.12, -1.54, 0.04, -1.38, 0.07, -0.08, 0.08, -0.25, 0.09, -0.40, 0.05, -0.05, 0.06
