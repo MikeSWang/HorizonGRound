@@ -9,4 +9,5 @@ install:
 script:
     - pip install --upgrade scipy
     - pip install --upgrade astropy
+    - pip install --upgrade nbodykit
     - pytest --runslow horizonground/tests/
