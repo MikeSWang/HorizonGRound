@@ -32,7 +32,7 @@ install:
 script:
     - pip install --upgrade scipy
     - pip install --upgrade astropy
-    - pytest --cov=horizonground/
+    - coverage run -m pytest horizonground/
     - pytest --runslow horizonground/tests/
 
 after_success:
