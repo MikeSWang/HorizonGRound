@@ -17,6 +17,8 @@ et al. (2016) [1]_.
 .. toctree::
 
     tutorials/forward_modelling_from_LF.ipynb
+    tutorials/likelihood_calculation_of_LF.ipynb
+    tutorials/modified_power_spectrum_multipoles.ipynb
 
 .. |HorizonGRound| raw:: html
 
