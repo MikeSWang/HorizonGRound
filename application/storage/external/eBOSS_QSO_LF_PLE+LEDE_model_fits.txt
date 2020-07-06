@@ -1,0 +1,2 @@
+# m_\ast(0), \Delta{m_\ast(0)}, \lg\Phi_\ast(0), \Delta\lg\Phi_\ast(0), \alpha, \Delta\alpha, \beta, \Delta\beta, k_1, \Delta{k_1}, k_2, \Delta{k_2}, c_{1\mathrm{a}}, \Delta{c_{1\mathrm{a}}}, c_{1\mathrm{b}}, \Delta{c_{1\mathrm{b}}}, c_2, \Delta{c_2}, c_3, \Delta{c_3}
+-22.25, 0.49, -5.93, 0.09, -3.89, 0.23, -1.47, 0.06, 1.59, 0.28, -0.36, 0.09, -0.46, 0.10, -0.06, 0.10, -0.14, 0.17, 0.32, 0.23
