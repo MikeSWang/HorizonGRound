@@ -27,8 +27,13 @@ install:
     - conda install --yes numpy=$NUMPY_VERSION
     - echo "numpy $NUMPY_VERSION.*" >> $CONDA_PREFIX/conda-meta/pinned
     - conda install --yes --file requirements.txt
+    - conda install coverage
 
 script:
     - pip install --upgrade scipy
     - pip install --upgrade astropy
+    - pytest --cov=horizonground/
     - pytest --runslow horizonground/tests/
+
+after_success:
+    - bash <(curl -s https://codecov.io/bash)
