@@ -193,7 +193,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">z</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">z_key</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;z=&quot;</span><span class="p">))</span>
-                <span class="n">z_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">redshift_bins</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+                <span class="n">z_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">redshift_bins</span><span class="p">,</span> <span class="n">z</span><span class="p">))[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
                     <span class="s2">&quot;Non-existent redshift bin for &#39;</span><span class="si">{}</span><span class="s2">&#39;.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">z_key</span><span class="p">)</span>
@@ -388,7 +388,7 @@
 <span class="sd">    uncertainty_file : str or :class:`pathlib.Path` *or None, optional*</span>
 <span class="sd">        Luminosity function uncertainty file path (default is `None`).</span>
 <span class="sd">        Ignored if `data_covariance` is provided.</span>
-<span class="sd">    fixed_file : str or :class:`pathlib.Path`*or None, optional*</span>
+<span class="sd">    fixed_file : str or :class:`pathlib.Path` *or None, optional*</span>
 <span class="sd">        Luminosity function model fixed parameter file path (default is</span>
 <span class="sd">        `None`).  This covers any model parameter(s) not included in</span>
 <span class="sd">        the prior.</span>

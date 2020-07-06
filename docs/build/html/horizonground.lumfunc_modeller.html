@@ -60,16 +60,16 @@
   <span class="target" id="module-horizonground.lumfunc_modeller"></span><div class="section" id="luminosity-function-modeller-lumfunc-modeller">
 <h1>Luminosity function modeller (<a class="reference internal" href="#module-horizonground.lumfunc_modeller" title="horizonground.lumfunc_modeller"><code class="xref py py-mod docutils literal notranslate"><span class="pre">lumfunc_modeller</span></code></a>)<a class="headerlink" href="#luminosity-function-modeller-lumfunc-modeller" title="Permalink to this headline">¶</a></h1>
 <p>Provide models of the redshift-dependent tracer luminosity function
-<span class="math notranslate nohighlight">\(\Phi(m, z)\)</span> (for absolute magnitude <span class="math notranslate nohighlight">\(m\)</span>) or
-<span class="math notranslate nohighlight">\(\Phi(\lg{L}, z)\)</span> (for base-10 logarithm of the intrinsic
+<span class="math notranslate nohighlight">\(\varPhi(m, z)\)</span> (for absolute magnitude <span class="math notranslate nohighlight">\(m\)</span>) or
+<span class="math notranslate nohighlight">\(\varPhi(\lg{L}, z)\)</span> (for base-10 logarithm of the intrinsic
 luminosity <span class="math notranslate nohighlight">\(L\)</span>), from which the comoving number density below/above
 some brightness threshold <span class="math notranslate nohighlight">\(\bar{m}\)</span> or <span class="math notranslate nohighlight">\(\bar{L}\)</span>,</p>
 <div class="math notranslate nohighlight">
 \[\bar{n}(z; &lt;\!\bar{m}) = \int_{-\infty}^{\bar{m}}
-    \operatorname{d}\!m\, \Phi(m, z)
+    \operatorname{d}\!m\, \varPhi(m, z)
 \quad \mathrm{or} \quad
 \bar{n}(z; &gt;\!\lg\bar{L}) = \int^{\infty}_{\lg\bar{L}}
-    \operatorname{d}\!\lg{L}\, \Phi(\lg{L}, z) \,,\]</div>
+    \operatorname{d}\!\lg{L}\, \varPhi(\lg{L}, z) \,,\]</div>
 <p>can be predicted.  The corresponding evolution bias is</p>
 <div class="math notranslate nohighlight">
 \[b_\mathrm{e}(z) = - (1 + z)
@@ -77,10 +77,10 @@ some brightness threshold <span class="math notranslate nohighlight">\(\bar{m}\)
 <p>and magnification bias is</p>
 <div class="math notranslate nohighlight">
 \[s(z) = \frac{1}{\ln10}
-    \frac{\Phi(\bar{m},z)}{\bar{n}(z; &lt;\!\bar{m})}
+    \frac{\varPhi(\bar{m},z)}{\bar{n}(z; &lt;\!\bar{m})}
 \quad \mathrm{or} \quad
 s(z) = \frac{2}{5\ln10}
-    \frac{\Phi(\lg\bar{L},z)}{\bar{n}(z; &gt;\!\lg\bar{L})}
+    \frac{\varPhi(\lg\bar{L},z)}{\bar{n}(z; &gt;\!\lg\bar{L})}
 \,,\]</div>
 <p>We also offer a simple <span class="math notranslate nohighlight">\(K\)</span>-correction formula taken from ref. <a class="footnote-reference brackets" href="#id2" id="id1">1</a>.</p>
 <dl class="footnote brackets">
@@ -109,7 +109,7 @@ s(z) = \frac{2}{5\ln10}
 <p>The quasar luminosity function in the pure luminosity evolution (PLE)
 model is a double power law</p>
 <div class="math notranslate nohighlight">
-\[\Phi(m, z) = \frac{\Phi_\ast}{
+\[\varPhi(m, z) = \frac{\varPhi_\ast}{
     10^{0.4 (\alpha + 1) [m - m_\ast(z)]}
     + 10^{0.4 (\beta + 1) [m - m_\ast(z)]}
 }\]</div>
@@ -118,14 +118,14 @@ the slope parameters <span class="math notranslate nohighlight">\(\alpha, \beta\
 bright and faint ends respectively, but their values differ below and
 above the pivot redshift <span class="math notranslate nohighlight">\(z_\mathrm{p}\)</span>.  <span class="math notranslate nohighlight">\(m_\ast\)</span> is the
 break magnitude at which the luminosity function evaluates to
-<span class="math notranslate nohighlight">\(\Phi_\ast\)</span>,</p>
+<span class="math notranslate nohighlight">\(\varPhi_\ast\)</span>,</p>
 <div class="math notranslate nohighlight">
 \[m_\ast(z) = m_\ast(z_\mathrm{p}) - \frac{5}{2} \left[
     k_1 (z - z_\mathrm{p}) + k_2 (z - z_\mathrm{p})^2
 \right] \,,\]</div>
 <p>where <span class="math notranslate nohighlight">\(k_1, k_2\)</span> are the redshift-evolution parameters whose values
 also differ below and above the pivot redshift <a class="footnote-reference brackets" href="#id6" id="id4">2</a>.</p>
-<p>This is a parametric model with 10 parameters: <span class="math notranslate nohighlight">\(\lg\Phi_\ast\)</span>,
+<p>This is a parametric model with 10 parameters: <span class="math notranslate nohighlight">\(\lg\varPhi_\ast\)</span>,
 <span class="math notranslate nohighlight">\(m_\ast(z_\mathrm{p})\)</span>, <span class="math notranslate nohighlight">\((\alpha, \beta, k_1, k_2)_\mathrm{l}\)</span>
 for <span class="math notranslate nohighlight">\(z &lt; z_\mathrm{p}\)</span> and <span class="math notranslate nohighlight">\((\alpha, \beta, k_1,
 k_2)_\mathrm{h}\)</span> for <span class="math notranslate nohighlight">\(z &gt; z_\mathrm{p}\)</span>.   Due to the exchange
@@ -139,23 +139,24 @@ adopted where the luminosity function normalisation, break magnitude and
 bright-end power law index have different redshift evolutions</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{align*}
-    \lg\Phi_\ast &amp;= \lg\Phi_\ast(z_\mathrm{p}) \
+    \lg\varPhi_\ast &amp;= \lg\varPhi_\ast(z_\mathrm{p}) \
         + c_{1\mathrm{a}} (z - z_\mathrm{p})
         + c_{1\mathrm{b}} (z - z_\mathrm{p})^2 \,, \\
     m_\ast(z) &amp;= m_\ast(z_\mathrm{p}) + c_2 (z - z_\mathrm{p}) \,, \\
     \alpha(z) &amp;= \alpha(z_\mathrm{p}) + c_3 (z - z_\mathrm{p}) \,,
 \end{align*}\end{split}\]</div>
 <p>and continuity across redshift is imposed by requiring the same
-<span class="math notranslate nohighlight">\(\lg\Phi_\ast(z_\mathrm{p})\)</span> and <span class="math notranslate nohighlight">\(m_\ast(z_\mathrm{p})\)</span> for
+<span class="math notranslate nohighlight">\(\lg\varPhi_\ast(z_\mathrm{p})\)</span> and <span class="math notranslate nohighlight">\(m_\ast(z_\mathrm{p})\)</span> for
 two models <a class="footnote-reference brackets" href="#id6" id="id5">2</a>.</p>
 <p>The hybrid model still has 10 overall parameters: the PLE model retains 6
 low-redshift parameters and the high-redshift LEDE model has 8 parameters,
-with the substitutions of <span class="math notranslate nohighlight">\(\lg\Phi_\ast(0)\)</span> for <span class="math notranslate nohighlight">\(\lg\Phi_\ast\)</span>,
-<span class="math notranslate nohighlight">\(m_\ast(0)\)</span> for <span class="math notranslate nohighlight">\(m_\ast(z_\mathrm{p})\)</span>, <span class="math notranslate nohighlight">\(c_2\)</span> for
-<span class="math notranslate nohighlight">\(k_1, k_2\)</span> and the addition of
-<span class="math notranslate nohighlight">\(c_{1\mathrm{a}}, c_{1\mathrm{b}}\)</span> and <span class="math notranslate nohighlight">\(c_3\)</span>.  As before, due
-to the exchange symmetry between <span class="math notranslate nohighlight">\(\alpha\)</span> and <span class="math notranslate nohighlight">\(\beta\)</span>, the
-low-redshift PLE model constraint <span class="math notranslate nohighlight">\(\alpha &lt; \beta\)</span> is imposed.</p>
+with the substitutions of <span class="math notranslate nohighlight">\(\lg\varPhi_\ast(0)\)</span> for
+<span class="math notranslate nohighlight">\(\lg\varPhi_\ast\)</span>, <span class="math notranslate nohighlight">\(m_\ast(0)\)</span> for
+<span class="math notranslate nohighlight">\(m_\ast(z_\mathrm{p})\)</span>, <span class="math notranslate nohighlight">\(c_2\)</span> for <span class="math notranslate nohighlight">\(k_1, k_2\)</span> and the
+addition of <span class="math notranslate nohighlight">\(c_{1\mathrm{a}}, c_{1\mathrm{b}}\)</span> and <span class="math notranslate nohighlight">\(c_3\)</span>.
+As before, due to the exchange symmetry between <span class="math notranslate nohighlight">\(\alpha\)</span> and
+<span class="math notranslate nohighlight">\(\beta\)</span>, the low-redshift PLE model constraint <span class="math notranslate nohighlight">\(\alpha &lt; \beta\)</span>
+is imposed.</p>
 <dl class="footnote brackets">
 <dt class="label" id="id6"><span class="brackets">2</span><span class="fn-backref">(<a href="#id4">1</a>,<a href="#id5">2</a>)</span></dt>
 <dd><p>Palanque-Delabrouille N. et al., 2016. <strong>A&amp;A</strong> 587, A41.
@@ -189,17 +190,17 @@ low-redshift PLE model constraint <span class="math notranslate nohighlight">\(\
 <p>The Hα-emitter luminosity function in the Schechter function model
 takes the form of a gamma function</p>
 <div class="math notranslate nohighlight">
-\[\Phi(L, z) \operatorname{d}\!L = \underbrace{
-    \ln10 \, \Phi_\ast(z) y(z)^{\alpha+1} \mathrm{e}^{-y(z)}
-}_{\Phi(\lg{L}, z)} \operatorname{d}\!\lg{L}\]</div>
+\[\varPhi(L, z) \operatorname{d}\!L = \underbrace{
+    \ln10 \, \varPhi_\ast(z) y(z)^{\alpha+1} \mathrm{e}^{-y(z)}
+}_{\varPhi(\lg{L}, z)} \operatorname{d}\!\lg{L}\]</div>
 <p>where <span class="math notranslate nohighlight">\(\alpha\)</span> is the faint-end slope parameter,</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{align*}
-    \Phi_\ast(z) &amp;=
+    \varPhi_\ast(z) &amp;=
         \begin{cases}
-            \Phi_{\ast0} (1 + z)^\epsilon \,,
+            \varPhi_{\ast0} (1 + z)^\epsilon \,,
                 \quad z \leqslant z_\mathrm{b} \,; \\
-            \Phi_{\ast0} (1 + z_\mathrm{b})^{2\epsilon}
+            \varPhi_{\ast0} (1 + z_\mathrm{b})^{2\epsilon}
                 (1 + z)^{-\epsilon} \,, \quad z &gt; z_\mathrm{b} \,,
         \end{cases} \\
     y(z) &amp;= \frac{L}{L_{\ast0}} (1 + z)^{-\delta} \,,
@@ -209,7 +210,8 @@ relative luminosity of the Hα-emitters, <span class="math notranslate nohighlig
 are the redshift-evolution indices, and <span class="math notranslate nohighlight">\(z_\mathrm{b}\)</span> is the break
 magnitude <a class="footnote-reference brackets" href="#id9" id="id8">3</a>.</p>
 <p>This is a parametric model with 6 parameters: <span class="math notranslate nohighlight">\(\alpha, \epsilon,
-\delta\)</span>, <span class="math notranslate nohighlight">\(z_\mathrm{b}\)</span>, <span class="math notranslate nohighlight">\(m_{\ast0}\)</span> and <span class="math notranslate nohighlight">\(\Phi_{\ast0}\)</span>.</p>
+\delta\)</span>, <span class="math notranslate nohighlight">\(z_\mathrm{b}\)</span>, <span class="math notranslate nohighlight">\(m_{\ast0}\)</span> and
+<span class="math notranslate nohighlight">\(\varPhi_{\ast0}\)</span>.</p>
 <dl class="footnote brackets">
 <dt class="label" id="id9"><span class="brackets"><a class="fn-backref" href="#id8">3</a></span></dt>
 <dd><p>Pozzetti L. et al., 2016. <strong>A&amp;A</strong> 590, A3.

@@ -16,9 +16,9 @@
 .. image:: https://travis-ci.com/MikeSWang/HorizonGRound.svg?branch=master
     :target: https://travis-ci.com/MikeSWang/HorizonGRound
     :alt: Build status
-.. image:: https://codecov.io/gh/MikeSWang/HorizonGRound/branch/master/graph/badge.svg
+.. image:: https://img.shields.io/codecov/c/github/MikeSWang/HorizonGRound
     :target: https://codecov.io/gh/MikeSWang/HorizonGRound
-    :alt: Code coverage
+    :alt: Coverage
 .. image:: https://img.shields.io/badge/licence-GPLv3-informational
     :target: https://github.com/mikeswang/HorizonGRound/tree/master/LICENCE
     :alt: Licence

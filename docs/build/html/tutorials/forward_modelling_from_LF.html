@@ -17,7 +17,7 @@
     <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="API Reference" href="../apidoc.html" />
+    <link rel="next" title="Likelihood Fitting of Tracer Luminosity Function" href="likelihood_calculation_of_LF.html" />
     <link rel="prev" title="Quick Recipes" href="../quick_recipes.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
@@ -40,6 +40,8 @@
 <li class="toctree-l3"><a class="reference internal" href="#Customise-your-own-luminosity-function">Customise your own luminosity function</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="likelihood_calculation_of_LF.html">Likelihood Fitting of Tracer Luminosity Function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modified_power_spectrum_multipoles.html">Modified Power Spectrum Multipoles</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../apidoc.html">API Reference</a></li>
@@ -299,7 +301,7 @@ div.rendered_html tbody tr:hover {
 </style>
 <div class="section" id="Forward-Modelling-from-Tracer-Luminosity-Function">
 <h1>Forward Modelling from Tracer Luminosity Function<a class="headerlink" href="#Forward-Modelling-from-Tracer-Luminosity-Function" title="Permalink to this headline">¶</a></h1>
-<p>In this tutorial, we demonstrate how one could compute certain quantities from the tracer luminosity function (LF) using the <code class="docutils literal notranslate"><span class="pre">lumfunc_modeller</span></code> module. The data used in this tutorial are packaged with the released distribution of HorizonGRound and can be accessed with the help of the <code class="docutils literal notranslate"><span class="pre">get_test_data_loc</span></code> function. Alternatively, test data sets can be downloaded from <a class="reference external" href="https://github.com/MikeSWang/HorizonGRound/tree/v0.1.0/horizonground/tests/test_data/">here</a>.</p>
+<p>In this tutorial, we demonstrate how one could compute certain quantities from the tracer luminosity function (LF) using the <code class="docutils literal notranslate"><span class="pre">lumfunc_modeller</span></code> module.</p>
 <div class="section" id="Visualise-the-luminosity-function-surface">
 <h2>Visualise the luminosity function surface<a class="headerlink" href="#Visualise-the-luminosity-function-surface" title="Permalink to this headline">¶</a></h2>
 <p>To get hold of the demo data (a parameter file for the LF model), we use the <code class="docutils literal notranslate"><span class="pre">get_test_data_loc</span></code> function from the <code class="docutils literal notranslate"><span class="pre">utils</span></code> module.</p>
@@ -314,10 +316,31 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 </div>
-<p>We will adopt the <em>pure luminosity evolution</em> (PLE) model for the quasar luminosity function with Planck15 cosmology. First, load the modeller class <code class="docutils literal notranslate"><span class="pre">LumFuncModeller</span></code> with the PLE luminosity function. Note that we need to specify the brightness variable (luminosity <span class="math notranslate nohighlight">\(L\)</span> or magnitude <span class="math notranslate nohighlight">\(m\)</span>) for the luminosity function. The threshold here is given as an apparent magnitude, which we convert to an absolute magnitude at redshift <code class="docutils literal notranslate"><span class="pre">normalisation_redshift=2</span></code> by setting
-<code class="docutils literal notranslate"><span class="pre">normalise_thresold=True</span></code>.</p>
-<div class="nbinput nblast docutils container">
+<p>Just to show the contents of the file: there is a comment line with <span class="math notranslate nohighlight">\(\mathrm{\LaTeX}\)</span> strings for the parameter names and a comma-demilited line for the parameter values.</p>
+<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">demo_parameter_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+# m_\ast(z_\mathrm{p}), \Delta{m_\ast(z_\mathrm{p})}, \lg\Phi_\ast, \Delta\lg\Phi_\ast, \alpha_\mathrm{l}, \Delta\alpha_\mathrm{l}, \alpha_\mathrm{h}, \Delta\alpha_\mathrm{h}, \beta_\mathrm{l}, \Delta\beta_\mathrm{l}, \beta_\mathrm{h}, \Delta\beta_\mathrm{h}, k_{1\mathrm{l}}, \Delta{k_{1\mathrm{l}}}, k_{1\mathrm{h}}, \Delta{k_{1\mathrm{h}}}, k_{2\mathrm{l}}, \Delta{k_{2\mathrm{l}}}, k_{2\mathrm{h}}, \Delta{k_{2\mathrm{h}}}
+-26.71, 0.15, -6.01, 0.07, -4.31, 0.26, -3.04, 0.12, -1.54, 0.04, -1.38, 0.07, -0.08, 0.08, -0.25, 0.09, -0.40, 0.05, -0.05, 0.06
+
+</pre></div></div>
+</div>
+<p>We will adopt the <em>pure luminosity evolution</em> (PLE) model for the quasar luminosity function with <code class="docutils literal notranslate"><span class="pre">Planck15</span></code> cosmology. First, load the modeller class <code class="docutils literal notranslate"><span class="pre">LumFuncModeller</span></code> and <code class="docutils literal notranslate"><span class="pre">quasar_PLE_lumfunc</span></code>. Note that we need to specify the brightness variable (luminosity <span class="math notranslate nohighlight">\(L\)</span> or magnitude <span class="math notranslate nohighlight">\(m\)</span>) for the luminosity function. The threshold here is given as an apparent magnitude, which we convert to an absolute magnitude at redshift <code class="docutils literal notranslate"><span class="pre">normalisation_redshift=2</span></code> by setting
+<code class="docutils literal notranslate"><span class="pre">normalise_thresold=True</span></code>. We use the classmethod <code class="docutils literal notranslate"><span class="pre">from_parameter_file</span></code> to instantiate this class, which under the hood converts <code class="docutils literal notranslate"><span class="pre">demo_parameter_file</span></code> shown above to a dictionary of keyword arguments values passed to the <code class="docutils literal notranslate"><span class="pre">model_lumfunc</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -336,9 +359,50 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 </div>
+<p>We can see the attrbibutes of this modeller holding the input parameters:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+
+<span class="n">pprint</span><span class="p">(</span><span class="n">PLE_modeller</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;brightness_variable&#39;: &#39;magnitude&#39;,
+ &#39;model_parameters&#39;: {&#39;\\Delta\\alpha_\\mathrm{h}&#39;: 0.12,
+                      &#39;\\Delta\\alpha_\\mathrm{l}&#39;: 0.26,
+                      &#39;\\Delta\\beta_\\mathrm{h}&#39;: 0.07,
+                      &#39;\\Delta\\beta_\\mathrm{l}&#39;: 0.04,
+                      &#39;\\Delta\\lg\\Phi_\\ast&#39;: 0.07,
+                      &#39;\\Delta{k_{1\\mathrm{h}}}&#39;: 0.09,
+                      &#39;\\Delta{k_{1\\mathrm{l}}}&#39;: 0.08,
+                      &#39;\\Delta{k_{2\\mathrm{h}}}&#39;: 0.06,
+                      &#39;\\Delta{k_{2\\mathrm{l}}}&#39;: 0.05,
+                      &#39;\\Delta{m_\\ast(z_\\mathrm{p})}&#39;: 0.15,
+                      &#39;\\alpha_\\mathrm{h}&#39;: -3.04,
+                      &#39;\\alpha_\\mathrm{l}&#39;: -4.31,
+                      &#39;\\beta_\\mathrm{h}&#39;: -1.38,
+                      &#39;\\beta_\\mathrm{l}&#39;: -1.54,
+                      &#39;\\lg\\Phi_\\ast&#39;: -6.01,
+                      &#39;base10_log&#39;: False,
+                      &#39;k_{1\\mathrm{h}}&#39;: -0.25,
+                      &#39;k_{1\\mathrm{l}}&#39;: -0.08,
+                      &#39;k_{2\\mathrm{h}}&#39;: -0.05,
+                      &#39;k_{2\\mathrm{l}}&#39;: -0.4,
+                      &#39;m_\\ast(z_\\mathrm{p})&#39;: -26.71}}
+</pre></div></div>
+</div>
 <p>We can now visualise the LF as a surface over <span class="math notranslate nohighlight">\((m, z)\)</span> coordinates.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -360,7 +424,7 @@ div.rendered_html tbody tr:hover {
 <span class="n">m_grid</span><span class="p">,</span> <span class="n">z_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">magnitudes</span><span class="p">,</span> <span class="n">redshifts</span><span class="p">)</span>
 <span class="n">Phi_grid</span> <span class="o">=</span> <span class="n">PLE_modeller</span><span class="o">.</span><span class="n">luminosity_function</span><span class="p">(</span><span class="n">m_grid</span><span class="p">,</span> <span class="n">z_grid</span><span class="p">)</span>
 
-<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="s2">&quot;Luminosity function surface&quot;</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="s2">&quot;Luminosity function surface&quot;</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
 <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">axes</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="s1">&#39;3d&#39;</span><span class="p">)</span>
 
 <span class="n">ax</span><span class="o">.</span><span class="n">plot_surface</span><span class="p">(</span><span class="n">m_grid</span><span class="p">,</span> <span class="n">z_grid</span><span class="p">,</span> <span class="n">Phi_grid</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">sns</span><span class="o">.</span><span class="n">cubehelix_palette</span><span class="p">(</span><span class="n">as_cmap</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">)</span>
@@ -371,7 +435,7 @@ div.rendered_html tbody tr:hover {
 <span class="n">ax</span><span class="o">.</span><span class="n">set_zscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_zlim</span><span class="p">(</span><span class="o">*</span><span class="n">DENSITY_RANGE</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_zticks</span><span class="p">([</span><span class="nb">pow</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span><span class="p">),</span> <span class="nb">pow</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="o">-</span><span class="mi">6</span><span class="p">)])</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">set_zlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$\Phi(m,z)$ [$\mathrm</span><span class="si">{Mpc}</span><span class="s2">^{-3} \mathrm</span><span class="si">{mag}</span><span class="s2">^{-1}$]&quot;</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">5</span><span class="p">);</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_zlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$\Phi(m,z)$ [$\mathrm</span><span class="si">{Mpc}</span><span class="s2">^{-3} \mathrm</span><span class="si">{mag}</span><span class="s2">^{-1}$]&quot;</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">2</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -379,12 +443,12 @@ div.rendered_html tbody tr:hover {
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/tutorials_forward_modelling_from_LF_8_0.png" src="../_images/tutorials_forward_modelling_from_LF_8_0.png" />
+<img alt="../_images/tutorials_forward_modelling_from_LF_12_0.png" src="../_images/tutorials_forward_modelling_from_LF_12_0.png" />
 </div>
 </div>
 <p>Further, we can derive the comoving number density, evolution bias and magnification bias at, say, redshift <span class="math notranslate nohighlight">\(z = 2\)</span>.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -430,12 +494,13 @@ $\displaystyle \text{Magnification bias: }s = 0.086$</div></div>
 <div class="section" id="Customise-your-own-luminosity-function">
 <h2>Customise your own luminosity function<a class="headerlink" href="#Customise-your-own-luminosity-function" title="Permalink to this headline">¶</a></h2>
 <p>One could define one’s own LF in the form of a Python function <code class="docutils literal notranslate"><span class="pre">lum_func(lum,</span> <span class="pre">redshift,</span> <span class="pre">example_kwarg=None</span></code>) and pass it to the modeller class <code class="docutils literal notranslate"><span class="pre">LumFuncModeller</span></code>. Note that we are not using the classmethod <code class="docutils literal notranslate"><span class="pre">from_parameter_file</span></code> as we will pass the keyword arguments manually.</p>
+<p>Note that the luminosity function should return a value in the unit of <span class="math notranslate nohighlight">\(\textrm{Mpc}^{-3}\)</span>. We also recommend that you add a boolean keyword parameter <code class="docutils literal notranslate"><span class="pre">base10_log</span></code>, so that when it is <code class="docutils literal notranslate"><span class="pre">True</span></code> the function returns base-10 logarithmic values.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="k">def</span> <span class="nf">custom_lum_func</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">dummy_kwarg</span><span class="o">=</span><span class="s1">&#39;off&#39;</span><span class="p">):</span>
+<span></span><span class="k">def</span> <span class="nf">custom_lum_func</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">base10_log</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dummy_kwarg</span><span class="o">=</span><span class="s1">&#39;off&#39;</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">dummy_kwarg</span> <span class="o">==</span> <span class="s1">&#39;off&#39;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">m</span> <span class="o">*</span> <span class="n">z</span>
     <span class="k">else</span><span class="p">:</span>
@@ -450,7 +515,7 @@ $\displaystyle \text{Magnification bias: }s = 0.086$</div></div>
 </div>
 <p>Similarly, we can calculate the evolution and magnification bias.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
