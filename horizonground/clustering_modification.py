@@ -88,38 +88,38 @@ Relativistic corrections to the Newtonian clustering mode
 
 .. math::
 
-    \delta(\mathbf{k}, z)
-    = b_1(z) \delta_\mathrm{m}(\mathbf{k}, z)
-        + g(z) v_{\parallel}(\mathbf{k}, z)
-    = b_1(z) \delta_\mathrm{m}(\mathbf{k}, z)
-        + \mathrm{i} \frac{\mathcal{H}}{k} g(z) f(z) \mu
-        \delta_\mathrm{m}(\mathbf{k}, z)
+    \delta(\mathbf{k}, z) = \left[
+        b_1(z) + f \mu^2
+        + \mathrm{i} \frac{\mathcal{H}}{k} g_1(z) f(z) \mu
+        + \left( \frac{\mathcal{H}}{k} \right)^2 g_2(z)
+    \right] \delta_\mathrm{m}(\mathbf{k}, z) \,,
 
-are parametrised by the redshift-dependent, dimensionless quantity
+are parametrised by the redshift-dependent, dimensionless quantities
 
 .. math::
 
-    g(z) = \frac{\mathcal{H}'}{\mathcal{H}^2}
-        + 5s + \frac{2 - 5s}{\mathcal{H} \chi}
-        - b_\mathrm{e}
+    \begin{align*}
+        g_1(z) &= \left(
+            3 - b_\mathrm{e} - \frac{3}{2} \Omega_\mathrm{m}
+        \right) - (2 - 5s) \left(
+            1 - \frac{1}{\mathcal{H} \chi}
+        \right) \,, \\
+        g_1(z) &= \left(
+            3 - b_\mathrm{e} - \frac{3}{2} \Omega_\mathrm{m}
+        \right) f - \frac{3}{2} \Omega_\mathrm{m} \big[
+            g_1(z) - (2 - 5s)
+        \big]
+    \end{align*}
 
 with evolution bias :math:`b_\mathrm{e}(z)` and magnification bias
-:math:`s(z)`, where :math:`v_{\parallel}` is the line-of-sight peculiar
-velocity, :math:`\chi(z)` is the comoving distance and :math:`'` denotes
-derivatives with respect to the conformal time. This can be written as the
-sum of three contributions
+:math:`s(z)`, where :math:`\chi(z)` is the comoving distance and
+:math:`'` denotes derivatives with respect to the conformal time, and
+the matter density parameters evolves as
 
 .. math::
 
-    g(z) = \underbrace{\left[
-        1
-        - \frac{3}{2} \frac{H_0^2}{H(z)^2} \varOmega_\mathrm{m,0} (1 + z)^3
-        + \frac{2}{\mathcal{H}\chi}
-    \right]}_{\text{background expansion}}
-    \underbrace{- b_\mathrm{e}(z)}_{\text{evolution}}
-    + \underbrace{
-        5s(z) \left( 1 - \frac{1}{\mathcal{H}\chi} \right)
-    }_{\text{magnification}} \,.
+    \Omega_\mathrm{m} = \frac{H_0^2}{H(z)^2}
+        \Omega_{\mathrm{m},0} (1 + z)^3 \,.
 
 Modifications to power spectrum multipoles from the relativistic
 corrections are

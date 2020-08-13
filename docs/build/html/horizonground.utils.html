@@ -1,19 +1,20 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Utilities (utils) &#8212; HorizonGRound 0.1 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
-    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -47,7 +48,7 @@
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="documentwrapper">
@@ -66,7 +67,7 @@
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#horizonground.utils.process_header" title="horizonground.utils.process_header"><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_header</span></code></a>(header[, skipcols])</p></td>
-<td><p>Process comment-line header (usually indicated by the ‘#’ character) of text files.</p></td>
+<td><p>Process comment-line header (usually indicated by the '#' character) of text files.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#horizonground.utils.load_parameter_set" title="horizonground.utils.load_parameter_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_parameter_set</span></code></a>(parameter_file)</p></td>
 <td><p>Load a parameter set from a file into a dictionary.</p></td>
@@ -76,10 +77,10 @@
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
-<dl class="function">
+<dl class="py function">
 <dt id="horizonground.utils.process_header">
-<code class="sig-prename descclassname">horizonground.utils.</code><code class="sig-name descname">process_header</code><span class="sig-paren">(</span><em class="sig-param">header</em>, <em class="sig-param">skipcols=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/horizonground/utils.html#process_header"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#horizonground.utils.process_header" title="Permalink to this definition">¶</a></dt>
-<dd><p>Process comment-line header (usually indicated by the ‘#’
+<code class="sig-prename descclassname">horizonground.utils.</code><code class="sig-name descname">process_header</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">header</span></em>, <em class="sig-param"><span class="n">skipcols</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/horizonground/utils.html#process_header"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#horizonground.utils.process_header" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process comment-line header (usually indicated by the '#'
 character) of text files.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -97,9 +98,9 @@ character) of text files.</p>
 </dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="horizonground.utils.load_parameter_set">
-<code class="sig-prename descclassname">horizonground.utils.</code><code class="sig-name descname">load_parameter_set</code><span class="sig-paren">(</span><em class="sig-param">parameter_file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/horizonground/utils.html#load_parameter_set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#horizonground.utils.load_parameter_set" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">horizonground.utils.</code><code class="sig-name descname">load_parameter_set</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parameter_file</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/horizonground/utils.html#load_parameter_set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#horizonground.utils.load_parameter_set" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load a parameter set from a file into a dictionary.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -118,9 +119,9 @@ delimited by comma.</p>
 <p>Parameters with names beginning with ‘Delta’ are discarded.</p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="horizonground.utils.get_test_data_loc">
-<code class="sig-prename descclassname">horizonground.utils.</code><code class="sig-name descname">get_test_data_loc</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/horizonground/utils.html#get_test_data_loc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#horizonground.utils.get_test_data_loc" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">horizonground.utils.</code><code class="sig-name descname">get_test_data_loc</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/horizonground/utils.html#get_test_data_loc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#horizonground.utils.get_test_data_loc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get location of the test data set.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -148,7 +149,7 @@ delimited by comma.</p>
       &copy; Copyright 2020, Mike Shengbo Wang.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.1.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

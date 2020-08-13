@@ -1,19 +1,20 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Luminosity function likelihood (lumfunc_likelihood) &#8212; HorizonGRound 0.1 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
-    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -48,7 +49,7 @@
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="documentwrapper">
@@ -96,7 +97,7 @@
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
-<dl class="exception">
+<dl class="py exception">
 <dt id="horizonground.lumfunc_likelihood.DataSourceError">
 <em class="property">exception </em><code class="sig-prename descclassname">horizonground.lumfunc_likelihood.</code><code class="sig-name descname">DataSourceError</code><a class="reference internal" href="_modules/horizonground/lumfunc_likelihood.html#DataSourceError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#horizonground.lumfunc_likelihood.DataSourceError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#OSError" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">OSError</span></code></a></p>
@@ -104,7 +105,7 @@
 the correct format.</p>
 </dd></dl>
 
-<dl class="exception">
+<dl class="py exception">
 <dt id="horizonground.lumfunc_likelihood.DataSourceWarning">
 <em class="property">exception </em><code class="sig-prename descclassname">horizonground.lumfunc_likelihood.</code><code class="sig-name descname">DataSourceWarning</code><a class="reference internal" href="_modules/horizonground/lumfunc_likelihood.html#DataSourceWarning"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#horizonground.lumfunc_likelihood.DataSourceWarning" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#UserWarning" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UserWarning</span></code></a></p>
@@ -112,9 +113,9 @@ the correct format.</p>
 self-consistent.</p>
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="horizonground.lumfunc_likelihood.LumFuncMeasurements">
-<em class="property">class </em><code class="sig-prename descclassname">horizonground.lumfunc_likelihood.</code><code class="sig-name descname">LumFuncMeasurements</code><span class="sig-paren">(</span><em class="sig-param">measurement_file</em>, <em class="sig-param">uncertainty_file=None</em>, <em class="sig-param">base10_log=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/horizonground/lumfunc_likelihood.html#LumFuncMeasurements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#horizonground.lumfunc_likelihood.LumFuncMeasurements" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">horizonground.lumfunc_likelihood.</code><code class="sig-name descname">LumFuncMeasurements</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">measurement_file</span></em>, <em class="sig-param"><span class="n">uncertainty_file</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">base10_log</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/horizonground/lumfunc_likelihood.html#LumFuncMeasurements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#horizonground.lumfunc_likelihood.LumFuncMeasurements" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Luminosity function measurements for a tracer sample.</p>
 <dl class="field-list simple">
@@ -146,9 +147,9 @@ format e.g. “z_0.5_1.5”.  If symmetric uncertainties are given for
 base-10 logarithmic luminosity function and conversion to linear values
 is needed, the larger asymmetric uncertainty on the linear luminosity
 function value is taken.</p>
-<dl class="method">
+<dl class="py method">
 <dt id="horizonground.lumfunc_likelihood.LumFuncMeasurements.__getitem__">
-<code class="sig-name descname">__getitem__</code><span class="sig-paren">(</span><em class="sig-param">z_key</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/horizonground/lumfunc_likelihood.html#LumFuncMeasurements.__getitem__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#horizonground.lumfunc_likelihood.LumFuncMeasurements.__getitem__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__getitem__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">z_key</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/horizonground/lumfunc_likelihood.html#LumFuncMeasurements.__getitem__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#horizonground.lumfunc_likelihood.LumFuncMeasurements.__getitem__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get luminosity function measurements and uncertainties (if
 available) for a specific redshift bin.</p>
 <dl class="field-list simple">
@@ -165,7 +166,7 @@ bins.  If a string, the accepted format is e.g. <code class="docutils literal no
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="horizonground.lumfunc_likelihood.LumFuncMeasurements.get_statistics">
 <code class="sig-name descname">get_statistics</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/horizonground/lumfunc_likelihood.html#LumFuncMeasurements.get_statistics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#horizonground.lumfunc_likelihood.LumFuncMeasurements.get_statistics" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the empirical luminosity function data measurements
@@ -187,9 +188,9 @@ within the same redshift bin ordered by increasing luminosity.</p>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="horizonground.lumfunc_likelihood.LumFuncLikelihood">
-<em class="property">class </em><code class="sig-prename descclassname">horizonground.lumfunc_likelihood.</code><code class="sig-name descname">LumFuncLikelihood</code><span class="sig-paren">(</span><em class="sig-param">model_lumfunc</em>, <em class="sig-param">measurement_file</em>, <em class="sig-param">prior_file</em>, <em class="sig-param">uncertainty_file=None</em>, <em class="sig-param">fixed_file=None</em>, <em class="sig-param">prescription='poisson'</em>, <em class="sig-param">model_constraint=None</em>, <em class="sig-param">model_options=None</em>, <em class="sig-param">covariance_matrix=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/horizonground/lumfunc_likelihood.html#LumFuncLikelihood"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#horizonground.lumfunc_likelihood.LumFuncLikelihood" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">horizonground.lumfunc_likelihood.</code><code class="sig-name descname">LumFuncLikelihood</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model_lumfunc</span></em>, <em class="sig-param"><span class="n">measurement_file</span></em>, <em class="sig-param"><span class="n">prior_file</span></em>, <em class="sig-param"><span class="n">uncertainty_file</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fixed_file</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">prescription</span><span class="o">=</span><span class="default_value">'poisson'</span></em>, <em class="sig-param"><span class="n">model_constraint</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">model_options</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">covariance_matrix</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/horizonground/lumfunc_likelihood.html#LumFuncLikelihood"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#horizonground.lumfunc_likelihood.LumFuncLikelihood" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#horizonground.lumfunc_likelihood.LumFuncMeasurements" title="horizonground.lumfunc_likelihood.LumFuncMeasurements"><code class="xref py py-class docutils literal notranslate"><span class="pre">horizonground.lumfunc_likelihood.LumFuncMeasurements</span></code></a></p>
 <p>Luminosity function likelihood.</p>
 <p class="rubric">Notes</p>
@@ -248,9 +249,9 @@ arguments is consistent.</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
+<dl class="py method">
 <dt id="horizonground.lumfunc_likelihood.LumFuncLikelihood.__call__">
-<code class="sig-name descname">__call__</code><span class="sig-paren">(</span><em class="sig-param">param_point</em>, <em class="sig-param">use_prior=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/horizonground/lumfunc_likelihood.html#LumFuncLikelihood.__call__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#horizonground.lumfunc_likelihood.LumFuncLikelihood.__call__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__call__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">param_point</span></em>, <em class="sig-param"><span class="n">use_prior</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/horizonground/lumfunc_likelihood.html#LumFuncLikelihood.__call__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#horizonground.lumfunc_likelihood.LumFuncLikelihood.__call__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate the logarithmic likelihood at the model parameter
 point.</p>
 <dl class="field-list simple">
@@ -286,7 +287,7 @@ the same way as the prior parameters.</p></li>
       &copy; Copyright 2020, Mike Shengbo Wang.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.1.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

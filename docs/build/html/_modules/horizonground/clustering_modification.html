@@ -1,19 +1,20 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>horizonground.clustering_modification &#8212; HorizonGRound 0.1 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../_static/language_data.js"></script>
-    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -46,7 +47,7 @@
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="documentwrapper">
@@ -146,38 +147,38 @@
 
 <span class="sd">.. math::</span>
 
-<span class="sd">    \delta(\mathbf{k}, z)</span>
-<span class="sd">    = b_1(z) \delta_\mathrm{m}(\mathbf{k}, z)</span>
-<span class="sd">        + g(z) v_{\parallel}(\mathbf{k}, z)</span>
-<span class="sd">    = b_1(z) \delta_\mathrm{m}(\mathbf{k}, z)</span>
-<span class="sd">        + \mathrm{i} \frac{\mathcal{H}}{k} g(z) f(z) \mu</span>
-<span class="sd">        \delta_\mathrm{m}(\mathbf{k}, z)</span>
+<span class="sd">    \delta(\mathbf{k}, z) = \left[</span>
+<span class="sd">        b_1(z) + f \mu^2</span>
+<span class="sd">        + \mathrm{i} \frac{\mathcal{H}}{k} g_1(z) f(z) \mu</span>
+<span class="sd">        + \left( \frac{\mathcal{H}}{k} \right)^2 g_2(z)</span>
+<span class="sd">    \right] \delta_\mathrm{m}(\mathbf{k}, z) \,,</span>
 
-<span class="sd">are parametrised by the redshift-dependent, dimensionless quantity</span>
+<span class="sd">are parametrised by the redshift-dependent, dimensionless quantities</span>
 
 <span class="sd">.. math::</span>
 
-<span class="sd">    g(z) = \frac{\mathcal{H}&#39;}{\mathcal{H}^2}</span>
-<span class="sd">        + 5s + \frac{2 - 5s}{\mathcal{H} \chi}</span>
-<span class="sd">        - b_\mathrm{e}</span>
+<span class="sd">    \begin{align*}</span>
+<span class="sd">        g_1(z) &amp;= \left(</span>
+<span class="sd">            3 - b_\mathrm{e} - \frac{3}{2} \Omega_\mathrm{m}</span>
+<span class="sd">        \right) - (2 - 5s) \left(</span>
+<span class="sd">            1 - \frac{1}{\mathcal{H} \chi}</span>
+<span class="sd">        \right) \,, \\</span>
+<span class="sd">        g_1(z) &amp;= \left(</span>
+<span class="sd">            3 - b_\mathrm{e} - \frac{3}{2} \Omega_\mathrm{m}</span>
+<span class="sd">        \right) f - \frac{3}{2} \Omega_\mathrm{m} \big[</span>
+<span class="sd">            g_1(z) - (2 - 5s)</span>
+<span class="sd">        \big]</span>
+<span class="sd">    \end{align*}</span>
 
 <span class="sd">with evolution bias :math:`b_\mathrm{e}(z)` and magnification bias</span>
-<span class="sd">:math:`s(z)`, where :math:`v_{\parallel}` is the line-of-sight peculiar</span>
-<span class="sd">velocity, :math:`\chi(z)` is the comoving distance and :math:`&#39;` denotes</span>
-<span class="sd">derivatives with respect to the conformal time. This can be written as the</span>
-<span class="sd">sum of three contributions</span>
+<span class="sd">:math:`s(z)`, where :math:`\chi(z)` is the comoving distance and</span>
+<span class="sd">:math:`&#39;` denotes derivatives with respect to the conformal time, and</span>
+<span class="sd">the matter density parameters evolves as</span>
 
 <span class="sd">.. math::</span>
 
-<span class="sd">    g(z) = \underbrace{\left[</span>
-<span class="sd">        1</span>
-<span class="sd">        - \frac{3}{2} \frac{H_0^2}{H(z)^2} \varOmega_\mathrm{m,0} (1 + z)^3</span>
-<span class="sd">        + \frac{2}{\mathcal{H}\chi}</span>
-<span class="sd">    \right]}_{\text{background expansion}}</span>
-<span class="sd">    \underbrace{- b_\mathrm{e}(z)}_{\text{evolution}}</span>
-<span class="sd">    + \underbrace{</span>
-<span class="sd">        5s(z) \left( 1 - \frac{1}{\mathcal{H}\chi} \right)</span>
-<span class="sd">    }_{\text{magnification}} \,.</span>
+<span class="sd">    \Omega_\mathrm{m} = \frac{H_0^2}{H(z)^2}</span>
+<span class="sd">        \Omega_{\mathrm{m},0} (1 + z)^3 \,.</span>
 
 <span class="sd">Modifications to power spectrum multipoles from the relativistic</span>
 <span class="sd">corrections are</span>
@@ -525,7 +526,7 @@
       &copy; Copyright 2020, Mike Shengbo Wang.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.1.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

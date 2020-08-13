@@ -1,19 +1,20 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clustering modification (clustering_modification) &#8212; HorizonGRound 0.1 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
-    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -48,7 +49,7 @@
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="documentwrapper">
@@ -140,32 +141,32 @@ non-Gaussianty are</p>
 <h2>Relativistic corrections<a class="headerlink" href="#relativistic-corrections" title="Permalink to this headline">¶</a></h2>
 <p>Relativistic corrections to the Newtonian clustering mode</p>
 <div class="math notranslate nohighlight">
-\[\delta(\mathbf{k}, z)
-= b_1(z) \delta_\mathrm{m}(\mathbf{k}, z)
-    + g(z) v_{\parallel}(\mathbf{k}, z)
-= b_1(z) \delta_\mathrm{m}(\mathbf{k}, z)
-    + \mathrm{i} \frac{\mathcal{H}}{k} g(z) f(z) \mu
-    \delta_\mathrm{m}(\mathbf{k}, z)\]</div>
-<p>are parametrised by the redshift-dependent, dimensionless quantity</p>
+\[\delta(\mathbf{k}, z) = \left[
+    b_1(z) + f \mu^2
+    + \mathrm{i} \frac{\mathcal{H}}{k} g_1(z) f(z) \mu
+    + \left( \frac{\mathcal{H}}{k} \right)^2 g_2(z)
+\right] \delta_\mathrm{m}(\mathbf{k}, z) \,,\]</div>
+<p>are parametrised by the redshift-dependent, dimensionless quantities</p>
 <div class="math notranslate nohighlight">
-\[g(z) = \frac{\mathcal{H}'}{\mathcal{H}^2}
-    + 5s + \frac{2 - 5s}{\mathcal{H} \chi}
-    - b_\mathrm{e}\]</div>
+\[\begin{split}\begin{align*}
+    g_1(z) &amp;= \left(
+        3 - b_\mathrm{e} - \frac{3}{2} \Omega_\mathrm{m}
+    \right) - (2 - 5s) \left(
+        1 - \frac{1}{\mathcal{H} \chi}
+    \right) \,, \\
+    g_1(z) &amp;= \left(
+        3 - b_\mathrm{e} - \frac{3}{2} \Omega_\mathrm{m}
+    \right) f - \frac{3}{2} \Omega_\mathrm{m} \big[
+        g_1(z) - (2 - 5s)
+    \big]
+\end{align*}\end{split}\]</div>
 <p>with evolution bias <span class="math notranslate nohighlight">\(b_\mathrm{e}(z)\)</span> and magnification bias
-<span class="math notranslate nohighlight">\(s(z)\)</span>, where <span class="math notranslate nohighlight">\(v_{\parallel}\)</span> is the line-of-sight peculiar
-velocity, <span class="math notranslate nohighlight">\(\chi(z)\)</span> is the comoving distance and <span class="math notranslate nohighlight">\('\)</span> denotes
-derivatives with respect to the conformal time. This can be written as the
-sum of three contributions</p>
+<span class="math notranslate nohighlight">\(s(z)\)</span>, where <span class="math notranslate nohighlight">\(\chi(z)\)</span> is the comoving distance and
+<span class="math notranslate nohighlight">\('\)</span> denotes derivatives with respect to the conformal time, and
+the matter density parameters evolves as</p>
 <div class="math notranslate nohighlight">
-\[g(z) = \underbrace{\left[
-    1
-    - \frac{3}{2} \frac{H_0^2}{H(z)^2} \varOmega_\mathrm{m,0} (1 + z)^3
-    + \frac{2}{\mathcal{H}\chi}
-\right]}_{\text{background expansion}}
-\underbrace{- b_\mathrm{e}(z)}_{\text{evolution}}
-+ \underbrace{
-    5s(z) \left( 1 - \frac{1}{\mathcal{H}\chi} \right)
-}_{\text{magnification}} \,.\]</div>
+\[\Omega_\mathrm{m} = \frac{H_0^2}{H(z)^2}
+    \Omega_{\mathrm{m},0} (1 + z)^3 \,.\]</div>
 <p>Modifications to power spectrum multipoles from the relativistic
 corrections are</p>
 <div class="math notranslate nohighlight">
@@ -195,20 +196,9 @@ corrections are</p>
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
-<dl class="data">
-<dt id="horizonground.clustering_modification.FIDUCIAL_COSMOLOGY">
-<code class="sig-prename descclassname">horizonground.clustering_modification.</code><code class="sig-name descname">FIDUCIAL_COSMOLOGY</code><em class="property"> = &lt;nbodykit.cosmology.cosmology.Cosmology object&gt;</em><a class="headerlink" href="#horizonground.clustering_modification.FIDUCIAL_COSMOLOGY" title="Permalink to this definition">¶</a></dt>
-<dd><p>Default Planck15 cosmology.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">nbodykit.cosmology.Cosmology</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
+<dl class="py function">
 <dt id="horizonground.clustering_modification.standard_kaiser_factor">
-<code class="sig-prename descclassname">horizonground.clustering_modification.</code><code class="sig-name descname">standard_kaiser_factor</code><span class="sig-paren">(</span><em class="sig-param">order</em>, <em class="sig-param">bias</em>, <em class="sig-param">redshift</em>, <em class="sig-param">cosmo=&lt;nbodykit.cosmology.cosmology.Cosmology object&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/horizonground/clustering_modification.html#standard_kaiser_factor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#horizonground.clustering_modification.standard_kaiser_factor" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">horizonground.clustering_modification.</code><code class="sig-name descname">standard_kaiser_factor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">order</span></em>, <em class="sig-param"><span class="n">bias</span></em>, <em class="sig-param"><span class="n">redshift</span></em>, <em class="sig-param"><span class="n">cosmo</span><span class="o">=</span><span class="default_value">nbodykit.lab.cosmology.Planck15</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/horizonground/clustering_modification.html#standard_kaiser_factor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#horizonground.clustering_modification.standard_kaiser_factor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the standard Kaiser power spectrum multipoles as multiples
 of the matter power spectrum, i.e. <span class="math notranslate nohighlight">\(P_\ell/P_\mathrm{m}\)</span>.</p>
 <dl class="field-list simple">
@@ -230,9 +220,9 @@ spectrum.</p>
 </dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="horizonground.clustering_modification.scale_dependence_kernel">
-<code class="sig-prename descclassname">horizonground.clustering_modification.</code><code class="sig-name descname">scale_dependence_kernel</code><span class="sig-paren">(</span><em class="sig-param">redshift</em>, <em class="sig-param">cosmo=&lt;nbodykit.cosmology.cosmology.Cosmology object&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/horizonground/clustering_modification.html#scale_dependence_kernel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#horizonground.clustering_modification.scale_dependence_kernel" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">horizonground.clustering_modification.</code><code class="sig-name descname">scale_dependence_kernel</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">redshift</span></em>, <em class="sig-param"><span class="n">cosmo</span><span class="o">=</span><span class="default_value">nbodykit.lab.cosmology.Planck15</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/horizonground/clustering_modification.html#scale_dependence_kernel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#horizonground.clustering_modification.scale_dependence_kernel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the scale-dependence kernel <span class="math notranslate nohighlight">\(A(k, z)\)</span> in the presence
 of local primordial non-Gaussianity.</p>
 <dl class="field-list simple">
@@ -252,9 +242,9 @@ of local primordial non-Gaussianity.</p>
 </dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="horizonground.clustering_modification.non_gaussianity_correction_factor">
-<code class="sig-prename descclassname">horizonground.clustering_modification.</code><code class="sig-name descname">non_gaussianity_correction_factor</code><span class="sig-paren">(</span><em class="sig-param">wavenumber</em>, <em class="sig-param">order</em>, <em class="sig-param">local_png</em>, <em class="sig-param">bias</em>, <em class="sig-param">redshift</em>, <em class="sig-param">cosmo=&lt;nbodykit.cosmology.cosmology.Cosmology object&gt;</em>, <em class="sig-param">tracer_p=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/horizonground/clustering_modification.html#non_gaussianity_correction_factor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#horizonground.clustering_modification.non_gaussianity_correction_factor" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">horizonground.clustering_modification.</code><code class="sig-name descname">non_gaussianity_correction_factor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">wavenumber</span></em>, <em class="sig-param"><span class="n">order</span></em>, <em class="sig-param"><span class="n">local_png</span></em>, <em class="sig-param"><span class="n">bias</span></em>, <em class="sig-param"><span class="n">redshift</span></em>, <em class="sig-param"><span class="n">cosmo</span><span class="o">=</span><span class="default_value">nbodykit.lab.cosmology.Planck15</span></em>, <em class="sig-param"><span class="n">tracer_p</span><span class="o">=</span><span class="default_value">1.0</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/horizonground/clustering_modification.html#non_gaussianity_correction_factor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#horizonground.clustering_modification.non_gaussianity_correction_factor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute modifications to the power spectrum multipoles by local
 primordial non-Gaussianity as multiples of the matter power spectrum,
 i.e. <span class="math notranslate nohighlight">\(\Delta P_\ell/P_\mathrm{m}\)</span>.</p>
@@ -280,9 +270,9 @@ power spectrum.</p>
 </dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="horizonground.clustering_modification.relativistic_correction_func">
-<code class="sig-prename descclassname">horizonground.clustering_modification.</code><code class="sig-name descname">relativistic_correction_func</code><span class="sig-paren">(</span><em class="sig-param">cosmo=&lt;nbodykit.cosmology.cosmology.Cosmology object&gt;</em>, <em class="sig-param">geometric=True</em>, <em class="sig-param">evolution_bias=None</em>, <em class="sig-param">magnification_bias=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/horizonground/clustering_modification.html#relativistic_correction_func"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#horizonground.clustering_modification.relativistic_correction_func" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">horizonground.clustering_modification.</code><code class="sig-name descname">relativistic_correction_func</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cosmo</span><span class="o">=</span><span class="default_value">nbodykit.lab.cosmology.Planck15</span></em>, <em class="sig-param"><span class="n">geometric</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">evolution_bias</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">magnification_bias</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/horizonground/clustering_modification.html#relativistic_correction_func"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#horizonground.clustering_modification.relativistic_correction_func" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the relativistic correction function as
 <span class="math notranslate nohighlight">\(\mathcal{H} g(z)\)</span>.</p>
 <dl class="field-list simple">
@@ -305,9 +295,9 @@ background expansion.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="horizonground.clustering_modification.relativistic_correction_value">
-<code class="sig-prename descclassname">horizonground.clustering_modification.</code><code class="sig-name descname">relativistic_correction_value</code><span class="sig-paren">(</span><em class="sig-param">redshift</em>, <em class="sig-param">cosmo=&lt;nbodykit.cosmology.cosmology.Cosmology object&gt;</em>, <em class="sig-param">geometric=True</em>, <em class="sig-param">evolution_bias=None</em>, <em class="sig-param">magnification_bias=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/horizonground/clustering_modification.html#relativistic_correction_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#horizonground.clustering_modification.relativistic_correction_value" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">horizonground.clustering_modification.</code><code class="sig-name descname">relativistic_correction_value</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">redshift</span></em>, <em class="sig-param"><span class="n">cosmo</span><span class="o">=</span><span class="default_value">nbodykit.lab.cosmology.Planck15</span></em>, <em class="sig-param"><span class="n">geometric</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">evolution_bias</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">magnification_bias</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/horizonground/clustering_modification.html#relativistic_correction_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#horizonground.clustering_modification.relativistic_correction_value" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate the relativistic correction function
 <span class="math notranslate nohighlight">\(\mathcal{H} g(z)\)</span> at a given redshift.</p>
 <dl class="field-list simple">
@@ -331,9 +321,9 @@ at <cite>redshift</cite>.</p>
 </dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="horizonground.clustering_modification.relativistic_correction_factor">
-<code class="sig-prename descclassname">horizonground.clustering_modification.</code><code class="sig-name descname">relativistic_correction_factor</code><span class="sig-paren">(</span><em class="sig-param">wavenumber</em>, <em class="sig-param">order</em>, <em class="sig-param">redshift</em>, <em class="sig-param">correction_value=None</em>, <em class="sig-param">cosmo=&lt;nbodykit.cosmology.cosmology.Cosmology object&gt;</em>, <em class="sig-param">geometric=True</em>, <em class="sig-param">evolution_bias=None</em>, <em class="sig-param">magnification_bias=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/horizonground/clustering_modification.html#relativistic_correction_factor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#horizonground.clustering_modification.relativistic_correction_factor" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">horizonground.clustering_modification.</code><code class="sig-name descname">relativistic_correction_factor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">wavenumber</span></em>, <em class="sig-param"><span class="n">order</span></em>, <em class="sig-param"><span class="n">redshift</span></em>, <em class="sig-param"><span class="n">correction_value</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">cosmo</span><span class="o">=</span><span class="default_value">nbodykit.lab.cosmology.Planck15</span></em>, <em class="sig-param"><span class="n">geometric</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">evolution_bias</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">magnification_bias</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/horizonground/clustering_modification.html#relativistic_correction_factor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#horizonground.clustering_modification.relativistic_correction_factor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute modifications to the power spectrum multipoles by
 relativistic corrections as multiples of the matter power spectrum,
 i.e. <span class="math notranslate nohighlight">\(\Delta P_\ell/P_\mathrm{m}\)</span>.</p>
@@ -382,7 +372,7 @@ spectrum.</p>
       &copy; Copyright 2020, Mike Shengbo Wang.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.1.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

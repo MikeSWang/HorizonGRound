@@ -1,19 +1,20 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Likelihood Fitting of Tracer Luminosity Function &#8212; HorizonGRound 0.1 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/language_data.js"></script>
-    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -57,7 +58,7 @@
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="documentwrapper">
@@ -652,7 +653,7 @@ Variance vector:  [0.1936 0.0144 0.0081 0.0064 0.0049 0.0036 0.0036 0.0025 0.002
 </pre></div></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">LumFuncLikelihood</span></code> class provided likelihood evaluation tools. It is a derived class from <code class="docutils literal notranslate"><span class="pre">LumFuncMeasurements</span></code> so automatically handles the data vector as above. It also processes the prior file above into a dictionary of parameter names and parameter prior ranges. For the quasar PLE model which is a double power law, there is an exchange symmetry between the power-law indices <span class="math notranslate nohighlight">\(\alpha, \beta\)</span>. To avoid a redundant multi-modal posterior, we impose the constraint
-<span class="math notranslate nohighlight">\(\alpha &lt; \beta\)</span> by passing the function <code class="docutils literal notranslate"><span class="pre">quasar_PLE_model_constraint</span></code> to the keyword parameter <code class="docutils literal notranslate"><span class="pre">model_constraint</span></code>. The log-likelihood is essentially a Gaussian quadratic form in a variable <span class="math notranslate nohighlight">\(\tilde{\varPhi} = f(\varPhi)\)</span> that is related to the luminosity function <span class="math notranslate nohighlight">\(\varPhi\)</span>; here we choose the Poisson prescption in Pozzetti et al. (2016) <a class="reference external" href="https://arxiv.org/abs/1603.01453">[arXiv: 1603.01453]</a>. For other prescriptions, please refer to Pozzetti et al. (2016) and the API
+<span class="math notranslate nohighlight">\(\alpha &lt; \beta\)</span> by passing the function <code class="docutils literal notranslate"><span class="pre">quasar_PLE_model_constraint</span></code> to the keyword parameter <code class="docutils literal notranslate"><span class="pre">model_constraint</span></code>. The log-likelihood is essentially a Gaussian quadratic form in a variable <span class="math notranslate nohighlight">\(\tilde{\varPhi} = f(\varPhi)\)</span> that is related to the luminosity function <span class="math notranslate nohighlight">\(\varPhi\)</span>; here we choose the Poisson prescption in Pozzetti et al. (2016) <a class="reference external" href="https://arxiv.org/abs/1603.01453">[arXiv: 1603.01453]</a>. For other prescriptions, please refer to Pozzetti et al. (2016) and the API
 reference.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
@@ -734,7 +735,7 @@ reference.</p>
       &copy; Copyright 2020, Mike Shengbo Wang.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.1.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

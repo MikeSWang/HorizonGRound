@@ -67,6 +67,7 @@ html_theme_options = {
 # -- Extension configuration -------------------------------------------------
 
 autodoc_member_order = 'bysource'
+autodoc_mock_imports = ["nbodykit"]
 autosummary_generate = True
 
 intersphinx_mapping = {

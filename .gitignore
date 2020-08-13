@@ -3,26 +3,23 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# C extensions
-*.so
-
 # Distribution / packaging
 .Python
-./build/
+docs/build/*.html
 develop-eggs/
 dist/
 downloads/
 eggs/
 .eggs/
+*.egg
+*.egg-info/
+.installed.cfg
 lib/
 lib64/
 parts/
 sdist/
 var/
 wheels/
-*.egg-info/
-.installed.cfg
-*.egg
 
 # PyInstaller
 *.manifest
