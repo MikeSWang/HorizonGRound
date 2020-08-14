@@ -54,9 +54,9 @@ class LumFuncMeasurements:
 
     Parameters
     ----------
-    measurement_file : *str or* :class:`pathlib.Path`
+    measurement_file : str or :class:`pathlib.Path`
         File path to luminosity function measurements.
-    uncertainty_file : *str or* :class:`pathlib.Path` *or None, optional*
+    uncertainty_file : str or :class:`pathlib.Path` or None, optional
         File path to luminosity function uncertainties.
     base10_log : bool, optional
         If `True` (default), measurement values are converted to base-10
@@ -327,10 +327,10 @@ class LumFuncLikelihood(LumFuncMeasurements):
     model_constraint : callable or None, optional
         Additional model constraint(s) to be imposed on model parameters
         as a prior (default is `None`).
-    uncertainty_file : str or :class:`pathlib.Path` *or None, optional*
+    uncertainty_file : str or :class:`pathlib.Path` or None, optional
         Luminosity function uncertainty file path (default is `None`).
         Ignored if `data_covariance` is provided.
-    fixed_file : str or :class:`pathlib.Path` *or None, optional*
+    fixed_file : str or :class:`pathlib.Path` or None, optional
         Luminosity function model fixed parameter file path (default is
         `None`).  This covers any model parameter(s) not included in
         the prior.

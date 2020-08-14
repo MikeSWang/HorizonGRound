@@ -6,18 +6,17 @@ from argparse import ArgumentParser
 from multiprocessing import Pool, cpu_count
 from pprint import pformat
 
-import corner
 import h5py as hp
-import matplotlib.pyplot as plt
 import numpy as np
+from nbodykit.cosmology import Planck15
 from tqdm import tqdm
 
 # pylint: disable=no-name-in-module
 from conf import PATHOUT, logger
-from horizonground.clustering_modification import relativistic_correction_value
-
-ORDERS = [0, 2]
-LABELS = [r'$g(z={:.1f})$']
+from horizonground.clustering_modification import (
+    relativistic_correction_factor,
+    relativistic_correction_value,
+)
 
 
 def initialise():
@@ -32,12 +31,9 @@ def initialise():
     parser = ArgumentParser("relativistic-correction-constraint")
 
     parser.add_argument('--redshift', type=float)
+    parser.add_argument('--wavenumber', type=float)
     parser.add_argument('--chain-subdir', type=str, default='')
     parser.add_argument('--chain-file', type=str, default=None)
-    parser.add_argument(
-        '--contribution',
-        choices=['all', 'evolution', 'magnification'], default='all'
-    )
 
     program_configuration = parser.parse_args()
 
@@ -67,9 +63,8 @@ def load_samples():
     return bias_samples
 
 
-def compute_correction_from_biases(biases):
-    """Compute relativistic correction function values from relativistic
-    biases.
+def compute_corrections_from_biases(biases):
+    """Compute relativistic correction values from relativistic biases.
 
     Parameters
     ----------
@@ -78,36 +73,52 @@ def compute_correction_from_biases(biases):
 
     Returns
     -------
-    correction : list of float
-        Relativistic correction value.
+    corrections : list of float
+        Relativistic correction values.
 
     """
-    if progrc.contribution == 'all':
-        correction = relativistic_correction_value(
-            progrc.redshift,
-            evolution_bias=biases[0], magnification_bias=biases[1]
-        )
-        return [correction]
+    g_1 = relativistic_correction_value(
+        progrc.redshift, 1,
+        evolution_bias=biases[0], magnification_bias=biases[1]
+    )
+    g_2 = relativistic_correction_value(
+        progrc.redshift, 2,
+        evolution_bias=biases[0], magnification_bias=biases[1]
+    )
 
-    if progrc.contribution == 'evolution':
-        correction = relativistic_correction_value(
-            progrc.redshift,
-            geometric=False, evolution_bias=biases[0], magnification_bias=None
-        )
-        return [correction]
+    return [g_1, g_2]
 
-    if progrc.contribution == 'magnification':
-        correction = relativistic_correction_value(
-            progrc.redshift,
-            geometric=False, evolution_bias=None, magnification_bias=biases[1]
-        )
-        return [correction]
 
-    raise ValueError("Which relativistic correction(s) unspecified.")
+def compute_factors_from_corrections(corrections):
+    """Compute relativistic correction factors from relativistic
+    correction values.
+
+    Parameters
+    ----------
+    corrections : :class:`numpy.ndarray`
+        Evolution and magnification biases.
+
+    Returns
+    -------
+    corrections : list of float
+        Relativistic correction values.
+
+    """
+    delta_P_0 = relativistic_correction_factor(
+        progrc.wavenumber, 0, progrc.redshift, b_1,
+        correction_value_1=corrections[0], correction_value_2=corrections[1]
+    )
+    delta_P_2 = relativistic_correction_factor(
+        progrc.wavenumber, 2, progrc.redshift, b_1,
+        correction_value_1=corrections[0], correction_value_2=corrections[1]
+    )
+
+    return [delta_P_0, delta_P_2]
 
 
 def distill_corrections(bias_chain, pool=None):
-    """Distill relativistic corrections from a relativistic bias chain.
+    """Distill relativistic corrections and correction factors from a
+    relativistic bias chain.
 
     Parameters
     ----------
@@ -120,29 +131,40 @@ def distill_corrections(bias_chain, pool=None):
     -------
     correction_chain : :class:`numpy.ndarray`
         Relativistic correction samples.
+    factor_chain : :class:`numpy.ndarray`
+        Relativistic correction factor samples.
 
     """
     mapping = pool.imap if pool else map
     num_cpus = cpu_count() if pool else 1
 
     logger.info(
-        "Distilling relativistic corrections with %i CPUs...\n", num_cpus
+        "Distilling relativistic corrections/correction factors "
+        + "with %i CPUs...\n", num_cpus
     )
-    correction_chain = list(
+
+    correction_chain = np.asarray(list(
         tqdm(
-            mapping(compute_correction_from_biases, bias_chain),
+            mapping(compute_corrections_from_biases, bias_chain),
             total=len(bias_chain), mininterval=1, file=sys.stdout
         )
+    ))
+
+    factor_chain = list(
+        tqdm(
+            mapping(compute_factors_from_corrections, correction_chain),
+            total=len(correction_chain), mininterval=1, file=sys.stdout
+        )
     )
+
     logger.info("... finished.\n")
 
-    correction_chain = np.asarray(correction_chain)
-
-    return correction_chain
+    return correction_chain, factor_chain
 
 
 def save_distilled():
-    """Save the distilled relativistic correction chain.
+    """Save the distilled relativistic correction and correction factor
+    chains.
 
     Returns
     -------
@@ -152,85 +174,35 @@ def save_distilled():
     """
     infile = PATHOUT/progrc.chain_subdir/progrc.chain_file
 
-    redshift_tag = "z{}".format(progrc.redshift)
-    redshift_tag = redshift_tag if "." not in redshift_tag \
-        else redshift_tag.rstrip("0")
+    chain_suffix = progrc.chain_file.replace("relbias_", "")
 
-    if progrc.contribution == 'all':
-        prefix = "relcrct_"
-    elif progrc.contribution == 'evolution':
-        prefix = "relcrct_evol_"
-    elif progrc.contribution == 'magnification':
-        prefix = "relcrct_magn_"
+    redshift_tag = "z{:.2f}".format(progrc.redshift)
+
+    prefix_0, prefix_1 = "relcrct_", "relfact_"
     if redshift_tag not in progrc.chain_file:
-        prefix += redshift_tag + "_"
+        prefix_0 += redshift_tag + "_"
+        prefix_1 += redshift_tag + "_k{}_".format(progrc.wavenumber)
 
-    outfile = PATHOUT/progrc.chain_subdir/(
-        prefix + progrc.chain_file
-    ).replace("relbias_", "")
+    outfile_0 = PATHOUT/progrc.chain_subdir/(prefix_0 + chain_suffix)
+    outfile_1 = PATHOUT/progrc.chain_subdir/(prefix_1 + chain_suffix)
 
-    with hp.File(infile, 'r') as indata, hp.File(outfile, 'w') as outdata:
+    with hp.File(infile, 'r') as indata, hp.File(outfile_0, 'w') as outdata:
         outdata.create_group('distill')
         try:
             indata.copy('extract/log_prob', outdata['distill'])
         except KeyError:
             pass
-        outdata.create_dataset('distill/chain', data=distilled_chain)
+        outdata.create_dataset('distill/chain', data=distilled_chains[0])
 
-    logger.info("Distilled chain saved to %s.\n", outfile)
+    with hp.File(infile, 'r') as indata, hp.File(outfile_1, 'w') as outdata:
+        outdata.create_group('distill')
+        try:
+            indata.copy('extract/log_prob', outdata['distill'])
+        except KeyError:
+            pass
+        outdata.create_dataset('distill/chain', data=distilled_chains[1])
 
-    return outfile
-
-
-def view_distilled(chain):
-    """View the extracted chain of relativistic biases.
-
-    Parameters
-    ----------
-    chain : :class:`numpy.ndarray`
-        Chain.
-
-    Returns
-    -------
-    distribution_fig : :class:`matplotlib.figure.Figure`
-        Distribution figure.
-
-    """
-    _labels = [lab.format(progrc.redshift) for lab in LABELS]
-
-    LEVELS = [0.6826895, 0.9544997]
-    QUANTILES = [0.1587, 0.5, 0.8413]
-    COLOUR = '#A3C1AD'
-    CORNER_OPTIONS = dict(
-        color=COLOUR,
-        quantiles=QUANTILES,
-        levels=LEVELS,
-        labels=_labels,
-        label_kwargs={'visible': False},
-        title_fmt='.5f',
-        plot_datapoints=False,
-        plot_contours=True,
-        fill_contours=True,
-        quiet=True,
-        range=(0.999,)*len(_labels),
-        rasterized=True,
-        show_titles=True,
-    )
-
-    plt.close('all')
-
-    distribution_fig = corner.corner(
-        chain, bins=160, smooth=.75, smooth1d=.95, **CORNER_OPTIONS
-    )
-
-    fig_file = str(output_path).replace('.h5', '.pdf')
-    if SAVEFIG:
-        distribution_fig.savefig(fig_file)
-    logger.info(
-        "Saved distribution plot of relativistic correction samples.\n"
-    )
-
-    return distribution_fig
+    logger.info("Distilled chains saved to %s and %s.\n", outfile_0, outfile_1)
 
 
 SAVE = True
@@ -239,11 +211,11 @@ if __name__ == '__main__':
 
     progrc = initialise()
 
+    b_1 = 1.2 / Planck15.scale_independent_growth_factor(progrc.redshift)
+
     input_chain = load_samples()
 
     with Pool() as mpool:
-        distilled_chain = distill_corrections(input_chain, pool=mpool)
+        distilled_chains = distill_corrections(input_chain, pool=mpool)
 
-    output_path = save_distilled()
-
-    figures = view_distilled(distilled_chain)
+    save_distilled()

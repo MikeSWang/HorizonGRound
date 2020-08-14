@@ -42,13 +42,12 @@ def test_non_gaussianity_correction_factor(ell, value):
 @pytest.mark.parametrize(
     "ell,value",
     [
-        (0, 6.1639e-4), (2, 1.23278e-3), (4, 0.)
+        (0, 0.09541831), (2, 0.18921276), (4, 0.)
     ]
 )
 def test_relativistic_correction_factor(ell, value):
 
     assert np.isclose(
-        relativistic_correction_factor(
-            WAVENUMBER, ell, REDSHIFT, geometric=True
-        ), value, rtol=1.e-3
+        relativistic_correction_factor(WAVENUMBER, ell, REDSHIFT, 0.), value,
+        rtol=1.e-3
     )

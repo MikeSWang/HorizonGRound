@@ -112,9 +112,9 @@ are parametrised by the redshift-dependent, dimensionless quantities
     \end{align*}
 
 with evolution bias :math:`b_\mathrm{e}(z)` and magnification bias
-:math:`s(z)`, where :math:`\chi(z)` is the comoving distance and
-:math:`'` denotes derivatives with respect to the conformal time, and
-the matter density parameters evolves as
+:math:`s(z)`, where :math:`\mathcal{H}` is the conformal Hubble parameter,
+:math:`\chi(z)` is the comoving distance, and the matter density
+parameter evolves as
 
 .. math::
 
@@ -127,10 +127,14 @@ corrections are
 .. math::
 
     \begin{align*}
-        \Delta P_0(k, z) &= \frac{1}{3} \frac{\mathcal{H}^2}{k^2}
-            g(z)^2 f(z)^2 P_\mathrm{m}(k,z) \,,\\
-        \Delta P_2(k, z) &= \frac{2}{3} \frac{\mathcal{H}^2}{k^2}
-            g(z)^2 f(z)^2 P_\mathrm{m}(k,z) \,,
+        \Delta P_0(k, z) &= \left[
+            \left(
+                2 b_1 g_2 + \frac{2}{3} f g_2 + \frac{1}{3} f^2 g_1^2
+            \right) \frac{\mathcal{H}^2}{k^2}
+            + g_2^2 \frac{\mathcal{H}^4}{k^4}
+        \right] P_\mathrm{m}(k,z) \,,\\
+        \Delta P_2(k, z) &= \frac{2}{3} \left( 2 f g_2 + f^2 g_1^2 \right)
+            \frac{\mathcal{H}^2}{k^2} P_\mathrm{m}(k,z) \,.
     \end{align*}
 
 .. autosummary::
@@ -143,15 +147,14 @@ corrections are
 
 """
 # pylint: disable=no-name-in-module
-import numpy as np
 from astropy.constants import c
-from nbodykit.lab import cosmology as nbk_cosmology
+from nbodykit.lab import cosmology as nbodykit_cosmology
 
 _SPEED_OF_LIGHT_IN_KM_PER_S = c.to('km/s').value
 _SPHERICAL_COLLAPSE_CRITICAL_OVERDENSITY = 1.686
 _GROWTH_FACTOR_NORMALISATION = 1.27
 
-FIDUCIAL_COSMOLOGY = nbk_cosmology.Planck15
+FIDUCIAL_COSMOLOGY = nbodykit_cosmology.Planck15
 r""":class:`nbodykit.cosmology.Cosmology`: Default Planck15 cosmology.
 
 """
@@ -165,8 +168,8 @@ def standard_kaiser_factor(order, bias, redshift, cosmo=FIDUCIAL_COSMOLOGY):
     ----------
     order : int
         Order of the multipole, ``order >= 0``.
-    bias : float
-        Scale-independent linear bias at `redshift`.
+    bias : callable or float
+        Scale-independent linear bias (at `redshift`).
     redshift : float
         Redshift.
     cosmo : :class:`nbodykit.cosmology.Cosmology`, optional
@@ -175,11 +178,11 @@ def standard_kaiser_factor(order, bias, redshift, cosmo=FIDUCIAL_COSMOLOGY):
     Returns
     -------
     factor : float
-        Power spectrum multipoles as multiples of the matter power
+        Power spectrum multipole as a multiple of the matter power
         spectrum.
 
     """
-    b_1 = bias
+    b_1 = bias(redshift) if callable(bias) else bias
 
     f = cosmo.scale_independent_growth_rate(redshift)
 
@@ -217,7 +220,8 @@ def scale_dependence_kernel(redshift, cosmo=FIDUCIAL_COSMOLOGY):
         * cosmo.Om0 * _GROWTH_FACTOR_NORMALISATION \
         * (FIDUCIAL_COSMOLOGY.H0 / _SPEED_OF_LIGHT_IN_KM_PER_S)**2
 
-    transfer_function = nbk_cosmology.power.transfers.CLASS(cosmo, redshift)
+    transfer_function = \
+        nbodykit_cosmology.power.transfers.CLASS(cosmo, redshift)
 
     return lambda k: numerical_constants / transfer_function(k)
 
@@ -237,8 +241,8 @@ def non_gaussianity_correction_factor(wavenumber, order, local_png, bias,
         Order of the multipole, ``order >= 0``.
     local_png : float
         Local primordial non-Gaussianity.
-    bias : float
-        Scale-independent linear bias at `redshift`.
+    bias : callable or float
+        Scale-independent linear bias (at `redshift`).
     redshift : float
         Redshift.
     cosmo : :class:`nbodykit.cosmology.Cosmology`, optional
@@ -260,7 +264,7 @@ def non_gaussianity_correction_factor(wavenumber, order, local_png, bias,
 
     delta_b = f_nl * (b_1 - p) \
         * scale_dependence_kernel(redshift, cosmo=cosmo)(wavenumber) \
-        / wavenumber**2
+        / wavenumber ** 2
 
     if order == 0:
         factor = (2 * b_1 + 2./3. * f) * delta_b + delta_b ** 2
@@ -272,18 +276,17 @@ def non_gaussianity_correction_factor(wavenumber, order, local_png, bias,
     return factor
 
 
-def relativistic_correction_func(cosmo=FIDUCIAL_COSMOLOGY, geometric=True,
+def relativistic_correction_func(corr_order, cosmo=FIDUCIAL_COSMOLOGY,
                                  evolution_bias=None, magnification_bias=None):
-    r"""Return the relativistic correction function as
-    :math:`\mathcal{H} g(z)`.
+    r"""Return the relativistic correction function
+    :math:`g_1(z)` or :math:`g_2(z)`.
 
     Parameters
     ----------
+    corr_order : {1, 2}, int
+        Order of the correction parameter :math:`:\mathcal{H}/k`.
     cosmo : :class:`nbodykit.cosmology.Cosmology`, optional
         Cosmological model (default is ``FIDUCIAL_COSMOLOGY``).
-    geometric : bool, optional
-        If `True` (default), include geometric contributions from the
-        background expansion.
     evolution_bias, magnification_bias : callable or None, optional
         Evolution bias or magnification bias as a function of redshift
         (default is `None`).
@@ -297,50 +300,45 @@ def relativistic_correction_func(cosmo=FIDUCIAL_COSMOLOGY, geometric=True,
     """
     astropy_cosmo = cosmo.to_astropy()
 
-    aH = lambda z: astropy_cosmo.scale_factor(z) \
-        * astropy_cosmo.H(z).value / _SPEED_OF_LIGHT_IN_KM_PER_S
-    chi = lambda z: astropy_cosmo.comoving_distance(z).value
+    b_e = evolution_bias or (lambda z: 0.)
+    s = magnification_bias or (lambda z: 0.)
+    omega_m = lambda z: astropy_cosmo.Om0 \
+        * (astropy_cosmo.H0 / astropy_cosmo.H(z)) ** 2 * (1 + z) ** 3
+    aH_chi = lambda z: astropy_cosmo.scale_factor(z) \
+        * (astropy_cosmo.H(z).value / _SPEED_OF_LIGHT_IN_KM_PER_S) \
+        * astropy_cosmo.comoving_distance(z).value
+    f = cosmo.scale_independent_growth_rate
 
-    if geometric:
-        geometric_term = lambda z: \
-            1 - 3./2. * astropy_cosmo.Om0 \
-            * (astropy_cosmo.H0 / astropy_cosmo.H(z)) ** 2 \
-            * (1 + z) ** 3
-    else:
-        geometric_term = lambda z: 0.
+    def g1_of_z(z):
+        return 3 - b_e(z) - 3./2. * omega_m(z) \
+            - (2 - 5 * s(z)) * (1 - 1 / aH_chi(z))
 
-    if evolution_bias is None:
-        evolution_term = lambda z: 0.
-    else:
-        evolution_term = lambda z: 2 / (aH(z) * chi(z)) - evolution_bias(z)
+    def g2_of_z(z):
+        return (3 - b_e(z) - 3./2. * omega_m(z)) * f(z) \
+            - 3./2. * omega_m(z) * (g1_of_z(z) - (2 - 5 * s(z)))
 
-    if magnification_bias is None:
-        lensing_term = lambda z: 0.
-    else:
-        lensing_term = lambda z: \
-            5 * magnification_bias(z) * (1 - 1 / (aH(z) * chi(z)))
-
-    return np.vectorize(
-        lambda z: aH(z) / astropy_cosmo.h
-        * (geometric_term(z) + evolution_term(z) + lensing_term(z))
-    )
+    if corr_order == 1:
+        return g1_of_z
+    if corr_order == 2:
+        return g2_of_z
+    raise ValueError("Accepted correction order is 1 or 2.")
 
 
-def relativistic_correction_value(redshift, cosmo=FIDUCIAL_COSMOLOGY,
-                                  geometric=True, evolution_bias=None,
+def relativistic_correction_value(redshift, corr_order,
+                                  cosmo=FIDUCIAL_COSMOLOGY,
+                                  evolution_bias=None,
                                   magnification_bias=None):
-    r"""Evaluate the relativistic correction function
-    :math:`\mathcal{H} g(z)` at a given redshift.
+    r"""Evaluate the redshift-dependent relativistic correction value
+    :math:`g_1(z)` or :math:`g_2(z)`.
 
     Parameters
     ----------
     redshift : float
         Redshift.
+    corr_order : {1, 2}, int
+        Correction order of the parameter :math:`:\mathcal{H}/k`.
     cosmo : :class:`nbodykit.cosmology.Cosmology`, optional
         Base cosmological model (default is ``FIDUCIAL_COSMOLOGY``).
-    geometric : bool, optional
-        If `True` (default), include geometric contributions from the
-        background expansion.
     evolution_bias, magnification_bias : float or None, optional
         Evolution bias or magnification bias evaluated at input `redshift`
         (default is `None`).
@@ -354,27 +352,30 @@ def relativistic_correction_value(redshift, cosmo=FIDUCIAL_COSMOLOGY,
     """
     astropy_cosmo = cosmo.to_astropy()
 
-    aH = astropy_cosmo.scale_factor(redshift) \
-        * astropy_cosmo.H(redshift).value / _SPEED_OF_LIGHT_IN_KM_PER_S
-    chi = astropy_cosmo.comoving_distance(redshift).value
+    b_e = evolution_bias or 0.
+    s = magnification_bias or 0.
+    omega_m = astropy_cosmo.Om0 \
+        * (astropy_cosmo.H0 / astropy_cosmo.H(redshift)) ** 2 \
+        * (1 + redshift) ** 3
+    aH_chi = astropy_cosmo.scale_factor(redshift) \
+        * (astropy_cosmo.H(redshift).value / _SPEED_OF_LIGHT_IN_KM_PER_S) \
+        * astropy_cosmo.comoving_distance(redshift).value
+    f = cosmo.scale_independent_growth_rate(redshift)
 
-    correction_value = 0.
-    if geometric:
-        correction_value += 1 - 3./2. * astropy_cosmo.Om0 \
-            * (astropy_cosmo.H0 / astropy_cosmo.H(redshift)) ** 2 \
-            * (1 + redshift) ** 3
-    if evolution_bias:
-        correction_value += 2 / (aH * chi) - evolution_bias
-    if magnification_bias:
-        correction_value += 5 * magnification_bias * (1 - 1 / (aH * chi))
+    g_1 = 3 - b_e - 3./2. * omega_m - (2 - 5 * s) * (1 - 1 / aH_chi)
 
-    return aH / astropy_cosmo.h  * correction_value
+    if corr_order == 1:
+        return g_1
+    if corr_order == 2:
+        return (3 - b_e - 3./2. * omega_m) * f \
+            - 3./2. * omega_m * (g_1 - (2 - 5 * s))
+    raise ValueError("Accepted correction order is 1 or 2.")
 
 
-def relativistic_correction_factor(wavenumber, order, redshift,
-                                   correction_value=None,
+def relativistic_correction_factor(wavenumber, order, redshift, bias,
+                                   correction_value_1=None,
+                                   correction_value_2=None,
                                    cosmo=FIDUCIAL_COSMOLOGY,
-                                   geometric=True,
                                    evolution_bias=None,
                                    magnification_bias=None):
     r"""Compute modifications to the power spectrum multipoles by
@@ -389,16 +390,14 @@ def relativistic_correction_factor(wavenumber, order, redshift,
         Order of the multipole, ``order >= 0``.
     redshift : float
         Redshift.
-    correction_value : float or None, optional
+    bias : callable or float
+        Scale-independent linear bias (at `redshift`).
+    correction_value_1, correction_value_2 : float or None, optional
         If not `None` (default), this is directly used as
-        :math:`\mathcal{H} g(z)` at `redshift` in calculations, and
-        `cosmo`, `geometric`, `evolution_bias` and `magnification_bias`
-        are ignored.
+        :math:`g_1(z)` or :math:`g_2(z)` at `redshift` in calculations,
+        and `evolution_bias`, `magnification_bias` are ignored.
     cosmo : :class:`nbodykit.cosmology.Cosmology`, optional
         Cosmological model (default is ``FIDUCIAL_COSMOLOGY``).
-    geometric : bool, optional
-        If `True` (default), include geometric contributions from the
-        background expansion.
     evolution_bias : float or callable or None, optional
         Evolution bias as a function of redshift, or evaluated at input
         `redshift` (default is `None`).  If callable/float,
@@ -411,46 +410,35 @@ def relativistic_correction_factor(wavenumber, order, redshift,
     Returns
     -------
     factor : float :class:`numpy.ndarray`
-        Power spectrum multipoles as multiples of the matter power
-        spectrum.
+        Power spectrum multipole modifications as multiples of the matter
+        power spectrum.
 
     """
-    if correction_value is None:
-        if callable(evolution_bias) and callable(magnification_bias):
-            correction_function = relativistic_correction_func(
-                cosmo=cosmo,
-                geometric=geometric,
-                evolution_bias=evolution_bias,
-                magnification_bias=magnification_bias
-            )
-            correction_value = correction_function(redshift)
-        elif isinstance(evolution_bias, float) \
-            and isinstance(magnification_bias, float):
-            correction_value = relativistic_correction_value(
-                redshift,
-                cosmo=cosmo,
-                geometric=geometric,
-                evolution_bias=evolution_bias,
-                magnification_bias=magnification_bias
-            )
-        elif evolution_bias is None and magnification_bias is None:
-            correction_value = relativistic_correction_value(
-                redshift, cosmo=cosmo, geometric=geometric
-            )
-        else:
-            raise TypeError(
-                "`evolution_bias` and `magnification_bias` must be "
-                "both callable or float or None."
-            )
+    astropy_cosmo = cosmo.to_astropy()
 
-    modification = correction_value ** 2 \
-        * cosmo.scale_independent_growth_rate(redshift) ** 2 \
-        / wavenumber ** 2
+    aH_over_k = astropy_cosmo.scale_factor(redshift) \
+        * (astropy_cosmo.H(redshift).value / _SPEED_OF_LIGHT_IN_KM_PER_S) \
+        / wavenumber
+
+    b_1 = bias(redshift) if callable(bias) else bias
+    f = cosmo.scale_independent_growth_rate(redshift)
+
+    g_1 = correction_value_1 or relativistic_correction_func(
+        1, cosmo=cosmo,
+        evolution_bias=evolution_bias,
+        magnification_bias=magnification_bias
+    )(redshift)
+    g_2 = correction_value_2 or relativistic_correction_func(
+        2, cosmo=cosmo,
+        evolution_bias=evolution_bias,
+        magnification_bias=magnification_bias
+    )(redshift)
 
     if order == 0:
-        factor = 1./3. * modification
+        factor = (2 * b_1 * g_2 + 2./3. * f * g_2 + 1./3. * f**2 * g_1 ** 2) \
+            * aH_over_k ** 2 + g_2**2 * aH_over_k ** 4
     elif order == 2:
-        factor = 2./3. * modification
+        factor = 2./3. * (2 * f * g_2 + f**2 * g_1 ** 2) * aH_over_k ** 2
     else:
         factor = 0.
 
