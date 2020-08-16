@@ -14,7 +14,7 @@ figure.subplot.hspace : 0
 figure.titlesize : large
 
 font.family : serif
-font.size : 11
+font.size : 10
 
 image.aspect : auto
 image.cmap : inferno

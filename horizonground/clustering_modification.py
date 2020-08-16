@@ -148,13 +148,13 @@ corrections are
 """
 # pylint: disable=no-name-in-module
 from astropy.constants import c
-from nbodykit.lab import cosmology as nbodykit_cosmology
+from nbodykit.cosmology import Planck15, power
 
 _SPEED_OF_LIGHT_IN_KM_PER_S = c.to('km/s').value
 _SPHERICAL_COLLAPSE_CRITICAL_OVERDENSITY = 1.686
 _GROWTH_FACTOR_NORMALISATION = 1.27
 
-FIDUCIAL_COSMOLOGY = nbodykit_cosmology.Planck15
+FIDUCIAL_COSMOLOGY = Planck15
 r""":class:`nbodykit.cosmology.Cosmology`: Default Planck15 cosmology.
 
 """
@@ -220,8 +220,7 @@ def scale_dependence_kernel(redshift, cosmo=FIDUCIAL_COSMOLOGY):
         * cosmo.Om0 * _GROWTH_FACTOR_NORMALISATION \
         * (FIDUCIAL_COSMOLOGY.H0 / _SPEED_OF_LIGHT_IN_KM_PER_S)**2
 
-    transfer_function = \
-        nbodykit_cosmology.power.transfers.CLASS(cosmo, redshift)
+    transfer_function = power.transfers.CLASS(cosmo, redshift)
 
     return lambda k: numerical_constants / transfer_function(k)
 
@@ -436,7 +435,7 @@ def relativistic_correction_factor(wavenumber, order, redshift, bias,
 
     if order == 0:
         factor = (2 * b_1 * g_2 + 2./3. * f * g_2 + 1./3. * f**2 * g_1 ** 2) \
-            * aH_over_k ** 2 + g_2**2 * aH_over_k ** 4
+            * aH_over_k ** 2 + g_2 ** 2 * aH_over_k ** 4
     elif order == 2:
         factor = 2./3. * (2 * f * g_2 + f**2 * g_1 ** 2) * aH_over_k ** 2
     else:
