@@ -68,12 +68,12 @@ non-Gaussianty are
 .. math::
 
     \begin{align*}
-        \Delta P_0(k, z) &= \left[
-            \left( 2 b_1 + \frac{2}{3} f \right) \Delta b(k, z)
-            + \Delta b(k, z)^2
-        \right] P_\mathrm{m}(k, z) \,, \\
-        \Delta P_2(k, z) &=
-            \frac{4}{3} f \Delta b(k, z) P_\mathrm{m}(k, z) \,.
+        \Delta P_0 &= \left[
+            \left( 2 b_1 + \frac{2}{3} f \right) \Delta b
+            + {\Delta b}^2
+        \right] P_\mathrm{m} \,, \\
+        \Delta P_2 &=
+            \frac{4}{3} f \Delta b P_\mathrm{m} \,.
     \end{align*}
 
 .. autosummary::
@@ -90,8 +90,8 @@ Relativistic corrections to the Newtonian clustering mode
 .. math::
 
     \delta(\mathbf{k}, z) = \left[
-        b_1(z) + f \mu^2
-        + \mathrm{i} \frac{\mathcal{H}}{k} g_1(z) f(z) \mu
+        b_1 + f \mu^2
+        + \mathrm{i} \frac{\mathcal{H}}{k} g_1(z) f \mu
         + \left( \frac{\mathcal{H}}{k} \right)^2 g_2(z)
     \right] \delta_\mathrm{m}(\mathbf{k}, z) \,,
 
@@ -101,26 +101,26 @@ are parametrised by the redshift-dependent, dimensionless quantities
 
     \begin{align*}
         g_1(z) &= \left(
-            3 - b_\mathrm{e} - \frac{3}{2} \Omega_\mathrm{m}
+            3 - b_\mathrm{e} - \frac{3}{2} \varOmega_\mathrm{m}
         \right) - (2 - 5s) \left(
             1 - \frac{1}{\mathcal{H} \chi}
         \right) \,, \\
-        g_1(z) &= \left(
-            3 - b_\mathrm{e} - \frac{3}{2} \Omega_\mathrm{m}
-        \right) f - \frac{3}{2} \Omega_\mathrm{m} \big[
+        g_2(z) &= \left(
+            3 - b_\mathrm{e} - \frac{3}{2} \varOmega_\mathrm{m}
+        \right) f - \frac{3}{2} \varOmega_\mathrm{m} \big[
             g_1(z) - (2 - 5s)
         \big]
     \end{align*}
 
 with evolution bias :math:`b_\mathrm{e}(z)` and magnification bias
-:math:`s(z)`, where :math:`\mathcal{H}` is the conformal Hubble parameter,
-:math:`\chi(z)` is the comoving distance, and the matter density
-parameter evolves as
+:math:`s(z)`, where :math:`\mathcal{H}(z)` is the conformal Hubble
+parameter, :math:`\chi(z)` is the comoving distance, and the matter
+density parameter evolves as
 
 .. math::
 
-    \Omega_\mathrm{m} = \frac{H_0^2}{H(z)^2}
-        \Omega_{\mathrm{m},0} (1 + z)^3 \,.
+    \varOmega_\mathrm{m}(z) = \frac{H_0^2}{H(z)^2}
+        \varOmega_{\mathrm{m},0} (1 + z)^3 \,.
 
 Modifications to power spectrum multipoles from the relativistic
 corrections are
@@ -128,14 +128,14 @@ corrections are
 .. math::
 
     \begin{align*}
-        \Delta P_0(k, z) &= \left[
+        \Delta P_0 &= \left[
             \left(
                 2 b_1 g_2 + \frac{2}{3} f g_2 + \frac{1}{3} f^2 g_1^2
             \right) \frac{\mathcal{H}^2}{k^2}
             + g_2^2 \frac{\mathcal{H}^4}{k^4}
-        \right] P_\mathrm{m}(k,z) \,,\\
-        \Delta P_2(k, z) &= \frac{2}{3} \left( 2 f g_2 + f^2 g_1^2 \right)
-            \frac{\mathcal{H}^2}{k^2} P_\mathrm{m}(k,z) \,.
+        \right] P_\mathrm{m} \,,\\
+        \Delta P_2 &= \frac{2}{3} \left( 2 f g_2 + f^2 g_1^2 \right)
+            \frac{\mathcal{H}^2}{k^2} P_\mathrm{m} \,.
     \end{align*}
 
 .. autosummary::

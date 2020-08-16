@@ -73,7 +73,7 @@ def compute_corrections_from_biases(biases):
 
     Returns
     -------
-    corrections : list of float
+    list of float
         Relativistic correction values.
 
     """
@@ -96,12 +96,12 @@ def compute_factors_from_corrections(corrections):
     Parameters
     ----------
     corrections : :class:`numpy.ndarray`
-        Evolution and magnification biases.
+        Relativistic corrections.
 
     Returns
     -------
-    corrections : list of float
-        Relativistic correction values.
+    list of float
+        Relativistic correction factor values.
 
     """
     delta_P_0 = relativistic_correction_factor(
