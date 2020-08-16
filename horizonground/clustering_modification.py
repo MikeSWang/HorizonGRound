@@ -49,17 +49,18 @@ where the scale-dependence kernel is
 
 .. math::
 
-    A(k, z) = 3 \left( \frac{H_0}{\mathrm{c}} \right)^2
+    A(k, z) = 3 \left( \frac{H_0}{c} \right)^2
         \frac{1.27 \varOmega_\mathrm{m,0} \delta_\mathrm{c}}{D(z)T(k)} \,.
 
-Here :math:`H_0` is the Hubble parameter at the current epoch
-(in km/s/Mpc), :math:`\mathrm{c}` the speed of light,
-:math:`\varOmega_\mathrm{m,0}` the matter density parameter at the current
-epoch, and :math:`\delta_\mathrm{c}` the critical over-density in
-spherical gravitational collapse.  The growth factor :math:`D(z)` is
-normalised to unity at the current epoch (thus the numerical factor 1.27),
-the transfer function :math:`T(k)` is normalised to unity as
-:math:`k \to 0`, and :math:`p` is a tracer-dependent parameter.
+Here :math:`H_0` is the Hubble parameter :math:`H(z)` (in
+km s\ :sup:`-1` Mpc\ :sup:`-1`) at the current epoch :math:`z = 0`,
+:math:`c` the speed of light, :math:`\varOmega_\mathrm{m,0}` the matter
+density parameter at the current epoch, and :math:`\delta_\mathrm{c}` the
+critical over-density in spherical gravitational collapse.  The growth
+factor :math:`D(z)` is normalised to unity at the current epoch (thus the
+numerical factor 1.27), the transfer function :math:`T(k)` is normalised
+to unity as :math:`k \to 0`, and :math:`p` is a tracer-dependent
+parameter.
 
 Modifications to power spectrum multipoles as a result of local primordial
 non-Gaussianty are
