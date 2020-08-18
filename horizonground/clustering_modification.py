@@ -336,7 +336,7 @@ def relativistic_correction_value(redshift, corr_order,
     redshift : float
         Redshift.
     corr_order : {1, 2}, int
-        Correction order of the parameter :math:`:\mathcal{H}/k`.
+        Correction order of the parameter :math:`\mathcal{H}/k`.
     cosmo : :class:`nbodykit.cosmology.Cosmology`, optional
         Base cosmological model (default is ``FIDUCIAL_COSMOLOGY``).
     evolution_bias, magnification_bias : float or None, optional
