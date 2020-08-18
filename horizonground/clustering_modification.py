@@ -284,7 +284,7 @@ def relativistic_correction_func(corr_order, cosmo=FIDUCIAL_COSMOLOGY,
     Parameters
     ----------
     corr_order : {1, 2}, int
-        Order of the correction parameter :math:`:\mathcal{H}/k`.
+        Order of the correction parameter :math:`\mathcal{H}/k`.
     cosmo : :class:`nbodykit.cosmology.Cosmology`, optional
         Cosmological model (default is ``FIDUCIAL_COSMOLOGY``).
     evolution_bias, magnification_bias : callable or None, optional
