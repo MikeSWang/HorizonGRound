@@ -120,7 +120,7 @@ def distill_factor_quantiles(correction_chain, pool=None):
     num_cpus = cpu_count() if pool else 1
 
     quantile_levels = [0.022750, 0.158655, 0.5, 0.841345, 0.977250]
-    factor_quantiles = {0: defaultdict(list), 2: defaultdict(list)}
+    factor_quantiles = {0: {}, 2: {}}
 
     logger.info(
         "Distilling relativistic correction factors at redshift %.2f "
@@ -144,8 +144,8 @@ def distill_factor_quantiles(correction_chain, pool=None):
     ])
 
     for q_idx, q in enumerate([-2, -1, 0, 1, 2]):
-        factor_quantiles[0][q].append(factor_0_q[:, q_idx])
-        factor_quantiles[2][q].append(factor_2_q[:, q_idx])
+        factor_quantiles[0][q] = factor_0_q[:, q_idx]
+        factor_quantiles[2][q] = factor_2_q[:, q_idx]
 
     logger.info("... finished.\n")
 
@@ -163,7 +163,7 @@ def save_distilled():
     """
     prefix = "relpole_"
     redshift_tag = "z{:.2f}".format(progrc.redshift)
-    chain_suffix = progrc.chain_file.replace("relbias_", "")
+    chain_suffix = progrc.chain_file.replace("relcrct_", "")
 
     if redshift_tag not in progrc.chain_file:
         prefix += redshift_tag + "_"
