@@ -1,9 +1,9 @@
 name: horizonground-docs
 
 channels:
-    - defaults
-    - astropy
     - bccp
+    - conda-forge
+    - defaults
 
 dependencies:
     - python=3.6
@@ -11,9 +11,9 @@ dependencies:
     - scipy
     - astropy
     - nbodykit
-    - IPython
-    - sphinx
     - pip
-    - pip:
-        - numpydoc
-        - nbsphinx
+    - sphinx
+    - IPython
+    - numpydoc
+    - nbsphinx
+    
